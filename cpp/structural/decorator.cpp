@@ -1,8 +1,12 @@
-// Decorator — attach additional responsibilities to an object dynamically
-// by wrapping it in objects that share its interface.
+// ☕ Café Patterna — Chapter 9: Toppings, Toppings, Toppings
 //
-// Use when you want to add behavior to individual objects at run time
-// without subclassing every combination (coffee + milk + sugar + ...).
+// STORY: Milk. Sugar. Whipped cream. Customers stack them in every
+// combination imaginable. You are NOT creating a MilkSugarWhipEspresso
+// class for each combo — instead every topping WRAPS the drink underneath
+// and adds its own description and price.
+//
+// PATTERN: Decorator — attach additional responsibilities to an object
+// dynamically by wrapping it in objects that share its interface.
 //
 // Build: g++ -std=c++17 decorator.cpp -o decorator
 
@@ -18,7 +22,7 @@ public:
     virtual double cost() const = 0;
 };
 
-// Concrete component: the object being decorated.
+// Concrete component: the drink being decorated.
 class Espresso : public Coffee {
 public:
     std::string description() const override { return "espresso"; }
@@ -26,9 +30,9 @@ public:
 };
 
 // Base decorator: wraps a Coffee and delegates by default.
-class CoffeeDecorator : public Coffee {
+class ToppingDecorator : public Coffee {
 public:
-    explicit CoffeeDecorator(std::unique_ptr<Coffee> inner) : inner_(std::move(inner)) {}
+    explicit ToppingDecorator(std::unique_ptr<Coffee> inner) : inner_(std::move(inner)) {}
 
     std::string description() const override { return inner_->description(); }
     double cost() const override { return inner_->cost(); }
@@ -37,24 +41,31 @@ private:
     std::unique_ptr<Coffee> inner_;
 };
 
-class Milk : public CoffeeDecorator {
+class Milk : public ToppingDecorator {
 public:
-    using CoffeeDecorator::CoffeeDecorator;
-    std::string description() const override { return CoffeeDecorator::description() + " + milk"; }
-    double cost() const override { return CoffeeDecorator::cost() + 0.5; }
+    using ToppingDecorator::ToppingDecorator;
+    std::string description() const override { return ToppingDecorator::description() + " + milk"; }
+    double cost() const override { return ToppingDecorator::cost() + 0.5; }
 };
 
-class Sugar : public CoffeeDecorator {
+class Sugar : public ToppingDecorator {
 public:
-    using CoffeeDecorator::CoffeeDecorator;
-    std::string description() const override { return CoffeeDecorator::description() + " + sugar"; }
-    double cost() const override { return CoffeeDecorator::cost() + 0.2; }
+    using ToppingDecorator::ToppingDecorator;
+    std::string description() const override { return ToppingDecorator::description() + " + sugar"; }
+    double cost() const override { return ToppingDecorator::cost() + 0.2; }
+};
+
+class WhippedCream : public ToppingDecorator {
+public:
+    using ToppingDecorator::ToppingDecorator;
+    std::string description() const override { return ToppingDecorator::description() + " + whipped cream"; }
+    double cost() const override { return ToppingDecorator::cost() + 0.7; }
 };
 
 int main() {
-    // Stack decorators in any combination at run time.
-    std::unique_ptr<Coffee> order =
-        std::make_unique<Sugar>(std::make_unique<Milk>(std::make_unique<Espresso>()));
+    // Stack toppings in any combination at run time.
+    std::unique_ptr<Coffee> order = std::make_unique<WhippedCream>(
+        std::make_unique<Sugar>(std::make_unique<Milk>(std::make_unique<Espresso>())));
 
     std::cout << order->description() << " costs $" << order->cost() << "\n";
 

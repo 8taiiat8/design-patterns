@@ -1,9 +1,13 @@
-// Mediator — define an object that encapsulates how a set of objects
-// interact, so they don't reference each other directly.
+// ☕ Café Patterna — Chapter 17: The Counter Intercom
 //
-// Use when many objects communicate in complex ways (chat rooms, UI forms,
-// air traffic control); the mediator turns many-to-many links into
-// one-to-many.
+// STORY: With cashier, barista and baker all working at once, the shop
+// turned into a shouting match — everyone yelling at everyone. So you
+// installed an intercom: staff speak INTO the intercom, and it relays the
+// message to everyone else. Nobody needs to know who else is on shift.
+//
+// PATTERN: Mediator — define an object that encapsulates how a set of
+// objects interact, so they don't reference each other directly; turns
+// many-to-many links into one-to-many.
 //
 // Build: g++ -std=c++17 mediator.cpp -o mediator
 
@@ -11,61 +15,62 @@
 #include <string>
 #include <vector>
 
-class User;
+class StaffMember;
 
 // Mediator interface
-class ChatRoom {
+class Intercom {
 public:
-    virtual ~ChatRoom() = default;
-    virtual void broadcast(const std::string& from, const std::string& message) = 0;
-    virtual void join(User* user) = 0;
+    virtual ~Intercom() = default;
+    virtual void relay(const std::string& from, const std::string& message) = 0;
+    virtual void signIn(StaffMember* member) = 0;
 };
 
-// Colleague: only knows the mediator, not the other users.
-class User {
+// Colleague: only knows the intercom, not the other staff.
+class StaffMember {
 public:
-    User(std::string name, ChatRoom& room) : name_(std::move(name)), room_(room) {
-        room_.join(this);
+    StaffMember(std::string name, Intercom& intercom)
+        : name_(std::move(name)), intercom_(intercom) {
+        intercom_.signIn(this);
     }
 
     const std::string& name() const { return name_; }
 
-    void send(const std::string& message) {
-        std::cout << name_ << " sends: " << message << "\n";
-        room_.broadcast(name_, message);
+    void announce(const std::string& message) {
+        std::cout << name_ << " announces: " << message << "\n";
+        intercom_.relay(name_, message);
     }
 
-    void receive(const std::string& from, const std::string& message) {
-        std::cout << "  " << name_ << " receives from " << from << ": " << message << "\n";
+    void hear(const std::string& from, const std::string& message) {
+        std::cout << "  " << name_ << " hears " << from << ": " << message << "\n";
     }
 
 private:
     std::string name_;
-    ChatRoom& room_;
+    Intercom& intercom_;
 };
 
-// Concrete mediator: routes messages between registered users.
-class SimpleChatRoom : public ChatRoom {
+// Concrete mediator: relays announcements to everyone else on shift.
+class CounterIntercom : public Intercom {
 public:
-    void join(User* user) override { users_.push_back(user); }
+    void signIn(StaffMember* member) override { staff_.push_back(member); }
 
-    void broadcast(const std::string& from, const std::string& message) override {
-        for (User* user : users_) {
-            if (user->name() != from) user->receive(from, message);
+    void relay(const std::string& from, const std::string& message) override {
+        for (StaffMember* member : staff_) {
+            if (member->name() != from) member->hear(from, message);
         }
     }
 
 private:
-    std::vector<User*> users_;
+    std::vector<StaffMember*> staff_;
 };
 
 int main() {
-    SimpleChatRoom room;
-    User alice("Alice", room);
-    User bob("Bob", room);
-    User carol("Carol", room);
+    CounterIntercom intercom;
+    StaffMember cleo("Cleo (cashier)", intercom);
+    StaffMember ben("Ben (barista)", intercom);
+    StaffMember mara("Mara (baker)", intercom);
 
-    alice.send("hi everyone!");
-    bob.send("hey Alice");
+    cleo.announce("two lattes and a croissant for table 4!");
+    ben.announce("milk steamer is free again");
     return 0;
 }

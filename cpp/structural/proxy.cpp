@@ -1,9 +1,13 @@
-// Proxy — provide a placeholder for another object to control access to it.
+// ☕ Café Patterna — Chapter 12: The Secret Recipe Book
 //
-// Common variants: virtual proxy (lazy, expensive-to-create objects),
-// protection proxy (access control), remote proxy, caching/logging proxy.
-// This example shows a virtual proxy that delays loading a large image
-// until it is actually displayed.
+// STORY: The original recipe book lives in the office safe. Fetching it is
+// slow and you'd rather not do it at all on quiet days. So the counter
+// keeps a stand-in: it looks exactly like the recipe book, but only walks
+// to the safe the FIRST time someone actually asks for a recipe.
+//
+// PATTERN: Proxy — provide a placeholder for another object to control
+// access to it. Variants: virtual proxy (lazy loading, shown here),
+// protection proxy, remote proxy, caching/logging proxy.
 //
 // Build: g++ -std=c++17 proxy.cpp -o proxy
 
@@ -11,47 +15,43 @@
 #include <memory>
 #include <string>
 
-class Image {
+class RecipeBook {
 public:
-    virtual ~Image() = default;
-    virtual void display() = 0;
+    virtual ~RecipeBook() = default;
+    virtual void lookUp(const std::string& drink) = 0;
 };
 
-// Real subject: expensive to construct (pretend it loads from disk).
-class RealImage : public Image {
+// Real subject: expensive to construct (a trip to the safe).
+class SecretRecipeBook : public RecipeBook {
 public:
-    explicit RealImage(std::string filename) : filename_(std::move(filename)) {
-        std::cout << "loading " << filename_ << " from disk (slow!)\n";
+    SecretRecipeBook() {
+        std::cout << "walking to the safe, unlocking the recipe book (slow!)\n";
     }
 
-    void display() override { std::cout << "displaying " << filename_ << "\n"; }
-
-private:
-    std::string filename_;
+    void lookUp(const std::string& drink) override {
+        std::cout << "reading the secret recipe for " << drink << "\n";
+    }
 };
 
-// Proxy: same interface, creates the real subject only on first use.
-class ImageProxy : public Image {
+// Proxy: same interface, fetches the real book only on first use.
+class RecipeBookProxy : public RecipeBook {
 public:
-    explicit ImageProxy(std::string filename) : filename_(std::move(filename)) {}
-
-    void display() override {
+    void lookUp(const std::string& drink) override {
         if (!real_) {
-            real_ = std::make_unique<RealImage>(filename_);  // lazy load
+            real_ = std::make_unique<SecretRecipeBook>();  // lazy load
         }
-        real_->display();
+        real_->lookUp(drink);
     }
 
 private:
-    std::string filename_;
-    std::unique_ptr<RealImage> real_;
+    std::unique_ptr<SecretRecipeBook> real_;
 };
 
 int main() {
-    ImageProxy photo("vacation.png");
-    std::cout << "proxy created, nothing loaded yet\n";
+    RecipeBookProxy book;
+    std::cout << "proxy on the counter, safe still locked\n";
 
-    photo.display();  // triggers the expensive load
-    photo.display();  // reuses the already-loaded image
+    book.lookUp("midnight mocha");  // triggers the trip to the safe
+    book.lookUp("winter chai");     // reuses the already-fetched book
     return 0;
 }

@@ -1,72 +1,74 @@
-// Bridge — decouple an abstraction from its implementation so the two can
-// vary independently.
+// ☕ Café Patterna — Chapter 7: Any Drink, Any Machine
 //
-// Use when a class hierarchy would otherwise explode combinatorially
-// (e.g. Shape x RenderApi: VectorCircle, RasterCircle, VectorSquare, ...).
-// Instead, the abstraction (Shape) holds a reference to the
-// implementation (Renderer) and the two hierarchies grow separately.
+// STORY: You sell lattes and cappuccinos; you own a home machine and an
+// industrial one. Without care you'd need HomeLatte, IndustrialLatte,
+// HomeCappuccino, IndustrialCappuccino... a class for every combination.
+// Instead, each DRINK holds a reference to a MACHINE: new drinks and new
+// machines can now be added independently.
+//
+// PATTERN: Bridge — decouple an abstraction (Drink) from its
+// implementation (BrewMachine) so the two hierarchies vary independently.
 //
 // Build: g++ -std=c++17 bridge.cpp -o bridge
 
 #include <iostream>
-#include <memory>
 
 // Implementation hierarchy
-class Renderer {
+class BrewMachine {
 public:
-    virtual ~Renderer() = default;
-    virtual void renderCircle(double radius) const = 0;
+    virtual ~BrewMachine() = default;
+    virtual void brewShots(int shots) const = 0;
 };
 
-class VectorRenderer : public Renderer {
+class HomeMachine : public BrewMachine {
 public:
-    void renderCircle(double radius) const override {
-        std::cout << "drawing a circle of radius " << radius << " with vectors\n";
+    void brewShots(int shots) const override {
+        std::cout << "home machine gently brews " << shots << " shot(s)\n";
     }
 };
 
-class RasterRenderer : public Renderer {
+class IndustrialMachine : public BrewMachine {
 public:
-    void renderCircle(double radius) const override {
-        std::cout << "drawing pixels for a circle of radius " << radius << "\n";
+    void brewShots(int shots) const override {
+        std::cout << "industrial machine blasts out " << shots << " shot(s)\n";
     }
 };
 
 // Abstraction hierarchy: holds the "bridge" to the implementation.
-class Shape {
+class Drink {
 public:
-    explicit Shape(const Renderer& renderer) : renderer_(renderer) {}
-    virtual ~Shape() = default;
-    virtual void draw() const = 0;
+    explicit Drink(const BrewMachine& machine) : machine_(machine) {}
+    virtual ~Drink() = default;
+    virtual void prepare() const = 0;
 
 protected:
-    const Renderer& renderer_;
+    const BrewMachine& machine_;
 };
 
-class Circle : public Shape {
+class Latte : public Drink {
 public:
-    Circle(const Renderer& renderer, double radius)
-        : Shape(renderer), radius_(radius) {}
+    Latte(const BrewMachine& machine, int shots)
+        : Drink(machine), shots_(shots) {}
 
-    void draw() const override { renderer_.renderCircle(radius_); }
+    void prepare() const override { machine_.brewShots(shots_); }
 
-    void resize(double factor) { radius_ *= factor; }
+    void makeItStronger() { ++shots_; }
 
 private:
-    double radius_;
+    int shots_;
 };
 
 int main() {
-    VectorRenderer vec;
-    RasterRenderer raster;
+    HomeMachine home;
+    IndustrialMachine industrial;
 
-    // Any shape can be combined with any renderer at run time.
-    Circle a(vec, 5.0);
-    Circle b(raster, 5.0);
-    a.draw();
-    b.draw();
+    // Any drink can be paired with any machine at run time.
+    Latte cozy(home, 1);
+    Latte rush(industrial, 1);
+    cozy.prepare();
+    rush.prepare();
 
-    a.resize(2.0);
-    a.draw();
+    cozy.makeItStronger();
+    cozy.prepare();
     return 0;
 }

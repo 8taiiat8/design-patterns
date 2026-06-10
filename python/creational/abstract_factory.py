@@ -1,9 +1,12 @@
-"""Abstract Factory — provide an interface for creating families of related
-objects without specifying their concrete classes.
+"""Café Patterna — Chapter 3: The Franchise Kits
 
-Use when your code must work with several families of related products
-(e.g. UI widgets per operating system) and products from one family must
-be used together.
+STORY: Café Patterna goes international! Each franchise orders a "kit":
+the Italian kit ships a lever espresso machine WITH porcelain cups, the
+Japanese kit ships a siphon brewer WITH ceramic cups. Machines and cups
+from one kit always match — you never mix a siphon with porcelain.
+
+PATTERN: Abstract Factory — provide an interface for creating families of
+related objects without specifying their concrete classes.
 
 Run: python3 abstract_factory.py
 """
@@ -12,74 +15,74 @@ from abc import ABC, abstractmethod
 
 
 # Abstract products
-class Button(ABC):
+class CoffeeMachine(ABC):
     @abstractmethod
-    def render(self) -> None: ...
+    def brew(self) -> None: ...
 
 
-class Checkbox(ABC):
+class Cup(ABC):
     @abstractmethod
-    def render(self) -> None: ...
+    def fill(self) -> None: ...
 
 
-# The "Windows" family
-class WindowsButton(Button):
-    def render(self) -> None:
-        print("render a Windows button")
+# The Italian family
+class LeverMachine(CoffeeMachine):
+    def brew(self) -> None:
+        print("lever machine pulls a shot")
 
 
-class WindowsCheckbox(Checkbox):
-    def render(self) -> None:
-        print("render a Windows checkbox")
+class PorcelainCup(Cup):
+    def fill(self) -> None:
+        print("filling a porcelain cup")
 
 
-# The "Mac" family
-class MacButton(Button):
-    def render(self) -> None:
-        print("render a Mac button")
+# The Japanese family
+class SiphonBrewer(CoffeeMachine):
+    def brew(self) -> None:
+        print("siphon brewer bubbles away")
 
 
-class MacCheckbox(Checkbox):
-    def render(self) -> None:
-        print("render a Mac checkbox")
+class CeramicCup(Cup):
+    def fill(self) -> None:
+        print("filling a ceramic cup")
 
 
 # Abstract factory: one creation method per product type
-class GuiFactory(ABC):
+class FranchiseKit(ABC):
     @abstractmethod
-    def create_button(self) -> Button: ...
+    def create_machine(self) -> CoffeeMachine: ...
 
     @abstractmethod
-    def create_checkbox(self) -> Checkbox: ...
+    def create_cup(self) -> Cup: ...
 
 
-class WindowsFactory(GuiFactory):
-    def create_button(self) -> Button:
-        return WindowsButton()
+class ItalianKit(FranchiseKit):
+    def create_machine(self) -> CoffeeMachine:
+        return LeverMachine()
 
-    def create_checkbox(self) -> Checkbox:
-        return WindowsCheckbox()
-
-
-class MacFactory(GuiFactory):
-    def create_button(self) -> Button:
-        return MacButton()
-
-    def create_checkbox(self) -> Checkbox:
-        return MacCheckbox()
+    def create_cup(self) -> Cup:
+        return PorcelainCup()
 
 
-def render_dialog(factory: GuiFactory) -> None:
-    """Client code depends only on the abstract interfaces."""
-    factory.create_button().render()
-    factory.create_checkbox().render()
+class JapaneseKit(FranchiseKit):
+    def create_machine(self) -> CoffeeMachine:
+        return SiphonBrewer()
+
+    def create_cup(self) -> Cup:
+        return CeramicCup()
+
+
+def open_franchise(kit: FranchiseKit) -> None:
+    """The franchise owner depends only on the abstract kit interface."""
+    kit.create_machine().brew()
+    kit.create_cup().fill()
 
 
 def main():
-    print("-- Windows family --")
-    render_dialog(WindowsFactory())
-    print("-- Mac family --")
-    render_dialog(MacFactory())
+    print("-- Rome branch --")
+    open_franchise(ItalianKit())
+    print("-- Kyoto branch --")
+    open_franchise(JapaneseKit())
 
 
 if __name__ == "__main__":

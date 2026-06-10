@@ -1,16 +1,21 @@
-"""Iterator — provide a way to traverse a collection without exposing its
-internal representation.
+"""Café Patterna — Chapter 16: The Vinyl Crate
 
-Python bakes this pattern into the language: the iterator protocol is
-__iter__/__next__, `for` loops use it implicitly, and generators create
-iterators with almost no code. All three styles are shown below.
+STORY: The café's atmosphere lives and dies by its playlist. The records
+sit in a crate behind the counter — customers can flip through the
+playlist song by song, but NOBODY touches the crate itself or needs to
+know how the records are stored.
+
+PATTERN: Iterator — provide a way to traverse a collection without
+exposing its internal representation. Python bakes this in: the iterator
+protocol is __iter__/__next__, `for` loops use it implicitly, and
+generators create iterators with almost no code.
 
 Run: python3 iterator.py
 """
 
 
 class Playlist:
-    """A collection whose storage layout stays private."""
+    """The café playlist; the storage (vinyl crate) stays private."""
 
     def __init__(self):
         self._songs: list[str] = []
@@ -51,19 +56,17 @@ class PlaylistIterator:
 
 
 def main():
-    playlist = (
-        Playlist().add("Bohemian Rhapsody").add("Hotel California").add("Stairway to Heaven")
-    )
+    morning_set = Playlist().add("Blue in Green").add("Take Five").add("Misty")
 
     # `for` calls __iter__/__next__ under the hood.
-    for song in playlist:
-        print("playing:", song)
+    for song in morning_set:
+        print("now playing:", song)
 
     # Manual protocol usage — what `for` does internally.
-    it = iter(playlist)
+    it = iter(morning_set)
     print("first via next():", next(it))
 
-    print("shuffled:", list(playlist.shuffled()))
+    print("evening shuffle:", list(morning_set.shuffled()))
 
 
 if __name__ == "__main__":

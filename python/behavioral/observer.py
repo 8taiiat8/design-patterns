@@ -1,7 +1,13 @@
-"""Observer — define a one-to-many dependency so that when one object (the
-subject) changes state, all its dependents (observers) are notified.
+"""Café Patterna — Chapter 19: "Order 42 Is Ready!"
 
-Use for event systems, model-view updates, pub/sub within a process.
+STORY: Customers used to crowd the counter asking "is mine done yet?"
+Now they subscribe: when the barista finishes an order, the pickup screen
+lights up AND the customer's phone buzzes — automatically, without the
+barista knowing or caring who's listening.
+
+PATTERN: Observer — define a one-to-many dependency so that when the
+subject changes state, all registered observers are notified. The
+backbone of event systems and UI updates.
 
 Run: python3 observer.py
 """
@@ -9,52 +15,52 @@ Run: python3 observer.py
 from abc import ABC, abstractmethod
 
 
-class Observer(ABC):
+class OrderObserver(ABC):
     @abstractmethod
-    def update(self, temperature: float) -> None: ...
+    def order_ready(self, order_no: int) -> None: ...
 
 
-class WeatherStation:
+class PickupCounter:
     """Subject: maintains observers and notifies them on change."""
 
     def __init__(self):
-        self._observers: list[Observer] = []
+        self._observers: list[OrderObserver] = []
 
-    def attach(self, observer: Observer) -> None:
+    def attach(self, observer: OrderObserver) -> None:
         self._observers.append(observer)
 
-    def detach(self, observer: Observer) -> None:
+    def detach(self, observer: OrderObserver) -> None:
         self._observers.remove(observer)
 
-    def set_temperature(self, celsius: float) -> None:
-        print(f"station: temperature is now {celsius}C")
+    def announce_ready(self, order_no: int) -> None:
+        print(f"barista: order #{order_no} is done")
         for observer in self._observers:
-            observer.update(celsius)
+            observer.order_ready(order_no)
 
 
-class PhoneDisplay(Observer):
-    def update(self, temperature: float) -> None:
-        print(f"  phone display shows {temperature}C")
+class PickupScreen(OrderObserver):
+    def order_ready(self, order_no: int) -> None:
+        print(f"  screen flashes: NOW SERVING #{order_no}")
 
 
-class HeaterController(Observer):
-    def update(self, temperature: float) -> None:
-        print(f"  heater turns {'ON' if temperature < 18.0 else 'OFF'}")
+class CustomerPhone(OrderObserver):
+    def order_ready(self, order_no: int) -> None:
+        print(f"  phone buzzes: your order #{order_no} is ready!")
 
 
 def main():
-    station = WeatherStation()
-    phone = PhoneDisplay()
-    heater = HeaterController()
+    counter = PickupCounter()
+    screen = PickupScreen()
+    phone = CustomerPhone()
 
-    station.attach(phone)
-    station.attach(heater)
+    counter.attach(screen)
+    counter.attach(phone)
 
-    station.set_temperature(15.5)
-    station.set_temperature(22.0)
+    counter.announce_ready(41)
+    counter.announce_ready(42)
 
-    station.detach(phone)
-    station.set_temperature(12.0)  # only the heater reacts now
+    counter.detach(phone)  # customer picked up and left
+    counter.announce_ready(43)  # only the screen reacts now
 
 
 if __name__ == "__main__":

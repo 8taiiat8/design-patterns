@@ -1,78 +1,82 @@
-"""Visitor — represent an operation on the elements of an object structure,
-letting you add new operations without modifying the element classes.
+"""Café Patterna — Chapter 23: The Inspectors
 
-Use when you have a stable hierarchy of element types and frequently need
-new operations across all of them (exporters, pretty-printers, metrics).
-The key mechanism is double dispatch via accept()/visit().
+STORY: Two visitors walk the menu today: the nutritionist tallies
+calories, the accountant prints price tags. The menu items themselves
+(espresso, muffin) don't change — each item simply ACCEPTS the visitor
+and the visitor does its own job per item type. Next month a new
+inspector can visit without touching a single menu class.
+
+PATTERN: Visitor — represent an operation on the elements of an object
+structure, letting you add new operations without modifying the element
+classes. The key mechanism is double dispatch via accept()/visit().
 
 Run: python3 visitor.py
 """
 
-import math
 from abc import ABC, abstractmethod
 
 
-class ShapeVisitor(ABC):
+class MenuVisitor(ABC):
     """One visit method per element type."""
 
     @abstractmethod
-    def visit_circle(self, circle: "Circle") -> None: ...
+    def visit_espresso(self, espresso: "EspressoItem") -> None: ...
 
     @abstractmethod
-    def visit_square(self, square: "Square") -> None: ...
+    def visit_muffin(self, muffin: "MuffinItem") -> None: ...
 
 
-class Shape(ABC):
+class MenuItem(ABC):
     @abstractmethod
-    def accept(self, visitor: ShapeVisitor) -> None: ...
+    def accept(self, visitor: MenuVisitor) -> None: ...
 
 
-class Circle(Shape):
-    def __init__(self, radius: float):
-        self.radius = radius
+class EspressoItem(MenuItem):
+    def __init__(self, shots: int):
+        self.shots = shots
 
-    def accept(self, visitor: ShapeVisitor) -> None:
-        visitor.visit_circle(self)
-
-
-class Square(Shape):
-    def __init__(self, side: float):
-        self.side = side
-
-    def accept(self, visitor: ShapeVisitor) -> None:
-        visitor.visit_square(self)
+    def accept(self, visitor: MenuVisitor) -> None:
+        visitor.visit_espresso(self)
 
 
-# New operations are added as new visitors — no Shape class changes.
-class AreaCalculator(ShapeVisitor):
+class MuffinItem(MenuItem):
+    def __init__(self, grams: int):
+        self.grams = grams
+
+    def accept(self, visitor: MenuVisitor) -> None:
+        visitor.visit_muffin(self)
+
+
+# New operations are added as new visitors — no MenuItem class changes.
+class CalorieCounter(MenuVisitor):
     def __init__(self):
-        self.total = 0.0
+        self.total = 0
 
-    def visit_circle(self, circle: Circle) -> None:
-        self.total += math.pi * circle.radius**2
+    def visit_espresso(self, espresso: EspressoItem) -> None:
+        self.total += 5 * espresso.shots
 
-    def visit_square(self, square: Square) -> None:
-        self.total += square.side**2
+    def visit_muffin(self, muffin: MuffinItem) -> None:
+        self.total += 4 * muffin.grams
 
 
-class SvgExporter(ShapeVisitor):
-    def visit_circle(self, circle: Circle) -> None:
-        print(f'<circle r="{circle.radius}"/>')
+class PriceTagPrinter(MenuVisitor):
+    def visit_espresso(self, espresso: EspressoItem) -> None:
+        print(f"tag: espresso, {espresso.shots} shot(s) — $2.00")
 
-    def visit_square(self, square: Square) -> None:
-        print(f'<rect width="{square.side}" height="{square.side}"/>')
+    def visit_muffin(self, muffin: MuffinItem) -> None:
+        print(f"tag: muffin, {muffin.grams}g — $3.50")
 
 
 def main():
-    shapes: list[Shape] = [Circle(2.0), Square(3.0)]
+    menu: list[MenuItem] = [EspressoItem(2), MuffinItem(120)]
 
-    area = AreaCalculator()
-    svg = SvgExporter()
-    for shape in shapes:
-        shape.accept(area)
-        shape.accept(svg)
+    nutritionist = CalorieCounter()
+    accountant = PriceTagPrinter()
+    for item in menu:
+        item.accept(nutritionist)
+        item.accept(accountant)
 
-    print(f"total area: {area.total:.2f}")
+    print(f"total calories on the menu: {nutritionist.total}")
 
 
 if __name__ == "__main__":

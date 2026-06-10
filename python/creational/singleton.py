@@ -1,10 +1,14 @@
-"""Singleton — ensure a class has only one instance and provide a global
-access point to it.
+"""Café Patterna — Chapter 1: The One Cash Register
 
-Use when exactly one object must coordinate something system-wide
-(configuration, logging). Note: in Python a plain module is often the
-simplest singleton — module-level state is created once and shared.
-This file shows the two most common class-based approaches.
+STORY: On opening day you buy exactly ONE cash register. Every barista
+rings up sales on the same machine — if there were two, the day's totals
+would never add up. The register is created the first time someone needs
+it, and everyone shares it from then on.
+
+PATTERN: Singleton — ensure a class has only one instance and provide a
+global access point to it. Note: in Python a plain module is often the
+simplest singleton — module-level state is created once and shared. This
+file shows the two most common class-based approaches.
 
 Run: python3 singleton.py
 """
@@ -21,16 +25,18 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class Logger(metaclass=SingletonMeta):
+class CashRegister(metaclass=SingletonMeta):
     def __init__(self):
-        self.count = 0
+        self.sales = 0
+        self.total = 0.0
 
-    def log(self, message):
-        self.count += 1
-        print(f"[log #{self.count}] {message}")
+    def ring_up(self, item, price):
+        self.sales += 1
+        self.total += price
+        print(f"[sale #{self.sales}] {item} ${price} (day total: ${self.total})")
 
 
-class Config:
+class ShopConfig:
     """__new__ approach: the class itself caches its only instance."""
 
     _instance = None
@@ -38,19 +44,19 @@ class Config:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.settings = {"debug": False}
+            cls._instance.settings = {"happy_hour": False}
         return cls._instance
 
 
 def main():
-    Logger().log("application started")
-    Logger().log("doing some work")
-    print("same Logger instance?", Logger() is Logger())
+    CashRegister().ring_up("espresso", 2.0)
+    CashRegister().ring_up("croissant", 3.5)
+    print("same register?", CashRegister() is CashRegister())
 
-    a = Config()
-    b = Config()
-    a.settings["debug"] = True
-    print("same Config instance?", a is b, "| b sees the change:", b.settings)
+    morning = ShopConfig()
+    evening = ShopConfig()
+    morning.settings["happy_hour"] = True
+    print("same config?", morning is evening, "| evening sees:", evening.settings)
 
 
 if __name__ == "__main__":

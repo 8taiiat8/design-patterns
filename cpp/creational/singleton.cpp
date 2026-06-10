@@ -1,8 +1,13 @@
-// Singleton — ensure a class has only one instance and provide a global
-// access point to it.
+// ☕ Café Patterna — Chapter 1: The One Cash Register
 //
-// Use when exactly one object is needed to coordinate actions across a
-// system (configuration, logging, connection pools).
+// STORY: On opening day you buy exactly ONE cash register. Every barista
+// rings up sales on the same machine — if there were two, the day's totals
+// would never add up. The register is created the first time someone needs
+// it, and everyone shares it from then on.
+//
+// PATTERN: Singleton — ensure a class has only one instance and provide a
+// global access point to it. Use when exactly one object must coordinate
+// something shop-wide (configuration, logging, the till).
 //
 // Key points in C++:
 // - A function-local static (the "Meyers singleton") is initialized lazily
@@ -14,34 +19,38 @@
 #include <iostream>
 #include <string>
 
-class Logger {
+class CashRegister {
 public:
     // The single global access point.
-    static Logger& instance() {
-        static Logger logger;  // created on first use, thread-safe
-        return logger;
+    static CashRegister& instance() {
+        static CashRegister till;  // created on first use, thread-safe
+        return till;
     }
 
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
+    CashRegister(const CashRegister&) = delete;
+    CashRegister& operator=(const CashRegister&) = delete;
 
-    void log(const std::string& message) {
-        ++count_;
-        std::cout << "[log #" << count_ << "] " << message << "\n";
+    void ringUp(const std::string& item, double price) {
+        ++sales_;
+        total_ += price;
+        std::cout << "[sale #" << sales_ << "] " << item << " $" << price
+                  << " (day total: $" << total_ << ")\n";
     }
 
 private:
-    Logger() = default;  // private: clients cannot construct their own
-    int count_ = 0;
+    CashRegister() = default;  // private: nobody can buy a second register
+    int sales_ = 0;
+    double total_ = 0.0;
 };
 
 int main() {
-    Logger::instance().log("application started");
-    Logger::instance().log("doing some work");
+    CashRegister::instance().ringUp("espresso", 2.0);
+    CashRegister::instance().ringUp("croissant", 3.5);
 
-    // Both references point to the same object.
-    Logger& a = Logger::instance();
-    Logger& b = Logger::instance();
-    std::cout << "same instance? " << std::boolalpha << (&a == &b) << "\n";
+    // Both baristas are using the same till.
+    CashRegister& morningShift = CashRegister::instance();
+    CashRegister& eveningShift = CashRegister::instance();
+    std::cout << "same register? " << std::boolalpha
+              << (&morningShift == &eveningShift) << "\n";
     return 0;
 }

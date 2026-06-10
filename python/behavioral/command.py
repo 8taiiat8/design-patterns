@@ -1,8 +1,13 @@
-"""Command — encapsulate a request as an object, letting you parameterize
-clients with operations, queue them, and support undo.
+"""Café Patterna — Chapter 14: Tickets on the Rail
 
-Use for undo/redo stacks, task queues, macro recording, and decoupling
-the object that invokes an operation from the one that performs it.
+STORY: The cashier doesn't shout orders into the kitchen — every order
+becomes a TICKET clipped to the rail. The kitchen executes tickets in its
+own time, and when a customer changes their mind, the last ticket is
+simply pulled off the rail (undo).
+
+PATTERN: Command — encapsulate a request as an object, letting you queue
+requests, log them, and support undo. Decouples the object that invokes
+an operation (cashier) from the one performing it (kitchen).
 
 Run: python3 command.py
 """
@@ -10,17 +15,17 @@ Run: python3 command.py
 from abc import ABC, abstractmethod
 
 
-class Light:
+class Kitchen:
     """Receiver: the object that actually does the work."""
 
-    def on(self):
-        print("light is ON")
+    def prepare(self, item: str) -> None:
+        print(f"kitchen starts: {item}")
 
-    def off(self):
-        print("light is OFF")
+    def scrap(self, item: str) -> None:
+        print(f"kitchen scraps: {item}")
 
 
-class Command(ABC):
+class OrderTicket(ABC):
     @abstractmethod
     def execute(self) -> None: ...
 
@@ -28,53 +33,54 @@ class Command(ABC):
     def undo(self) -> None: ...
 
 
-class LightOnCommand(Command):
-    def __init__(self, light: Light):
-        self.light = light
+class DrinkTicket(OrderTicket):
+    def __init__(self, kitchen: Kitchen, drink: str):
+        self.kitchen = kitchen
+        self.drink = drink
 
     def execute(self) -> None:
-        self.light.on()
+        self.kitchen.prepare(self.drink)
 
     def undo(self) -> None:
-        self.light.off()
+        self.kitchen.scrap(self.drink)
 
 
-class LightOffCommand(Command):
-    def __init__(self, light: Light):
-        self.light = light
+class PastryTicket(OrderTicket):
+    def __init__(self, kitchen: Kitchen, pastry: str):
+        self.kitchen = kitchen
+        self.pastry = pastry
 
     def execute(self) -> None:
-        self.light.off()
+        self.kitchen.prepare(self.pastry)
 
     def undo(self) -> None:
-        self.light.on()
+        self.kitchen.scrap(self.pastry)
 
 
-class RemoteControl:
-    """Invoker: triggers commands and keeps a history for undo."""
+class TicketRail:
+    """Invoker: clips tickets to the rail; keeps history for cancellation."""
 
     def __init__(self):
-        self._history: list[Command] = []
+        self._history: list[OrderTicket] = []
 
-    def press(self, command: Command) -> None:
-        command.execute()
-        self._history.append(command)
+    def place(self, ticket: OrderTicket) -> None:
+        ticket.execute()
+        self._history.append(ticket)
 
-    def undo_last(self) -> None:
+    def cancel_last(self) -> None:
         if self._history:
             self._history.pop().undo()
 
 
 def main():
-    living_room = Light()
-    remote = RemoteControl()
+    kitchen = Kitchen()
+    rail = TicketRail()
 
-    remote.press(LightOnCommand(living_room))
-    remote.press(LightOffCommand(living_room))
+    rail.place(DrinkTicket(kitchen, "oat latte"))
+    rail.place(PastryTicket(kitchen, "almond croissant"))
 
-    print("-- undo twice --")
-    remote.undo_last()
-    remote.undo_last()
+    print("-- customer changes their mind --")
+    rail.cancel_last()
 
 
 if __name__ == "__main__":

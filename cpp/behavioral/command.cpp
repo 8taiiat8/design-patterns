@@ -1,77 +1,86 @@
-// Command — encapsulate a request as an object, letting you parameterize
-// clients with operations, queue them, and support undo.
+// ☕ Café Patterna — Chapter 14: Tickets on the Rail
 //
-// Use for undo/redo stacks, task queues, macro recording, and decoupling
-// the object that invokes an operation from the one that performs it.
+// STORY: The cashier doesn't shout orders into the kitchen — every order
+// becomes a TICKET clipped to the rail. The kitchen executes tickets in
+// its own time, and when a customer changes their mind, the last ticket
+// is simply pulled off the rail (undo).
+//
+// PATTERN: Command — encapsulate a request as an object, letting you
+// queue requests, log them, and support undo. Decouples the object that
+// invokes an operation (cashier) from the one performing it (kitchen).
 //
 // Build: g++ -std=c++17 command.cpp -o command
 
 #include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
 // Receiver: the object that actually does the work.
-class Light {
+class Kitchen {
 public:
-    void on() { std::cout << "light is ON\n"; }
-    void off() { std::cout << "light is OFF\n"; }
+    void prepare(const std::string& item) { std::cout << "kitchen starts: " << item << "\n"; }
+    void scrap(const std::string& item) { std::cout << "kitchen scraps: " << item << "\n"; }
 };
 
 // Command interface with undo support.
-class Command {
+class OrderTicket {
 public:
-    virtual ~Command() = default;
+    virtual ~OrderTicket() = default;
     virtual void execute() = 0;
     virtual void undo() = 0;
 };
 
-class LightOnCommand : public Command {
+class DrinkTicket : public OrderTicket {
 public:
-    explicit LightOnCommand(Light& light) : light_(light) {}
-    void execute() override { light_.on(); }
-    void undo() override { light_.off(); }
+    DrinkTicket(Kitchen& kitchen, std::string drink)
+        : kitchen_(kitchen), drink_(std::move(drink)) {}
+    void execute() override { kitchen_.prepare(drink_); }
+    void undo() override { kitchen_.scrap(drink_); }
 
 private:
-    Light& light_;
+    Kitchen& kitchen_;
+    std::string drink_;
 };
 
-class LightOffCommand : public Command {
+class PastryTicket : public OrderTicket {
 public:
-    explicit LightOffCommand(Light& light) : light_(light) {}
-    void execute() override { light_.off(); }
-    void undo() override { light_.on(); }
+    PastryTicket(Kitchen& kitchen, std::string pastry)
+        : kitchen_(kitchen), pastry_(std::move(pastry)) {}
+    void execute() override { kitchen_.prepare(pastry_); }
+    void undo() override { kitchen_.scrap(pastry_); }
 
 private:
-    Light& light_;
+    Kitchen& kitchen_;
+    std::string pastry_;
 };
 
-// Invoker: triggers commands and keeps a history for undo.
-class RemoteControl {
+// Invoker: clips tickets to the rail and keeps a history for cancellation.
+class TicketRail {
 public:
-    void press(std::unique_ptr<Command> command) {
-        command->execute();
-        history_.push_back(std::move(command));
+    void place(std::unique_ptr<OrderTicket> ticket) {
+        ticket->execute();
+        history_.push_back(std::move(ticket));
     }
 
-    void undoLast() {
+    void cancelLast() {
         if (history_.empty()) return;
         history_.back()->undo();
         history_.pop_back();
     }
 
 private:
-    std::vector<std::unique_ptr<Command>> history_;
+    std::vector<std::unique_ptr<OrderTicket>> history_;
 };
 
 int main() {
-    Light livingRoom;
-    RemoteControl remote;
+    Kitchen kitchen;
+    TicketRail rail;
 
-    remote.press(std::make_unique<LightOnCommand>(livingRoom));
-    remote.press(std::make_unique<LightOffCommand>(livingRoom));
+    rail.place(std::make_unique<DrinkTicket>(kitchen, "oat latte"));
+    rail.place(std::make_unique<PastryTicket>(kitchen, "almond croissant"));
 
-    std::cout << "-- undo twice --\n";
-    remote.undoLast();
-    remote.undoLast();
+    std::cout << "-- customer changes their mind --\n";
+    rail.cancelLast();
     return 0;
 }

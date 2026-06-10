@@ -1,8 +1,14 @@
-"""Decorator — attach additional responsibilities to an object dynamically
-by wrapping it in objects that share its interface.
+"""Café Patterna — Chapter 9: Toppings, Toppings, Toppings
 
-Note: this is the GoF *object* decorator. Python's `@decorator` syntax is
-the same idea applied to functions — both are shown below.
+STORY: Milk. Sugar. Whipped cream. Customers stack them in every
+combination imaginable. You are NOT creating a MilkSugarWhipEspresso
+class for each combo — instead every topping WRAPS the drink underneath
+and adds its own description and price.
+
+PATTERN: Decorator — attach additional responsibilities to an object
+dynamically by wrapping it in objects that share its interface. Note:
+this is the GoF *object* decorator; Python's `@decorator` syntax is the
+same idea applied to functions — both are shown below.
 
 Run: python3 decorator.py
 """
@@ -28,7 +34,7 @@ class Espresso(Coffee):
         return 2.0
 
 
-class CoffeeDecorator(Coffee):
+class ToppingDecorator(Coffee):
     """Base decorator: wraps a Coffee and delegates by default."""
 
     def __init__(self, inner: Coffee):
@@ -41,7 +47,7 @@ class CoffeeDecorator(Coffee):
         return self._inner.cost()
 
 
-class Milk(CoffeeDecorator):
+class Milk(ToppingDecorator):
     def description(self) -> str:
         return super().description() + " + milk"
 
@@ -49,7 +55,7 @@ class Milk(CoffeeDecorator):
         return super().cost() + 0.5
 
 
-class Sugar(CoffeeDecorator):
+class Sugar(ToppingDecorator):
     def description(self) -> str:
         return super().description() + " + sugar"
 
@@ -57,23 +63,31 @@ class Sugar(CoffeeDecorator):
         return super().cost() + 0.2
 
 
+class WhippedCream(ToppingDecorator):
+    def description(self) -> str:
+        return super().description() + " + whipped cream"
+
+    def cost(self) -> float:
+        return super().cost() + 0.7
+
+
 # --- Pythonic function decorator: same pattern, applied to callables ------
-def logged(func):
+def on_the_receipt(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        print(f"calling {func.__name__}{args}")
+        print(f"receipt: {func.__name__}{args}")
         return func(*args, **kwargs)
 
     return wrapper
 
 
-@logged
+@on_the_receipt
 def brew(kind):
     return f"a cup of {kind}"
 
 
 def main():
-    order = Sugar(Milk(Espresso()))  # stack wrappers in any combination
+    order = WhippedCream(Sugar(Milk(Espresso())))  # stack toppings freely
     print(f"{order.description()} costs ${order.cost():.2f}")
 
     plain = Espresso()

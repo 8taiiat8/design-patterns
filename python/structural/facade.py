@@ -1,7 +1,12 @@
-"""Facade — provide a single simplified interface to a complex subsystem.
+"""Café Patterna — Chapter 10: One Counter to Rule Them All
 
-Use when clients only need a small slice of a subsystem's functionality,
-or when you want to decouple client code from the subsystem's internals.
+STORY: Behind the counter it's chaos: check the bean inventory, brew the
+drink, charge the card, stamp the loyalty card — in exactly that order.
+The customer sees none of it. They say "one latte please" and the counter
+orchestrates everything.
+
+PATTERN: Facade — provide a single simplified interface to a complex
+subsystem.
 
 Run: python3 facade.py
 """
@@ -9,10 +14,15 @@ Run: python3 facade.py
 
 # Complex subsystem parts. Clients could call these directly, but the
 # correct order and wiring is easy to get wrong.
-class Inventory:
-    def reserve(self, item: str) -> bool:
-        print(f"inventory: reserved {item}")
+class BeanInventory:
+    def reserve_beans_for(self, drink: str) -> bool:
+        print(f"inventory: beans reserved for {drink}")
         return True
+
+
+class BrewStation:
+    def brew(self, drink: str) -> None:
+        print(f"brew station: making {drink}")
 
 
 class Payment:
@@ -21,31 +31,33 @@ class Payment:
         return True
 
 
-class Shipping:
-    def schedule(self, item: str, address: str) -> None:
-        print(f"shipping: {item} -> {address}")
+class LoyaltyProgram:
+    def stamp(self, customer: str) -> None:
+        print(f"loyalty: stamped {customer}'s card")
 
 
 # The facade exposes one high-level operation that orchestrates the parts.
-class OrderFacade:
+class OrderCounter:
     def __init__(self):
-        self._inventory = Inventory()
+        self._inventory = BeanInventory()
+        self._brew_station = BrewStation()
         self._payment = Payment()
-        self._shipping = Shipping()
+        self._loyalty = LoyaltyProgram()
 
-    def place_order(self, item: str, price: float, address: str) -> bool:
-        if not self._inventory.reserve(item):
+    def place_order(self, drink: str, price: float, customer: str) -> bool:
+        if not self._inventory.reserve_beans_for(drink):
             return False
         if not self._payment.charge(price):
             return False
-        self._shipping.schedule(item, address)
-        print("order complete")
+        self._brew_station.brew(drink)
+        self._loyalty.stamp(customer)
+        print("order complete, enjoy!")
         return True
 
 
 def main():
-    shop = OrderFacade()
-    shop.place_order("mechanical keyboard", 89.99, "42 Wallaby Way")
+    counter = OrderCounter()
+    counter.place_order("oat latte", 4.5, "Nora")
 
 
 if __name__ == "__main__":

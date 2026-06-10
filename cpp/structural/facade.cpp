@@ -1,7 +1,13 @@
-// Facade — provide a single simplified interface to a complex subsystem.
+// ☕ Café Patterna — Chapter 10: One Counter to Rule Them All
 //
-// Use when clients only need a small slice of a subsystem's functionality,
-// or when you want to decouple client code from the subsystem's internals.
+// STORY: Behind the counter it's chaos: check the bean inventory, brew
+// the drink, charge the card, stamp the loyalty card — in exactly that
+// order. The customer sees none of it. They say "one latte please" and
+// the counter orchestrates everything.
+//
+// PATTERN: Facade — provide a single simplified interface to a complex
+// subsystem. Use when clients need only a small slice of a subsystem's
+// functionality, in the right order.
 //
 // Build: g++ -std=c++17 facade.cpp -o facade
 
@@ -10,11 +16,18 @@
 
 // Complex subsystem parts. Clients could call these directly, but the
 // correct order and wiring is easy to get wrong.
-class Inventory {
+class BeanInventory {
 public:
-    bool reserve(const std::string& item) {
-        std::cout << "inventory: reserved " << item << "\n";
+    bool reserveBeansFor(const std::string& drink) {
+        std::cout << "inventory: beans reserved for " << drink << "\n";
         return true;
+    }
+};
+
+class BrewStation {
+public:
+    void brew(const std::string& drink) {
+        std::cout << "brew station: making " << drink << "\n";
     }
 };
 
@@ -26,32 +39,34 @@ public:
     }
 };
 
-class Shipping {
+class LoyaltyProgram {
 public:
-    void schedule(const std::string& item, const std::string& address) {
-        std::cout << "shipping: " << item << " -> " << address << "\n";
+    void stamp(const std::string& customer) {
+        std::cout << "loyalty: stamped " << customer << "'s card\n";
     }
 };
 
 // The facade exposes one high-level operation that orchestrates the parts.
-class OrderFacade {
+class OrderCounter {
 public:
-    bool placeOrder(const std::string& item, double price, const std::string& address) {
-        if (!inventory_.reserve(item)) return false;
+    bool placeOrder(const std::string& drink, double price, const std::string& customer) {
+        if (!inventory_.reserveBeansFor(drink)) return false;
         if (!payment_.charge(price)) return false;
-        shipping_.schedule(item, address);
-        std::cout << "order complete\n";
+        brewStation_.brew(drink);
+        loyalty_.stamp(customer);
+        std::cout << "order complete, enjoy!\n";
         return true;
     }
 
 private:
-    Inventory inventory_;
+    BeanInventory inventory_;
+    BrewStation brewStation_;
     Payment payment_;
-    Shipping shipping_;
+    LoyaltyProgram loyalty_;
 };
 
 int main() {
-    OrderFacade shop;
-    shop.placeOrder("mechanical keyboard", 89.99, "42 Wallaby Way");
+    OrderCounter counter;
+    counter.placeOrder("oat latte", 4.5, "Nora");
     return 0;
 }

@@ -1,8 +1,13 @@
-"""Adapter — convert the interface of an existing class into the interface
-clients expect, letting otherwise incompatible classes work together.
+"""Café Patterna — Chapter 6: Grandpa's Grinder
 
-Use when you want to reuse an existing (often third-party or legacy) class
-whose interface doesn't match what your code needs.
+STORY: The new kitchen line expects every grinder to respond to
+grind(beans). But grandpa's beloved cast-iron grinder only understands
+turn_crank() — and it makes the best grounds in town. You won't rewire
+the kitchen and you can't modify a family heirloom, so you build an
+adapter that fits the old crank into the new interface.
+
+PATTERN: Adapter — convert the interface of an existing class into the
+interface clients expect, letting incompatible classes work together.
 
 Run: python3 adapter.py
 """
@@ -10,37 +15,37 @@ Run: python3 adapter.py
 from abc import ABC, abstractmethod
 
 
-# The interface our application expects.
-class MediaPlayer(ABC):
+# The interface the kitchen line expects.
+class Grinder(ABC):
     @abstractmethod
-    def play(self, file: str) -> None: ...
+    def grind(self, beans: str) -> None: ...
 
 
-# Legacy class with an incompatible interface (the adaptee).
+# The family heirloom with an incompatible interface (the adaptee).
 # Imagine we cannot modify it.
-class VlcEngine:
-    def start_vlc_playback(self, path: str) -> None:
-        print(f"VLC engine playing: {path}")
+class VintageGrinder:
+    def turn_crank(self, contents: str) -> None:
+        print(f"vintage grinder slowly cranks through: {contents}")
 
 
 # The adapter implements the expected interface and delegates to the adaptee.
-class VlcAdapter(MediaPlayer):
+class VintageGrinderAdapter(Grinder):
     def __init__(self):
-        self._engine = VlcEngine()
+        self._heirloom = VintageGrinder()
 
-    def play(self, file: str) -> None:
-        self._engine.start_vlc_playback(file)  # translate the call
+    def grind(self, beans: str) -> None:
+        self._heirloom.turn_crank(beans)  # translate the call
 
 
-class Mp3Player(MediaPlayer):
-    def play(self, file: str) -> None:
-        print(f"MP3 player playing: {file}")
+class ElectricGrinder(Grinder):
+    def grind(self, beans: str) -> None:
+        print(f"electric grinder whizzes through: {beans}")
 
 
 def main():
-    players = [Mp3Player(), VlcAdapter()]
-    for player in players:
-        player.play("song.mp3")
+    kitchen_line = [ElectricGrinder(), VintageGrinderAdapter()]
+    for grinder in kitchen_line:
+        grinder.grind("Ethiopian beans")
 
 
 if __name__ == "__main__":

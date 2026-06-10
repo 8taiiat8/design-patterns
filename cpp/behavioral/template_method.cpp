@@ -1,61 +1,60 @@
-// Template Method — define the skeleton of an algorithm in a base class
-// and let subclasses override specific steps without changing the
-// algorithm's structure.
+// ☕ Café Patterna — Chapter 22: The House Ritual
 //
-// Use when several classes share the same overall workflow but differ in
-// some steps (data importers, report generators, test fixtures).
+// STORY: Every hot drink follows the same house ritual, in the same
+// order: boil water, brew, pour into cup, add the finishing touch. The
+// ritual itself never changes — but HOW you brew (drip the coffee, steep
+// the tea) and the finishing touch differ per drink.
+//
+// PATTERN: Template Method — define the skeleton of an algorithm in a
+// base class and let subclasses override specific steps without changing
+// the algorithm's structure.
 //
 // Build: g++ -std=c++17 template_method.cpp -o template_method
 
 #include <iostream>
-#include <string>
 
-// The base class owns the algorithm's skeleton.
-class DataImporter {
+// The base class owns the ritual's skeleton.
+class HotDrinkRecipe {
 public:
-    virtual ~DataImporter() = default;
+    virtual ~HotDrinkRecipe() = default;
 
     // The template method: fixed order, non-virtual on purpose.
-    void run() {
-        open();
-        parse();
-        validate();  // optional hook with a default
-        save();
-        close();
+    void prepare() {
+        boilWater();
+        brew();
+        pourInCup();
+        addCondiments();  // optional hook with a default
     }
 
 protected:
     // Steps subclasses must provide.
-    virtual void open() = 0;
-    virtual void parse() = 0;
+    virtual void brew() = 0;
 
     // Hook: has a sensible default, override only if needed.
-    virtual void validate() { std::cout << "  (default validation: none)\n"; }
+    virtual void addCondiments() { std::cout << "  (served as is)\n"; }
 
 private:
-    // Steps that are identical for everyone stay private and fixed.
-    void save() { std::cout << "  saving records to database\n"; }
-    void close() { std::cout << "  closing source\n"; }
+    // Steps that are identical for every drink stay private and fixed.
+    void boilWater() { std::cout << "  boiling water\n"; }
+    void pourInCup() { std::cout << "  pouring into cup\n"; }
 };
 
-class CsvImporter : public DataImporter {
+class Coffee : public HotDrinkRecipe {
 protected:
-    void open() override { std::cout << "  opening data.csv\n"; }
-    void parse() override { std::cout << "  parsing comma-separated rows\n"; }
+    void brew() override { std::cout << "  dripping coffee through filter\n"; }
+    void addCondiments() override { std::cout << "  adding sugar and milk\n"; }
 };
 
-class JsonImporter : public DataImporter {
+class Tea : public HotDrinkRecipe {
 protected:
-    void open() override { std::cout << "  opening data.json\n"; }
-    void parse() override { std::cout << "  parsing JSON objects\n"; }
-    void validate() override { std::cout << "  validating against JSON schema\n"; }
+    void brew() override { std::cout << "  steeping the tea leaves\n"; }
 };
 
 int main() {
-    std::cout << "CSV import:\n";
-    CsvImporter{}.run();
+    std::cout << "Making coffee:\n";
+    Coffee{}.prepare();
 
-    std::cout << "JSON import:\n";
-    JsonImporter{}.run();
+    std::cout << "Making tea:\n";
+    Tea{}.prepare();
     return 0;
 }

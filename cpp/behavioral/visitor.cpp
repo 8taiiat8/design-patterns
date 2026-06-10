@@ -1,9 +1,14 @@
-// Visitor — represent an operation on the elements of an object structure,
-// letting you add new operations without modifying the element classes.
+// ☕ Café Patterna — Chapter 23: The Inspectors
 //
-// Use when you have a stable hierarchy of element types and frequently
-// need new operations across all of them (exporters, pretty-printers,
-// metrics). The key mechanism is double dispatch via accept()/visit().
+// STORY: Two visitors walk the menu today: the nutritionist tallies
+// calories, the accountant prints price tags. The menu items themselves
+// (espresso, muffin) don't change — each item simply ACCEPTS the visitor
+// and the visitor does its own job per item type. Next month a new
+// inspector can visit without touching a single menu class.
+//
+// PATTERN: Visitor — represent an operation on the elements of an object
+// structure, letting you add new operations without modifying the element
+// classes. The key mechanism is double dispatch via accept()/visit().
 //
 // Build: g++ -std=c++17 visitor.cpp -o visitor
 
@@ -11,76 +16,76 @@
 #include <memory>
 #include <vector>
 
-class Circle;
-class Square;
+class EspressoItem;
+class MuffinItem;
 
 // Visitor interface: one visit overload per element type.
-class ShapeVisitor {
+class MenuVisitor {
 public:
-    virtual ~ShapeVisitor() = default;
-    virtual void visit(const Circle& circle) = 0;
-    virtual void visit(const Square& square) = 0;
+    virtual ~MenuVisitor() = default;
+    virtual void visit(const EspressoItem& espresso) = 0;
+    virtual void visit(const MuffinItem& muffin) = 0;
 };
 
 // Element interface
-class Shape {
+class MenuItem {
 public:
-    virtual ~Shape() = default;
-    virtual void accept(ShapeVisitor& visitor) const = 0;
+    virtual ~MenuItem() = default;
+    virtual void accept(MenuVisitor& visitor) const = 0;
 };
 
-class Circle : public Shape {
+class EspressoItem : public MenuItem {
 public:
-    explicit Circle(double radius) : radius_(radius) {}
-    double radius() const { return radius_; }
-    void accept(ShapeVisitor& visitor) const override { visitor.visit(*this); }
+    explicit EspressoItem(int shots) : shots_(shots) {}
+    int shots() const { return shots_; }
+    void accept(MenuVisitor& visitor) const override { visitor.visit(*this); }
 
 private:
-    double radius_;
+    int shots_;
 };
 
-class Square : public Shape {
+class MuffinItem : public MenuItem {
 public:
-    explicit Square(double side) : side_(side) {}
-    double side() const { return side_; }
-    void accept(ShapeVisitor& visitor) const override { visitor.visit(*this); }
+    explicit MuffinItem(int grams) : grams_(grams) {}
+    int grams() const { return grams_; }
+    void accept(MenuVisitor& visitor) const override { visitor.visit(*this); }
 
 private:
-    double side_;
+    int grams_;
 };
 
-// New operations are added as new visitors — no Shape class changes.
-class AreaCalculator : public ShapeVisitor {
+// New operations are added as new visitors — no MenuItem class changes.
+class CalorieCounter : public MenuVisitor {
 public:
-    void visit(const Circle& circle) override { total_ += 3.14159 * circle.radius() * circle.radius(); }
-    void visit(const Square& square) override { total_ += square.side() * square.side(); }
-    double total() const { return total_; }
+    void visit(const EspressoItem& espresso) override { total_ += 5 * espresso.shots(); }
+    void visit(const MuffinItem& muffin) override { total_ += 4 * muffin.grams(); }
+    int total() const { return total_; }
 
 private:
-    double total_ = 0;
+    int total_ = 0;
 };
 
-class SvgExporter : public ShapeVisitor {
+class PriceTagPrinter : public MenuVisitor {
 public:
-    void visit(const Circle& circle) override {
-        std::cout << "<circle r=\"" << circle.radius() << "\"/>\n";
+    void visit(const EspressoItem& espresso) override {
+        std::cout << "tag: espresso, " << espresso.shots() << " shot(s) — $2.00\n";
     }
-    void visit(const Square& square) override {
-        std::cout << "<rect width=\"" << square.side() << "\" height=\"" << square.side() << "\"/>\n";
+    void visit(const MuffinItem& muffin) override {
+        std::cout << "tag: muffin, " << muffin.grams() << "g — $3.50\n";
     }
 };
 
 int main() {
-    std::vector<std::unique_ptr<Shape>> shapes;
-    shapes.push_back(std::make_unique<Circle>(2.0));
-    shapes.push_back(std::make_unique<Square>(3.0));
+    std::vector<std::unique_ptr<MenuItem>> menu;
+    menu.push_back(std::make_unique<EspressoItem>(2));
+    menu.push_back(std::make_unique<MuffinItem>(120));
 
-    AreaCalculator area;
-    SvgExporter svg;
-    for (const auto& shape : shapes) {
-        shape->accept(area);
-        shape->accept(svg);
+    CalorieCounter nutritionist;
+    PriceTagPrinter accountant;
+    for (const auto& item : menu) {
+        item->accept(nutritionist);
+        item->accept(accountant);
     }
-    std::cout << "total area: " << area.total() << "\n";
+    std::cout << "total calories on the menu: " << nutritionist.total() << "\n";
     return 0;
 }

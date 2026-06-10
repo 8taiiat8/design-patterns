@@ -1,67 +1,72 @@
-// Observer — define a one-to-many dependency so that when one object (the
-// subject) changes state, all its dependents (observers) are notified.
+// ☕ Café Patterna — Chapter 19: "Order 42 Is Ready!"
 //
-// Use for event systems, model-view updates, pub/sub within a process.
+// STORY: Customers used to crowd the counter asking "is mine done yet?"
+// Now they subscribe: when the barista finishes an order, the pickup
+// screen lights up AND the customer's phone buzzes — automatically,
+// without the barista knowing or caring who's listening.
+//
+// PATTERN: Observer — define a one-to-many dependency so that when the
+// subject changes state, all registered observers are notified. The
+// backbone of event systems and UI updates.
 //
 // Build: g++ -std=c++17 observer.cpp -o observer
 
 #include <algorithm>
 #include <iostream>
-#include <string>
 #include <vector>
 
 // Observer interface
-class Observer {
+class OrderObserver {
 public:
-    virtual ~Observer() = default;
-    virtual void update(double temperature) = 0;
+    virtual ~OrderObserver() = default;
+    virtual void orderReady(int orderNo) = 0;
 };
 
 // Subject: maintains a list of observers and notifies them on change.
-class WeatherStation {
+class PickupCounter {
 public:
-    void attach(Observer* observer) { observers_.push_back(observer); }
+    void attach(OrderObserver* observer) { observers_.push_back(observer); }
 
-    void detach(Observer* observer) {
+    void detach(OrderObserver* observer) {
         observers_.erase(std::remove(observers_.begin(), observers_.end(), observer),
                          observers_.end());
     }
 
-    void setTemperature(double celsius) {
-        std::cout << "station: temperature is now " << celsius << "C\n";
-        for (Observer* observer : observers_) observer->update(celsius);
+    void announceReady(int orderNo) {
+        std::cout << "barista: order #" << orderNo << " is done\n";
+        for (OrderObserver* observer : observers_) observer->orderReady(orderNo);
     }
 
 private:
-    std::vector<Observer*> observers_;
+    std::vector<OrderObserver*> observers_;
 };
 
-class PhoneDisplay : public Observer {
+class PickupScreen : public OrderObserver {
 public:
-    void update(double temperature) override {
-        std::cout << "  phone display shows " << temperature << "C\n";
+    void orderReady(int orderNo) override {
+        std::cout << "  screen flashes: NOW SERVING #" << orderNo << "\n";
     }
 };
 
-class HeaterController : public Observer {
+class CustomerPhone : public OrderObserver {
 public:
-    void update(double temperature) override {
-        std::cout << "  heater turns " << (temperature < 18.0 ? "ON" : "OFF") << "\n";
+    void orderReady(int orderNo) override {
+        std::cout << "  phone buzzes: your order #" << orderNo << " is ready!\n";
     }
 };
 
 int main() {
-    WeatherStation station;
-    PhoneDisplay phone;
-    HeaterController heater;
+    PickupCounter counter;
+    PickupScreen screen;
+    CustomerPhone phone;
 
-    station.attach(&phone);
-    station.attach(&heater);
+    counter.attach(&screen);
+    counter.attach(&phone);
 
-    station.setTemperature(15.5);
-    station.setTemperature(22.0);
+    counter.announceReady(41);
+    counter.announceReady(42);
 
-    station.detach(&phone);
-    station.setTemperature(12.0);  // only the heater reacts now
+    counter.detach(&phone);  // customer picked up and left
+    counter.announceReady(43);  // only the screen reacts now
     return 0;
 }

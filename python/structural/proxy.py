@@ -1,8 +1,13 @@
-"""Proxy — provide a placeholder for another object to control access to it.
+"""Café Patterna — Chapter 12: The Secret Recipe Book
 
-Common variants: virtual proxy (lazy loading), protection proxy (access
-control), remote proxy, caching/logging proxy. This example shows a
-virtual proxy that delays loading a large image until it is displayed.
+STORY: The original recipe book lives in the office safe. Fetching it is
+slow and you'd rather not do it at all on quiet days. So the counter
+keeps a stand-in: it looks exactly like the recipe book, but only walks
+to the safe the FIRST time someone actually asks for a recipe.
+
+PATTERN: Proxy — provide a placeholder for another object to control
+access to it. Variants: virtual proxy (lazy loading, shown here),
+protection proxy, remote proxy, caching/logging proxy.
 
 Run: python3 proxy.py
 """
@@ -10,41 +15,39 @@ Run: python3 proxy.py
 from abc import ABC, abstractmethod
 
 
-class Image(ABC):
+class RecipeBook(ABC):
     @abstractmethod
-    def display(self) -> None: ...
+    def look_up(self, drink: str) -> None: ...
 
 
-class RealImage(Image):
-    """Real subject: expensive to construct (pretend it loads from disk)."""
+class SecretRecipeBook(RecipeBook):
+    """Real subject: expensive to construct (a trip to the safe)."""
 
-    def __init__(self, filename: str):
-        self.filename = filename
-        print(f"loading {filename} from disk (slow!)")
+    def __init__(self):
+        print("walking to the safe, unlocking the recipe book (slow!)")
 
-    def display(self) -> None:
-        print(f"displaying {self.filename}")
+    def look_up(self, drink: str) -> None:
+        print(f"reading the secret recipe for {drink}")
 
 
-class ImageProxy(Image):
-    """Same interface; creates the real subject only on first use."""
+class RecipeBookProxy(RecipeBook):
+    """Same interface; fetches the real book only on first use."""
 
-    def __init__(self, filename: str):
-        self.filename = filename
-        self._real: RealImage | None = None
+    def __init__(self):
+        self._real: SecretRecipeBook | None = None
 
-    def display(self) -> None:
+    def look_up(self, drink: str) -> None:
         if self._real is None:
-            self._real = RealImage(self.filename)  # lazy load
-        self._real.display()
+            self._real = SecretRecipeBook()  # lazy load
+        self._real.look_up(drink)
 
 
 def main():
-    photo = ImageProxy("vacation.png")
-    print("proxy created, nothing loaded yet")
+    book = RecipeBookProxy()
+    print("proxy on the counter, safe still locked")
 
-    photo.display()  # triggers the expensive load
-    photo.display()  # reuses the already-loaded image
+    book.look_up("midnight mocha")  # triggers the trip to the safe
+    book.look_up("winter chai")     # reuses the already-fetched book
 
 
 if __name__ == "__main__":

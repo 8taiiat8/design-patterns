@@ -1,63 +1,71 @@
-// Interpreter — given a small language, define a class per grammar rule
-// and an interpret() method that evaluates sentences of the language.
+// ☕ Café Patterna — Chapter 15: The Regulars' Shorthand
 //
-// Use for simple domain-specific languages: filters, arithmetic, rule
-// engines. For anything complex, prefer a real parser generator.
+// STORY: Regulars order in shorthand: "espresso + milk - coupon". The
+// till understands this tiny language: each word is a grammar rule, and
+// evaluating the sentence computes the price in cents.
 //
-// This example interprets arithmetic expressions built as an object tree:
-// (5 + 3) - 2.
+// PATTERN: Interpreter — for a small language, define a class per grammar
+// rule and an interpret() method that evaluates sentences. Use for simple
+// DSLs (filters, pricing rules); for anything complex use a real parser.
+//
+// This example evaluates the order tree: (espresso + milk) - coupon.
 //
 // Build: g++ -std=c++17 interpreter.cpp -o interpreter
 
 #include <iostream>
 #include <memory>
+#include <string>
 
-// Abstract expression
-class Expression {
+// Abstract expression: everything evaluates to a price in cents.
+class OrderExpression {
 public:
-    virtual ~Expression() = default;
-    virtual int interpret() const = 0;
+    virtual ~OrderExpression() = default;
+    virtual int priceCents() const = 0;
 };
 
-// Terminal expression: a literal number.
-class Number : public Expression {
+// Terminal expression: a single menu item.
+class Item : public OrderExpression {
 public:
-    explicit Number(int value) : value_(value) {}
-    int interpret() const override { return value_; }
+    Item(std::string name, int cents) : name_(std::move(name)), cents_(cents) {}
+    int priceCents() const override { return cents_; }
 
 private:
-    int value_;
+    std::string name_;
+    int cents_;
 };
 
 // Non-terminal expressions combine sub-expressions.
-class Add : public Expression {
+class Plus : public OrderExpression {
 public:
-    Add(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+    Plus(std::unique_ptr<OrderExpression> left, std::unique_ptr<OrderExpression> right)
         : left_(std::move(left)), right_(std::move(right)) {}
 
-    int interpret() const override { return left_->interpret() + right_->interpret(); }
+    int priceCents() const override { return left_->priceCents() + right_->priceCents(); }
 
 private:
-    std::unique_ptr<Expression> left_, right_;
+    std::unique_ptr<OrderExpression> left_, right_;
 };
 
-class Subtract : public Expression {
+class Coupon : public OrderExpression {
 public:
-    Subtract(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
-        : left_(std::move(left)), right_(std::move(right)) {}
+    Coupon(std::unique_ptr<OrderExpression> order, int discountCents)
+        : order_(std::move(order)), discountCents_(discountCents) {}
 
-    int interpret() const override { return left_->interpret() - right_->interpret(); }
+    int priceCents() const override { return order_->priceCents() - discountCents_; }
 
 private:
-    std::unique_ptr<Expression> left_, right_;
+    std::unique_ptr<OrderExpression> order_;
+    int discountCents_;
 };
 
 int main() {
-    // Abstract syntax tree for: (5 + 3) - 2
-    auto expression = std::make_unique<Subtract>(
-        std::make_unique<Add>(std::make_unique<Number>(5), std::make_unique<Number>(3)),
-        std::make_unique<Number>(2));
+    // Syntax tree for: (espresso + milk) - coupon(100)
+    auto order = std::make_unique<Coupon>(
+        std::make_unique<Plus>(std::make_unique<Item>("espresso", 200),
+                               std::make_unique<Item>("milk", 50)),
+        100);
 
-    std::cout << "(5 + 3) - 2 = " << expression->interpret() << "\n";
+    std::cout << "\"espresso + milk - coupon\" = "
+              << order->priceCents() / 100.0 << " dollars\n";
     return 0;
 }

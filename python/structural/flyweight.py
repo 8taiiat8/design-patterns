@@ -1,9 +1,14 @@
-"""Flyweight — share common (intrinsic) state between many objects to save
-memory; varying (extrinsic) state is passed in from outside.
+"""Café Patterna — Chapter 11: A Thousand Tickets, Three Drinks
 
-Use when a program creates huge numbers of similar objects (glyphs,
-particles, map tiles). In CPython, small ints and interned strings are
-flyweights maintained by the runtime itself.
+STORY: On a busy Saturday the kitchen prints thousands of order tickets.
+But the café only sells a handful of drink types — printing the full
+recipe on every ticket would waste mountains of paper (and in code,
+memory). So each ticket carries only its order number and table, plus a
+REFERENCE to the one shared drink definition.
+
+PATTERN: Flyweight — share common (intrinsic) state between many objects;
+varying (extrinsic) state is passed in from outside. In CPython, small
+ints and interned strings are flyweights maintained by the runtime.
 
 Run: python3 flyweight.py
 """
@@ -12,60 +17,59 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class TreeType:
-    """Flyweight: heavy intrinsic state shared by many trees
-    (imagine a texture/mesh)."""
+class DrinkType:
+    """Flyweight: heavy intrinsic state shared by many tickets
+    (the drink's name and full recipe)."""
 
     name: str
-    color: str
+    recipe: str
 
-    def draw(self, x: int, y: int) -> None:
-        # Extrinsic state (position) is supplied by the caller.
-        print(f"draw {self.color} {self.name} at ({x}, {y})")
+    def print_ticket(self, order_no: int, table: int) -> None:
+        # Extrinsic state (order number, table) is supplied by the caller.
+        print(f"ticket #{order_no} (table {table}): {self.name} — {self.recipe}")
 
 
-class TreeTypeFactory:
-    """Caches and reuses TreeType instances."""
+class DrinkTypeFactory:
+    """Caches and reuses DrinkType instances."""
 
     def __init__(self):
-        self._cache: dict[tuple[str, str], TreeType] = {}
+        self._cache: dict[str, DrinkType] = {}
 
-    def get(self, name: str, color: str) -> TreeType:
-        key = (name, color)
-        if key not in self._cache:
-            self._cache[key] = TreeType(name, color)
-            print(f"(created new flyweight: {name}/{color})")
-        return self._cache[key]
+    def get(self, name: str, recipe: str) -> DrinkType:
+        if name not in self._cache:
+            self._cache[name] = DrinkType(name, recipe)
+            print(f"(created new flyweight: {name})")
+        return self._cache[name]
 
     def unique_types(self) -> int:
         return len(self._cache)
 
 
 @dataclass
-class Tree:
-    """Context object: tiny — position plus a shared flyweight."""
+class OrderTicket:
+    """Context object: tiny — extrinsic state plus a shared flyweight."""
 
-    x: int
-    y: int
-    type: TreeType
+    order_no: int
+    table: int
+    type: DrinkType
 
 
 def main():
-    factory = TreeTypeFactory()
-    forest = [
-        Tree(1, 2, factory.get("oak", "green")),
-        Tree(3, 1, factory.get("oak", "green")),
-        Tree(5, 7, factory.get("pine", "dark-green")),
-        Tree(2, 8, factory.get("oak", "green")),
-        Tree(9, 4, factory.get("pine", "dark-green")),
-        Tree(6, 6, factory.get("oak", "green")),
+    factory = DrinkTypeFactory()
+    rail = [
+        OrderTicket(101, 1, factory.get("latte", "2 shots + steamed milk")),
+        OrderTicket(102, 3, factory.get("latte", "2 shots + steamed milk")),
+        OrderTicket(103, 2, factory.get("matcha", "whisked matcha + milk")),
+        OrderTicket(104, 5, factory.get("latte", "2 shots + steamed milk")),
+        OrderTicket(105, 4, factory.get("matcha", "whisked matcha + milk")),
+        OrderTicket(106, 1, factory.get("latte", "2 shots + steamed milk")),
     ]
 
-    for tree in forest:
-        tree.type.draw(tree.x, tree.y)
+    for ticket in rail:
+        ticket.type.print_ticket(ticket.order_no, ticket.table)
 
-    print(f"trees: {len(forest)}, flyweights: {factory.unique_types()}")
-    print("oak flyweight shared?", forest[0].type is forest[1].type)
+    print(f"tickets: {len(rail)}, drink flyweights: {factory.unique_types()}")
+    print("latte flyweight shared?", rail[0].type is rail[1].type)
 
 
 if __name__ == "__main__":

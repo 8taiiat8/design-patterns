@@ -6,6 +6,7 @@
 
 - [C++ 示例（全部 23 种 GoF 设计模式）](cpp/README.md)
 - [Python 示例（全部 23 种 GoF 设计模式）](python/README.md)
+- [☕ Café Patterna 学习指南 / story-based study guide（故事 + 学习计划 + 测验）](document/cafe-patterna-study-guide.html)
 
 ## 如何使用此源码示例
 

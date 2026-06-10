@@ -1,72 +1,76 @@
-// State — let an object change its behavior when its internal state
-// changes, by delegating behavior to a state object.
+// ☕ Café Patterna — Chapter 20: The Moody Espresso Machine
 //
-// Use when an object has large conditionals on its current state
-// (switch(status) everywhere); each state becomes a class and transitions
-// swap the current state object.
+// STORY: The espresso machine has moods. When idle, it accepts an order;
+// when loaded, pressing "order" again just beeps angrily, but pressing
+// "brew" pours the shot and returns it to idle. Instead of one giant
+// if/else on a status flag, each mood is its own class.
+//
+// PATTERN: State — let an object change its behavior when its internal
+// state changes, by delegating behavior to a state object and swapping it
+// on transitions.
 //
 // Build: g++ -std=c++17 state.cpp -o state
 
 #include <iostream>
 #include <memory>
 
-class VendingMachine;
+class EspressoMachine;
 
 // State interface: one method per event the machine can receive.
-class State {
+class MachineState {
 public:
-    virtual ~State() = default;
-    virtual void insertCoin(VendingMachine& machine) = 0;
-    virtual void dispense(VendingMachine& machine) = 0;
+    virtual ~MachineState() = default;
+    virtual void pressOrder(EspressoMachine& machine) = 0;
+    virtual void pressBrew(EspressoMachine& machine) = 0;
 };
 
-class VendingMachine {
+class EspressoMachine {
 public:
-    VendingMachine();
+    EspressoMachine();
 
-    void insertCoin();
-    void dispense();
-    void setState(std::unique_ptr<State> state) { state_ = std::move(state); }
+    void pressOrder();
+    void pressBrew();
+    void setState(std::unique_ptr<MachineState> state) { state_ = std::move(state); }
 
 private:
-    std::unique_ptr<State> state_;
+    std::unique_ptr<MachineState> state_;
 };
 
 // Concrete states
-class HasCoinState : public State {
+class LoadedState : public MachineState {
 public:
-    void insertCoin(VendingMachine&) override {
-        std::cout << "coin already inserted, returning it\n";
+    void pressOrder(EspressoMachine&) override {
+        std::cout << "machine beeps: already loaded with an order\n";
     }
-    void dispense(VendingMachine& machine) override;
+    void pressBrew(EspressoMachine& machine) override;
 };
 
-class IdleState : public State {
+class IdleState : public MachineState {
 public:
-    void insertCoin(VendingMachine& machine) override {
-        std::cout << "coin accepted\n";
-        machine.setState(std::make_unique<HasCoinState>());
+    void pressOrder(EspressoMachine& machine) override {
+        std::cout << "order accepted, grounds loaded\n";
+        machine.setState(std::make_unique<LoadedState>());
     }
-    void dispense(VendingMachine&) override {
-        std::cout << "insert a coin first\n";
+    void pressBrew(EspressoMachine&) override {
+        std::cout << "nothing loaded, place an order first\n";
     }
 };
 
-void HasCoinState::dispense(VendingMachine& machine) {
-    std::cout << "dispensing snack, back to idle\n";
+void LoadedState::pressBrew(EspressoMachine& machine) {
+    std::cout << "brewing... shot poured, back to idle\n";
     machine.setState(std::make_unique<IdleState>());
 }
 
-VendingMachine::VendingMachine() : state_(std::make_unique<IdleState>()) {}
-void VendingMachine::insertCoin() { state_->insertCoin(*this); }
-void VendingMachine::dispense() { state_->dispense(*this); }
+EspressoMachine::EspressoMachine() : state_(std::make_unique<IdleState>()) {}
+void EspressoMachine::pressOrder() { state_->pressOrder(*this); }
+void EspressoMachine::pressBrew() { state_->pressBrew(*this); }
 
 int main() {
-    VendingMachine machine;
-    machine.dispense();    // idle: refuses
-    machine.insertCoin();  // idle -> has coin
-    machine.insertCoin();  // has coin: rejects second coin
-    machine.dispense();    // has coin -> idle, dispenses
-    machine.dispense();    // idle again: refuses
+    EspressoMachine machine;
+    machine.pressBrew();   // idle: refuses
+    machine.pressOrder();  // idle -> loaded
+    machine.pressOrder();  // loaded: beeps
+    machine.pressBrew();   // loaded -> idle, pours the shot
+    machine.pressBrew();   // idle again: refuses
     return 0;
 }

@@ -1,9 +1,13 @@
-"""State — let an object change its behavior when its internal state
-changes, by delegating behavior to a state object.
+"""Café Patterna — Chapter 20: The Moody Espresso Machine
 
-Use when an object has large conditionals on its current state
-(if status == ... everywhere); each state becomes a class and transitions
-swap the current state object.
+STORY: The espresso machine has moods. When idle, it accepts an order;
+when loaded, pressing "order" again just beeps angrily, but pressing
+"brew" pours the shot and returns it to idle. Instead of one giant
+if/else on a status flag, each mood is its own class.
+
+PATTERN: State — let an object change its behavior when its internal
+state changes, by delegating behavior to a state object and swapping it
+on transitions.
 
 Run: python3 state.py
 """
@@ -11,54 +15,54 @@ Run: python3 state.py
 from abc import ABC, abstractmethod
 
 
-class State(ABC):
+class MachineState(ABC):
     """One method per event the machine can receive."""
 
     @abstractmethod
-    def insert_coin(self, machine: "VendingMachine") -> None: ...
+    def press_order(self, machine: "EspressoMachine") -> None: ...
 
     @abstractmethod
-    def dispense(self, machine: "VendingMachine") -> None: ...
+    def press_brew(self, machine: "EspressoMachine") -> None: ...
 
 
-class IdleState(State):
-    def insert_coin(self, machine: "VendingMachine") -> None:
-        print("coin accepted")
-        machine.state = HasCoinState()
+class IdleState(MachineState):
+    def press_order(self, machine: "EspressoMachine") -> None:
+        print("order accepted, grounds loaded")
+        machine.state = LoadedState()
 
-    def dispense(self, machine: "VendingMachine") -> None:
-        print("insert a coin first")
+    def press_brew(self, machine: "EspressoMachine") -> None:
+        print("nothing loaded, place an order first")
 
 
-class HasCoinState(State):
-    def insert_coin(self, machine: "VendingMachine") -> None:
-        print("coin already inserted, returning it")
+class LoadedState(MachineState):
+    def press_order(self, machine: "EspressoMachine") -> None:
+        print("machine beeps: already loaded with an order")
 
-    def dispense(self, machine: "VendingMachine") -> None:
-        print("dispensing snack, back to idle")
+    def press_brew(self, machine: "EspressoMachine") -> None:
+        print("brewing... shot poured, back to idle")
         machine.state = IdleState()
 
 
-class VendingMachine:
+class EspressoMachine:
     """Context: forwards events to its current state object."""
 
     def __init__(self):
-        self.state: State = IdleState()
+        self.state: MachineState = IdleState()
 
-    def insert_coin(self) -> None:
-        self.state.insert_coin(self)
+    def press_order(self) -> None:
+        self.state.press_order(self)
 
-    def dispense(self) -> None:
-        self.state.dispense(self)
+    def press_brew(self) -> None:
+        self.state.press_brew(self)
 
 
 def main():
-    machine = VendingMachine()
-    machine.dispense()     # idle: refuses
-    machine.insert_coin()  # idle -> has coin
-    machine.insert_coin()  # has coin: rejects second coin
-    machine.dispense()     # has coin -> idle, dispenses
-    machine.dispense()     # idle again: refuses
+    machine = EspressoMachine()
+    machine.press_brew()   # idle: refuses
+    machine.press_order()  # idle -> loaded
+    machine.press_order()  # loaded: beeps
+    machine.press_brew()   # loaded -> idle, pours the shot
+    machine.press_brew()   # idle again: refuses
 
 
 if __name__ == "__main__":

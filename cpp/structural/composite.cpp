@@ -1,9 +1,12 @@
-// Composite — compose objects into tree structures and let clients treat
-// individual objects and compositions uniformly.
+// ☕ Café Patterna — Chapter 8: The Menu Grows
 //
-// Use when your domain is naturally a tree (file systems, GUI widgets,
-// organization charts) and you want one interface for both leaves and
-// groups.
+// STORY: The menu used to be five drinks. Now it has sections, sections
+// inside sections, and combo deals. The owner just wants to ask any line
+// on the menu — a single croissant or the entire "Breakfast" section —
+// the same question: "what does this cost?"
+//
+// PATTERN: Composite — compose objects into tree structures and let
+// clients treat individual items and groups uniformly.
 //
 // Build: g++ -std=c++17 composite.cpp -o composite
 
@@ -12,13 +15,13 @@
 #include <string>
 #include <vector>
 
-// Component: common interface for files and directories.
-class FileSystemNode {
+// Component: common interface for single items and whole sections.
+class MenuComponent {
 public:
-    explicit FileSystemNode(std::string name) : name_(std::move(name)) {}
-    virtual ~FileSystemNode() = default;
+    explicit MenuComponent(std::string name) : name_(std::move(name)) {}
+    virtual ~MenuComponent() = default;
 
-    virtual long size() const = 0;
+    virtual long priceCents() const = 0;
     virtual void print(int indent) const = 0;
 
 protected:
@@ -26,54 +29,56 @@ protected:
 };
 
 // Leaf
-class File : public FileSystemNode {
+class MenuItem : public MenuComponent {
 public:
-    File(std::string name, long size) : FileSystemNode(std::move(name)), size_(size) {}
+    MenuItem(std::string name, long priceCents)
+        : MenuComponent(std::move(name)), priceCents_(priceCents) {}
 
-    long size() const override { return size_; }
+    long priceCents() const override { return priceCents_; }
 
     void print(int indent) const override {
-        std::cout << std::string(indent, ' ') << "- " << name_ << " (" << size_ << " bytes)\n";
+        std::cout << std::string(indent, ' ') << "- " << name_
+                  << " ($" << priceCents_ / 100.0 << ")\n";
     }
 
 private:
-    long size_;
+    long priceCents_;
 };
 
 // Composite: holds children and forwards operations to them.
-class Directory : public FileSystemNode {
+class MenuSection : public MenuComponent {
 public:
-    explicit Directory(std::string name) : FileSystemNode(std::move(name)) {}
+    explicit MenuSection(std::string name) : MenuComponent(std::move(name)) {}
 
-    void add(std::unique_ptr<FileSystemNode> child) {
+    void add(std::unique_ptr<MenuComponent> child) {
         children_.push_back(std::move(child));
     }
 
-    long size() const override {
+    long priceCents() const override {
         long total = 0;
-        for (const auto& child : children_) total += child->size();
+        for (const auto& child : children_) total += child->priceCents();
         return total;
     }
 
     void print(int indent) const override {
-        std::cout << std::string(indent, ' ') << "+ " << name_ << "/\n";
+        std::cout << std::string(indent, ' ') << "+ " << name_ << "\n";
         for (const auto& child : children_) child->print(indent + 2);
     }
 
 private:
-    std::vector<std::unique_ptr<FileSystemNode>> children_;
+    std::vector<std::unique_ptr<MenuComponent>> children_;
 };
 
 int main() {
-    auto root = std::make_unique<Directory>("project");
-    root->add(std::make_unique<File>("README.md", 1200));
+    auto menu = std::make_unique<MenuSection>("Café Patterna Menu");
+    menu->add(std::make_unique<MenuItem>("espresso", 200));
 
-    auto src = std::make_unique<Directory>("src");
-    src->add(std::make_unique<File>("main.cpp", 3400));
-    src->add(std::make_unique<File>("util.cpp", 2100));
-    root->add(std::move(src));
+    auto breakfast = std::make_unique<MenuSection>("Breakfast combo");
+    breakfast->add(std::make_unique<MenuItem>("latte", 350));
+    breakfast->add(std::make_unique<MenuItem>("croissant", 300));
+    menu->add(std::move(breakfast));
 
-    root->print(0);
-    std::cout << "total size: " << root->size() << " bytes\n";
+    menu->print(0);
+    std::cout << "whole menu, one of each: $" << menu->priceCents() / 100.0 << "\n";
     return 0;
 }

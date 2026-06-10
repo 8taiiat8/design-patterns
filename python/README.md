@@ -1,8 +1,14 @@
-# Design Patterns in Python
+# Design Patterns in Python — the Café Patterna story
 
 Self-contained, runnable examples of all 23 GoF design patterns. Each
 `.py` file is a complete script with a `main()` that demonstrates one
 pattern, plus a docstring explaining the intent and when to use it.
+
+All 23 examples are chapters of one continuous story — **Café Patterna**,
+a coffee shop you grow into an empire. Creational patterns are Act 1
+(Opening Day), structural are Act 2 (The Expansion), behavioral are Act 3
+(The Daily Grind). Read the full storyline, study plan, and mastery quiz
+in the [study guide](../document/cafe-patterna-study-guide.html).
 
 Where Python offers a more idiomatic alternative to the classic GoF
 formulation, the example shows both — e.g. functions as strategies,

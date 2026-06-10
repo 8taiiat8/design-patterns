@@ -1,8 +1,12 @@
-"""Composite — compose objects into tree structures and let clients treat
-individual objects and compositions uniformly.
+"""Café Patterna — Chapter 8: The Menu Grows
 
-Use when your domain is naturally a tree (file systems, GUI widgets,
-org charts) and you want one interface for both leaves and groups.
+STORY: The menu used to be five drinks. Now it has sections, sections
+inside sections, and combo deals. The owner just wants to ask any line on
+the menu — a single croissant or the entire "Breakfast" section — the
+same question: "what does this cost?"
+
+PATTERN: Composite — compose objects into tree structures and let clients
+treat individual items and groups uniformly.
 
 Run: python3 composite.py
 """
@@ -10,56 +14,60 @@ Run: python3 composite.py
 from abc import ABC, abstractmethod
 
 
-# Component: common interface for files and directories.
-class FileSystemNode(ABC):
+# Component: common interface for single items and whole sections.
+class MenuComponent(ABC):
     def __init__(self, name: str):
         self.name = name
 
     @abstractmethod
-    def size(self) -> int: ...
+    def price_cents(self) -> int: ...
 
     @abstractmethod
     def print(self, indent: int = 0) -> None: ...
 
 
 # Leaf
-class File(FileSystemNode):
-    def __init__(self, name: str, size: int):
+class MenuItem(MenuComponent):
+    def __init__(self, name: str, price_cents: int):
         super().__init__(name)
-        self._size = size
+        self._price_cents = price_cents
 
-    def size(self) -> int:
-        return self._size
+    def price_cents(self) -> int:
+        return self._price_cents
 
     def print(self, indent: int = 0) -> None:
-        print(f"{' ' * indent}- {self.name} ({self._size} bytes)")
+        print(f"{' ' * indent}- {self.name} (${self._price_cents / 100})")
 
 
 # Composite: holds children and forwards operations to them.
-class Directory(FileSystemNode):
+class MenuSection(MenuComponent):
     def __init__(self, name: str):
         super().__init__(name)
-        self.children: list[FileSystemNode] = []
+        self.children: list[MenuComponent] = []
 
-    def add(self, node: FileSystemNode) -> "Directory":
-        self.children.append(node)
+    def add(self, component: MenuComponent) -> "MenuSection":
+        self.children.append(component)
         return self
 
-    def size(self) -> int:
-        return sum(child.size() for child in self.children)
+    def price_cents(self) -> int:
+        return sum(child.price_cents() for child in self.children)
 
     def print(self, indent: int = 0) -> None:
-        print(f"{' ' * indent}+ {self.name}/")
+        print(f"{' ' * indent}+ {self.name}")
         for child in self.children:
             child.print(indent + 2)
 
 
 def main():
-    src = Directory("src").add(File("main.py", 3400)).add(File("util.py", 2100))
-    root = Directory("project").add(File("README.md", 1200)).add(src)
+    breakfast = (
+        MenuSection("Breakfast combo")
+        .add(MenuItem("latte", 350))
+        .add(MenuItem("croissant", 300))
+    )
+    menu = MenuSection("Café Patterna Menu").add(MenuItem("espresso", 200)).add(breakfast)
 
-    root.print()
-    print(f"total size: {root.size()} bytes")
+    menu.print()
+    print(f"whole menu, one of each: ${menu.price_cents() / 100}")
 
 
 if __name__ == "__main__":

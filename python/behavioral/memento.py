@@ -1,9 +1,14 @@
-"""Memento — capture an object's internal state in a snapshot so it can be
-restored later, without exposing the object's internals.
+"""Café Patterna — Chapter 18: The Chalkboard Specials
 
-Use for undo, checkpoints, and transactional rollback. The originator
-creates/restores mementos; the caretaker stores them but never looks
-inside.
+STORY: Every morning you draft today's specials on the chalkboard. Before
+each risky idea ("durian latte"?) you photograph the board. When an idea
+flops, you restore the board from the last photo. The photos go in a
+drawer — whoever keeps them never reads the board off of them, they just
+hand them back.
+
+PATTERN: Memento — capture an object's internal state in a snapshot so it
+can be restored later, without exposing the object's internals.
+Originator = chalkboard, memento = photo, caretaker = the drawer.
 
 Run: python3 memento.py
 """
@@ -12,65 +17,65 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class Snapshot:
+class Photo:
     """Memento: immutable, treated as opaque by the caretaker."""
 
     text: str
 
 
-class TextEditor:
+class Chalkboard:
     """Originator: the object whose state we snapshot."""
 
     def __init__(self):
         self._text = ""
 
-    def type(self, words: str) -> None:
-        self._text += words
+    def write(self, chalk: str) -> None:
+        self._text += chalk
 
-    def save(self) -> Snapshot:
-        return Snapshot(self._text)
+    def snap(self) -> Photo:
+        return Photo(self._text)
 
-    def restore(self, snapshot: Snapshot) -> None:
-        self._text = snapshot.text
+    def restore(self, photo: Photo) -> None:
+        self._text = photo.text
 
     def show(self) -> None:
-        print(f'editor: "{self._text}"')
+        print(f'chalkboard: "{self._text}"')
 
 
-class History:
-    """Caretaker: manages snapshots without inspecting them."""
+class PhotoDrawer:
+    """Caretaker: stores photos without inspecting them."""
 
     def __init__(self):
-        self._stack: list[Snapshot] = []
+        self._stack: list[Photo] = []
 
-    def push(self, snapshot: Snapshot) -> None:
-        self._stack.append(snapshot)
+    def keep(self, photo: Photo) -> None:
+        self._stack.append(photo)
 
-    def undo(self, editor: TextEditor) -> bool:
+    def undo(self, board: Chalkboard) -> bool:
         if not self._stack:
             return False
-        editor.restore(self._stack.pop())
+        board.restore(self._stack.pop())
         return True
 
 
 def main():
-    editor = TextEditor()
-    history = History()
+    board = Chalkboard()
+    drawer = PhotoDrawer()
 
-    editor.type("Hello")
-    history.push(editor.save())
+    board.write("TODAY: flat white $3")
+    drawer.keep(board.snap())
 
-    editor.type(", world")
-    history.push(editor.save())
+    board.write(" | pumpkin latte $4")
+    drawer.keep(board.snap())
 
-    editor.type("!!! oops, typo")
-    editor.show()
+    board.write(" | durian latte $6")  # bold. too bold.
+    board.show()
 
-    history.undo(editor)  # back to "Hello, world"
-    editor.show()
+    drawer.undo(board)  # scrap the durian idea
+    board.show()
 
-    history.undo(editor)  # back to "Hello"
-    editor.show()
+    drawer.undo(board)  # back to just the flat white
+    board.show()
 
 
 if __name__ == "__main__":

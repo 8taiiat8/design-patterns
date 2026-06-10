@@ -1,8 +1,13 @@
-"""Strategy — define a family of interchangeable algorithms and make them
-swappable at run time behind a common interface.
+"""Café Patterna — Chapter 21: Happy Hour
 
-Use when a class needs one of several behaviors (pricing rules,
-compression formats) and you want to avoid conditionals. In Python,
+STORY: The same latte costs different money depending on the moment: full
+price in the morning rush, half price during happy hour, 10% off for
+members. The till doesn't care WHICH rule is active — it just asks the
+current pricing rule for the final price, and you can swap the rule when
+the clock strikes five.
+
+PATTERN: Strategy — define a family of interchangeable algorithms and
+make them swappable at run time behind a common interface. In Python,
 plain functions often serve as lightweight strategies — both styles are
 shown below.
 
@@ -23,7 +28,7 @@ class RegularPricing(PricingStrategy):
         return base
 
 
-class BlackFridayPricing(PricingStrategy):
+class HappyHourPricing(PricingStrategy):
     def final_price(self, base: float) -> float:
         return base * 0.5
 
@@ -33,33 +38,33 @@ class MemberPricing(PricingStrategy):
         return base * 0.9
 
 
-class Checkout:
+class Till:
     """Context: configured with a strategy, unaware of which one."""
 
     def __init__(self, strategy: PricingStrategy):
         self.strategy = strategy
 
-    def pay(self, base: float) -> None:
-        print(f"base ${base} -> pay ${self.strategy.final_price(base)}")
+    def charge(self, base: float) -> None:
+        print(f"latte base ${base} -> pay ${self.strategy.final_price(base)}")
 
 
 def main():
-    checkout = Checkout(RegularPricing())
-    checkout.pay(100.0)
+    till = Till(RegularPricing())
+    till.charge(4.0)
 
-    checkout.strategy = BlackFridayPricing()
-    checkout.pay(100.0)
+    till.strategy = HappyHourPricing()  # it's 5pm somewhere
+    till.charge(4.0)
 
-    checkout.strategy = MemberPricing()
-    checkout.pay(100.0)
+    till.strategy = MemberPricing()
+    till.charge(4.0)
 
     # Pythonic alternative: any callable works as a strategy.
-    strategies = {
-        "clearance": lambda base: base * 0.3,
-        "employee": lambda base: base * 0.7,
+    discounts = {
+        "staff": lambda base: base * 0.3,
+        "regulars' tuesday": lambda base: base * 0.7,
     }
-    for name, price in strategies.items():
-        print(f"{name}: pay ${price(100.0)}")
+    for name, price in discounts.items():
+        print(f"{name}: pay ${price(4.0)}")
 
 
 if __name__ == "__main__":

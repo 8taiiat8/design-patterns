@@ -1,48 +1,52 @@
-"""Chain of Responsibility — pass a request along a chain of handlers; each
-handler decides to process the request or forward it to the next one.
+"""Café Patterna — Chapter 13: "I'd Like a Refund"
 
-Use when more than one object may handle a request and the handler isn't
-known in advance (approval workflows, middleware, event bubbling).
+STORY: An unhappy customer asks for money back. The barista can refund up
+to $5 on the spot. More than that? The shift manager. A catering
+disaster? Only the owner. The customer just complains once — the request
+climbs the chain until someone can handle it.
+
+PATTERN: Chain of Responsibility — pass a request along a chain of
+handlers; each one processes it or forwards it to the next.
 
 Run: python3 chain_of_responsibility.py
 """
 
 
-class Approver:
-    """Handler: knows its successor and the amount it may approve."""
+class RefundHandler:
+    """Handler: knows its successor and the amount it may refund."""
 
     def __init__(self, title: str, limit: float):
         self.title = title
         self.limit = limit
-        self.next: "Approver | None" = None
+        self.next: "RefundHandler | None" = None
 
-    def set_next(self, approver: "Approver") -> "Approver":
-        self.next = approver
-        return approver  # allows chaining: a.set_next(b).set_next(c)
+    def set_next(self, handler: "RefundHandler") -> "RefundHandler":
+        self.next = handler
+        return handler  # allows chaining: a.set_next(b).set_next(c)
 
-    def approve(self, item: str, amount: float) -> None:
+    def handle(self, complaint: str, amount: float) -> None:
         if amount <= self.limit:
-            print(f'{self.title} approved "{item}" (${amount})')
+            print(f'{self.title} refunds ${amount} for "{complaint}"')
         elif self.next:
-            print(f"{self.title} can't approve ${amount}, escalating...")
-            self.next.approve(item, amount)
+            print(f"{self.title} can't refund ${amount}, escalating...")
+            self.next.handle(complaint, amount)
         else:
-            print(f'nobody can approve "{item}" (${amount})')
+            print(f'nobody can refund ${amount} for "{complaint}"')
 
 
 def main():
-    team_lead = Approver("Team lead", 1_000)
-    manager = Approver("Manager", 10_000)
-    cfo = Approver("CFO", 100_000)
+    barista = RefundHandler("Barista", 5)
+    shift_manager = RefundHandler("Shift manager", 50)
+    owner = RefundHandler("Owner", 500)
 
-    # Build the chain: team lead -> manager -> CFO.
-    team_lead.set_next(manager).set_next(cfo)
+    # Build the chain: barista -> shift manager -> owner.
+    barista.set_next(shift_manager).set_next(owner)
 
-    # Clients always talk to the head of the chain.
-    team_lead.approve("new keyboards", 400)
-    team_lead.approve("team offsite", 8_000)
-    team_lead.approve("office renovation", 75_000)
-    team_lead.approve("private jet", 5_000_000)
+    # Customers always complain to whoever is at the counter.
+    barista.handle("latte was cold", 4.5)
+    barista.handle("birthday cake never arrived", 35)
+    barista.handle("catering for 50 was a disaster", 400)
+    barista.handle("you ruined my wedding", 25_000)
 
 
 if __name__ == "__main__":

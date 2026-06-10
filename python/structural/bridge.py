@@ -1,9 +1,13 @@
-"""Bridge — decouple an abstraction from its implementation so the two can
-vary independently.
+"""Café Patterna — Chapter 7: Any Drink, Any Machine
 
-Use when a class hierarchy would otherwise explode combinatorially
-(Shape x RenderApi). The abstraction (Shape) holds a reference to the
-implementation (Renderer), and the two hierarchies grow separately.
+STORY: You sell lattes and cappuccinos; you own a home machine and an
+industrial one. Without care you'd need HomeLatte, IndustrialLatte,
+HomeCappuccino... a class for every combination. Instead, each DRINK
+holds a reference to a MACHINE: new drinks and new machines can now be
+added independently.
+
+PATTERN: Bridge — decouple an abstraction (Drink) from its implementation
+(BrewMachine) so the two hierarchies vary independently.
 
 Run: python3 bridge.py
 """
@@ -12,51 +16,51 @@ from abc import ABC, abstractmethod
 
 
 # Implementation hierarchy
-class Renderer(ABC):
+class BrewMachine(ABC):
     @abstractmethod
-    def render_circle(self, radius: float) -> None: ...
+    def brew_shots(self, shots: int) -> None: ...
 
 
-class VectorRenderer(Renderer):
-    def render_circle(self, radius: float) -> None:
-        print(f"drawing a circle of radius {radius} with vectors")
+class HomeMachine(BrewMachine):
+    def brew_shots(self, shots: int) -> None:
+        print(f"home machine gently brews {shots} shot(s)")
 
 
-class RasterRenderer(Renderer):
-    def render_circle(self, radius: float) -> None:
-        print(f"drawing pixels for a circle of radius {radius}")
+class IndustrialMachine(BrewMachine):
+    def brew_shots(self, shots: int) -> None:
+        print(f"industrial machine blasts out {shots} shot(s)")
 
 
 # Abstraction hierarchy: holds the "bridge" to the implementation.
-class Shape(ABC):
-    def __init__(self, renderer: Renderer):
-        self.renderer = renderer
+class Drink(ABC):
+    def __init__(self, machine: BrewMachine):
+        self.machine = machine
 
     @abstractmethod
-    def draw(self) -> None: ...
+    def prepare(self) -> None: ...
 
 
-class Circle(Shape):
-    def __init__(self, renderer: Renderer, radius: float):
-        super().__init__(renderer)
-        self.radius = radius
+class Latte(Drink):
+    def __init__(self, machine: BrewMachine, shots: int):
+        super().__init__(machine)
+        self.shots = shots
 
-    def draw(self) -> None:
-        self.renderer.render_circle(self.radius)
+    def prepare(self) -> None:
+        self.machine.brew_shots(self.shots)
 
-    def resize(self, factor: float) -> None:
-        self.radius *= factor
+    def make_it_stronger(self) -> None:
+        self.shots += 1
 
 
 def main():
-    # Any shape can be combined with any renderer at run time.
-    a = Circle(VectorRenderer(), 5.0)
-    b = Circle(RasterRenderer(), 5.0)
-    a.draw()
-    b.draw()
+    # Any drink can be paired with any machine at run time.
+    cozy = Latte(HomeMachine(), 1)
+    rush = Latte(IndustrialMachine(), 1)
+    cozy.prepare()
+    rush.prepare()
 
-    a.resize(2.0)
-    a.draw()
+    cozy.make_it_stronger()
+    cozy.prepare()
 
 
 if __name__ == "__main__":

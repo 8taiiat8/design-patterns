@@ -1,8 +1,13 @@
-// Flyweight — share common (intrinsic) state between many objects to save
-// memory, while the varying (extrinsic) state is passed in from outside.
+// ☕ Café Patterna — Chapter 11: A Thousand Tickets, Three Drinks
 //
-// Use when a program creates a huge number of similar objects (glyphs in a
-// text editor, trees in a game forest) and memory is a concern.
+// STORY: On a busy Saturday the kitchen prints thousands of order
+// tickets. But the café only sells a handful of drink types — printing
+// the full recipe on every ticket would waste mountains of paper (and in
+// code, memory). So each ticket carries only its order number and table,
+// plus a POINTER to the one shared drink definition.
+//
+// PATTERN: Flyweight — share common (intrinsic) state between many
+// objects; varying (extrinsic) state is passed in from outside.
 //
 // Build: g++ -std=c++17 flyweight.cpp -o flyweight
 
@@ -12,32 +17,32 @@
 #include <string>
 #include <vector>
 
-// Flyweight: stores the heavy intrinsic state shared by many objects
-// (imagine the texture/mesh of a tree type).
-class TreeType {
+// Flyweight: the heavy intrinsic state shared by many tickets
+// (the drink's name and full recipe).
+class DrinkType {
 public:
-    TreeType(std::string name, std::string color)
-        : name_(std::move(name)), color_(std::move(color)) {}
+    DrinkType(std::string name, std::string recipe)
+        : name_(std::move(name)), recipe_(std::move(recipe)) {}
 
-    // Extrinsic state (position) is supplied by the caller.
-    void draw(int x, int y) const {
-        std::cout << "draw " << color_ << " " << name_ << " at (" << x << ", " << y << ")\n";
+    // Extrinsic state (order number, table) is supplied by the caller.
+    void printTicket(int orderNo, int table) const {
+        std::cout << "ticket #" << orderNo << " (table " << table << "): "
+                  << name_ << " — " << recipe_ << "\n";
     }
 
 private:
     std::string name_;
-    std::string color_;
+    std::string recipe_;
 };
 
-// Flyweight factory: caches and reuses TreeType instances.
-class TreeTypeFactory {
+// Flyweight factory: caches and reuses DrinkType instances.
+class DrinkTypeFactory {
 public:
-    const TreeType& get(const std::string& name, const std::string& color) {
-        std::string key = name + "/" + color;
-        auto it = cache_.find(key);
+    const DrinkType& get(const std::string& name, const std::string& recipe) {
+        auto it = cache_.find(name);
         if (it == cache_.end()) {
-            it = cache_.emplace(key, std::make_unique<TreeType>(name, color)).first;
-            std::cout << "(created new flyweight: " << key << ")\n";
+            it = cache_.emplace(name, std::make_unique<DrinkType>(name, recipe)).first;
+            std::cout << "(created new flyweight: " << name << ")\n";
         }
         return *it->second;
     }
@@ -45,30 +50,30 @@ public:
     size_t uniqueTypes() const { return cache_.size(); }
 
 private:
-    std::map<std::string, std::unique_ptr<TreeType>> cache_;
+    std::map<std::string, std::unique_ptr<DrinkType>> cache_;
 };
 
-// Context object: tiny, holds only extrinsic state plus a shared flyweight.
-struct Tree {
-    int x;
-    int y;
-    const TreeType* type;
+// Context object: tiny — extrinsic state plus a shared flyweight.
+struct OrderTicket {
+    int orderNo;
+    int table;
+    const DrinkType* type;
 };
 
 int main() {
-    TreeTypeFactory factory;
-    std::vector<Tree> forest;
+    DrinkTypeFactory factory;
+    std::vector<OrderTicket> rail;
 
-    // Plant 6 trees, but only 2 unique TreeType objects exist in memory.
-    forest.push_back({1, 2, &factory.get("oak", "green")});
-    forest.push_back({3, 1, &factory.get("oak", "green")});
-    forest.push_back({5, 7, &factory.get("pine", "dark-green")});
-    forest.push_back({2, 8, &factory.get("oak", "green")});
-    forest.push_back({9, 4, &factory.get("pine", "dark-green")});
-    forest.push_back({6, 6, &factory.get("oak", "green")});
+    // Six orders, but only two unique DrinkType objects exist in memory.
+    rail.push_back({101, 1, &factory.get("latte", "2 shots + steamed milk")});
+    rail.push_back({102, 3, &factory.get("latte", "2 shots + steamed milk")});
+    rail.push_back({103, 2, &factory.get("matcha", "whisked matcha + milk")});
+    rail.push_back({104, 5, &factory.get("latte", "2 shots + steamed milk")});
+    rail.push_back({105, 4, &factory.get("matcha", "whisked matcha + milk")});
+    rail.push_back({106, 1, &factory.get("latte", "2 shots + steamed milk")});
 
-    for (const auto& tree : forest) tree.type->draw(tree.x, tree.y);
-    std::cout << "trees: " << forest.size()
-              << ", flyweights: " << factory.uniqueTypes() << "\n";
+    for (const auto& ticket : rail) ticket.type->printTicket(ticket.orderNo, ticket.table);
+    std::cout << "tickets: " << rail.size()
+              << ", drink flyweights: " << factory.uniqueTypes() << "\n";
     return 0;
 }

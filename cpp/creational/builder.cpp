@@ -1,71 +1,75 @@
-// Builder — separate the construction of a complex object from its
-// representation, so the same construction process can create different
-// configurations step by step.
+// ☕ Café Patterna — Chapter 4: "Can I Get That With Oat Milk?"
 //
-// Use when an object has many optional parts and a constructor with a long
-// parameter list would be unreadable ("telescoping constructor" problem).
+// STORY: Customers never order a plain drink. It's "large, two shots, oat
+// milk, vanilla, extra hot". A constructor with seven parameters would be
+// a nightmare, so the counter assembles each drink step by step — and the
+// menu board keeps recipes (a director) for the house favorites.
+//
+// PATTERN: Builder — separate the construction of a complex object from
+// its representation, so the same process can create different
+// configurations step by step.
 //
 // Build: g++ -std=c++17 builder.cpp -o builder
 
 #include <iostream>
 #include <string>
 
-class Computer {
+class Drink {
 public:
-    std::string cpu;
-    std::string ram;
-    int usbPorts = 0;
-    std::string display;
+    std::string base;
+    std::string size;
+    int shots = 0;
+    std::string milk;
 
     void describe() const {
-        std::cout << "Computer{cpu=" << cpu << ", ram=" << ram
-                  << ", usbPorts=" << usbPorts << ", display=" << display << "}\n";
+        std::cout << "Drink{base=" << base << ", size=" << size
+                  << ", shots=" << shots << ", milk=" << milk << "}\n";
     }
 };
 
 // Fluent builder: each setter returns *this so calls can be chained.
-class ComputerBuilder {
+class DrinkBuilder {
 public:
-    ComputerBuilder& cpu(std::string value) { computer_.cpu = std::move(value); return *this; }
-    ComputerBuilder& ram(std::string value) { computer_.ram = std::move(value); return *this; }
-    ComputerBuilder& usbPorts(int value) { computer_.usbPorts = value; return *this; }
-    ComputerBuilder& display(std::string value) { computer_.display = std::move(value); return *this; }
+    DrinkBuilder& base(std::string value) { drink_.base = std::move(value); return *this; }
+    DrinkBuilder& size(std::string value) { drink_.size = std::move(value); return *this; }
+    DrinkBuilder& shots(int value) { drink_.shots = value; return *this; }
+    DrinkBuilder& milk(std::string value) { drink_.milk = std::move(value); return *this; }
 
-    Computer build() { return computer_; }
+    Drink build() { return drink_; }
 
 private:
-    Computer computer_;
+    Drink drink_;
 };
 
-// Optional "director": encapsulates well-known build recipes.
-class Director {
+// The menu board (director): encapsulates well-known recipes.
+class MenuBoard {
 public:
-    static Computer gamingPc() {
-        return ComputerBuilder{}
-            .cpu("Ryzen 9")
-            .ram("64GB DDR5")
-            .usbPorts(6)
-            .display("4K 144Hz")
+    static Drink houseLatte() {
+        return DrinkBuilder{}
+            .base("espresso")
+            .size("medium")
+            .shots(2)
+            .milk("whole, steamed")
             .build();
     }
 
-    static Computer officePc() {
-        return ComputerBuilder{}
-            .cpu("Core i5")
-            .ram("16GB DDR4")
-            .usbPorts(4)
-            .display("1080p")
+    static Drink tripleMocha() {
+        return DrinkBuilder{}
+            .base("mocha")
+            .size("large")
+            .shots(3)
+            .milk("oat, extra foam")
             .build();
     }
 };
 
 int main() {
-    // Build a custom machine step by step.
-    Computer custom = ComputerBuilder{}.cpu("Apple M3").ram("32GB").usbPorts(2).display("Retina").build();
+    // A picky customer builds a custom drink step by step.
+    Drink custom = DrinkBuilder{}.base("espresso").size("large").shots(2).milk("oat").build();
     custom.describe();
 
-    // Or use the director's predefined recipes.
-    Director::gamingPc().describe();
-    Director::officePc().describe();
+    // Or order straight off the menu board's recipes.
+    MenuBoard::houseLatte().describe();
+    MenuBoard::tripleMocha().describe();
     return 0;
 }

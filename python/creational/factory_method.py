@@ -1,8 +1,12 @@
-"""Factory Method — define an interface for creating an object, but let
-subclasses decide which concrete class to instantiate.
+"""Café Patterna — Chapter 2: Hiring Baristas
 
-Use when a class can't anticipate the type of objects it must create, or
-when you want to localize the knowledge of which class gets created.
+STORY: Business grows, so you hire baristas. You don't tell each barista
+HOW to serve a customer — the routine is the same (greet, craft the drink,
+hand it over). What differs is WHICH drink each specialist crafts: the
+espresso barista pulls shots, the tea master whisks matcha.
+
+PATTERN: Factory Method — define an interface for creating an object, but
+let subclasses decide which concrete class to instantiate.
 
 Run: python3 factory_method.py
 """
@@ -11,45 +15,45 @@ from abc import ABC, abstractmethod
 
 
 # Product interface
-class Transport(ABC):
+class Drink(ABC):
     @abstractmethod
-    def deliver(self) -> str: ...
+    def describe(self) -> str: ...
 
 
-class Truck(Transport):
-    def deliver(self) -> str:
-        return "deliver by land in a truck"
+class Espresso(Drink):
+    def describe(self) -> str:
+        return "a double espresso, rich crema"
 
 
-class Ship(Transport):
-    def deliver(self) -> str:
-        return "deliver by sea in a ship"
+class MatchaLatte(Drink):
+    def describe(self) -> str:
+        return "a matcha latte, whisked to order"
 
 
-# Creator: business logic depends only on the Transport interface;
+# Creator: the serving routine relies only on the Drink interface;
 # the factory method defers the concrete choice to subclasses.
-class Logistics(ABC):
-    def plan_delivery(self) -> None:
-        transport = self.create_transport()  # the factory method
-        print(f"Planning: {transport.deliver()}")
+class Barista(ABC):
+    def serve_customer(self) -> None:
+        drink = self.craft_signature_drink()  # the factory method
+        print(f"Barista serves {drink.describe()}")
 
     @abstractmethod
-    def create_transport(self) -> Transport: ...
+    def craft_signature_drink(self) -> Drink: ...
 
 
-class RoadLogistics(Logistics):
-    def create_transport(self) -> Transport:
-        return Truck()
+class EspressoBarista(Barista):
+    def craft_signature_drink(self) -> Drink:
+        return Espresso()
 
 
-class SeaLogistics(Logistics):
-    def create_transport(self) -> Transport:
-        return Ship()
+class TeaMaster(Barista):
+    def craft_signature_drink(self) -> Drink:
+        return MatchaLatte()
 
 
 def main():
-    RoadLogistics().plan_delivery()
-    SeaLogistics().plan_delivery()
+    EspressoBarista().serve_customer()
+    TeaMaster().serve_customer()
 
 
 if __name__ == "__main__":

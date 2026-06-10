@@ -1,8 +1,14 @@
-# Design Patterns in C++
+# Design Patterns in C++ — the Café Patterna story
 
 Self-contained, runnable examples of all 23 GoF design patterns. Each
 `.cpp` file is a complete program with a `main()` that demonstrates one
 pattern, plus a header comment explaining the intent and when to use it.
+
+All 23 examples are chapters of one continuous story — **Café Patterna**,
+a coffee shop you grow into an empire. Creational patterns are Act 1
+(Opening Day), structural are Act 2 (The Expansion), behavioral are Act 3
+(The Daily Grind). Read the full storyline, study plan, and mastery quiz
+in the [study guide](../document/cafe-patterna-study-guide.html).
 
 ## Build & run
 
