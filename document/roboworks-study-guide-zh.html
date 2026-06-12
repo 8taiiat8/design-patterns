@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器人工厂 RoboWorks — 用一个故事掌握全部 23 种设计模式</title>
+<style>
+  :root {
+    --steel: #1f2a38;
+    --chrome: #8fa6bd;
+    --plate: #eef2f6;
+    --accent: #e07b39;
+    --ink: #222831;
+    --card: #ffffff;
+    --act1: #5d9c7a;
+    --act2: #5b84b1;
+    --act3: #a06a9c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--plate);
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.7;
+  }
+  header {
+    background: var(--steel);
+    color: var(--plate);
+    text-align: center;
+    padding: 3rem 1rem 2.5rem;
+  }
+  header h1 { margin: 0 0 .5rem; font-size: 2.2rem; }
+  header p { margin: 0; color: var(--chrome); }
+  nav {
+    background: var(--chrome);
+    text-align: center;
+    padding: .6rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav a {
+    color: var(--steel);
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 .8rem;
+    font-size: .9rem;
+  }
+  nav a:hover { text-decoration: underline; }
+  main { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  h2 {
+    color: var(--steel);
+    border-bottom: 3px solid var(--chrome);
+    padding-bottom: .3rem;
+    margin-top: 3rem;
+  }
+  h3 { color: var(--accent); }
+  .act {
+    border-left: 6px solid;
+    padding: .2rem 1rem;
+    margin: 2rem 0 1rem;
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+  }
+  .act1 { border-color: var(--act1); }
+  .act2 { border-color: var(--act2); }
+  .act3 { border-color: var(--act3); }
+  .chapter {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: .8rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+  .chapter h4 { margin: 0 0 .3rem; color: var(--steel); font-size: 1.05rem; }
+  .chapter .hook { color: #55606e; margin: .2rem 0; }
+  .chapter .anchor {
+    font-size: .85rem;
+    background: var(--plate);
+    border: 1px solid var(--chrome);
+    border-radius: 4px;
+    padding: .15rem .5rem;
+    display: inline-block;
+    margin-top: .3rem;
+  }
+  .files { font-family: monospace; font-size: .8rem; margin-top: .35rem; }
+  .files a { color: var(--accent); }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: var(--card);
+    font-size: .92rem;
+  }
+  th, td { border: 1px solid var(--chrome); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  th { background: var(--steel); color: var(--plate); font-size: .85rem; }
+  tr:nth-child(even) { background: var(--plate); }
+  .step {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    border-top: 4px solid var(--chrome);
+  }
+  .step h4 { margin: 0 0 .4rem; color: var(--steel); }
+  .step .time {
+    font-size: .75rem;
+    color: var(--plate);
+    background: var(--accent);
+    border-radius: 10px;
+    padding: .1rem .6rem;
+    float: right;
+  }
+  details {
+    background: var(--card);
+    border: 1px solid var(--chrome);
+    border-radius: 6px;
+    padding: .6rem .9rem;
+    margin: .6rem 0;
+  }
+  summary { cursor: pointer; font-weight: bold; color: var(--steel); }
+  details .answer { margin-top: .5rem; padding-top: .5rem; border-top: 1px dashed var(--chrome); }
+  code {
+    background: #dde5ec;
+    border-radius: 3px;
+    padding: .05rem .3rem;
+    font-size: .88em;
+  }
+  .tip {
+    background: #fdf6d8;
+    border-left: 5px solid #d8b400;
+    padding: .7rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1rem 0;
+  }
+  .checklist li { margin: .35rem 0; }
+  footer {
+    text-align: center;
+    color: #6b7886;
+    font-size: .85rem;
+    padding: 2rem 1rem;
+    border-top: 2px solid var(--chrome);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 机器人工厂 RoboWorks</h1>
+  <p>用一个故事掌握全部 23 种 GoF 设计模式：你白手起家，把一座机器人工厂做成商业帝国。</p>
+  <p style="margin-top:.6rem"><a href="roboworks-study-guide.html" style="color:#e07b39">English version / 英文版 →</a></p>
+</header>
+
+<nav>
+  <a href="#story">故事</a>
+  <a href="#cheatsheet">速记表</a>
+  <a href="#plan">学习计划</a>
+  <a href="#quiz">掌握度测验</a>
+  <a href="#checklist">通关清单</a>
+</nav>
+
+<main>
+
+<!-- ============================== 故事 =============================== -->
+<h2 id="story">📖 故事 — 三幕，二十三章</h2>
+<p>
+故事的每一章对应一个设计模式，每一章都是可直接运行的程序，中文版代码在
+<code>cpp-zh/</code> 和 <code>python-zh/</code>，英文版在 <code>cpp/</code> 和
+<code>python/</code>。三幕恰好对应 GoF 的三大分类——光是记住这个对应关系就值回票价：
+</p>
+<ul>
+  <li><strong>第一幕 · 创业车间</strong> = <strong>创建型</strong>：机器人是怎么"造"出来的。</li>
+  <li><strong>第二幕 · 流水线扩张</strong> = <strong>结构型</strong>：机器人是怎么"组装拼接"起来的。</li>
+  <li><strong>第三幕 · 车间日常</strong> = <strong>行为型</strong>：大家是怎么"互相沟通"的。</li>
+</ul>
+
+<div class="act act1"><h3>第一幕 — 创业车间（创建型，5 个模式）</h3></div>
+
+<div class="chapter">
+  <h4>第 1 章 · 单例 Singleton — 唯一的中央控制器</h4>
+  <p class="hook">工厂只有一台中央控制器（MCU）。要是有两台，它们会发出互相矛盾的指令，工厂就乱套了。</p>
+  <span class="anchor">记忆锚点：全厂共用一台 MCU → 唯一实例 + 全局访问点</span>
+  <div class="files"><a href="../cpp-zh/creational/singleton.cpp">C++ 中文</a> · <a href="../python-zh/creational/singleton.py">Python 中文</a> · <a href="../cpp/creational/singleton.cpp">C++ EN</a> · <a href="../python/creational/singleton.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 2 章 · 工厂方法 Factory Method — 装配线</h4>
+  <p class="hook">每条装配线的下线流程一模一样，不同的是各条线决定自己"造哪种"机器人：焊接线出焊接机器人，清洁线出清洁机器人。</p>
+  <span class="anchor">记忆锚点：流程相同，子类决定造什么</span>
+  <div class="files"><a href="../cpp-zh/creational/factory_method.cpp">C++ 中文</a> · <a href="../python-zh/creational/factory_method.py">Python 中文</a> · <a href="../cpp/creational/factory_method.cpp">C++ EN</a> · <a href="../python/creational/factory_method.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 3 章 · 抽象工厂 Abstract Factory — 产品系列</h4>
+  <p class="hook">工业系列 = 重型底盘 + 液压臂；家用系列 = 轻型底盘 + 软抓臂。同系列零件永远配套，绝不混搭。</p>
+  <span class="anchor">记忆锚点：整套配套的产品系列 → 创建一族相关对象</span>
+  <div class="files"><a href="../cpp-zh/creational/abstract_factory.cpp">C++ 中文</a> · <a href="../python-zh/creational/abstract_factory.py">Python 中文</a> · <a href="../cpp/creational/abstract_factory.cpp">C++ EN</a> · <a href="../python/creational/abstract_factory.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 4 章 · 建造者 Builder — 定制订单</h4>
+  <p class="hook">"履带底盘、四个传感器、两条机械臂、夜视固件"——机器人一步一步配置；产品目录（指挥者）里存着标准机型的配方。</p>
+  <span class="anchor">记忆锚点：复杂机器人分步组装 → 流式建造者 + 指挥者</span>
+  <div class="files"><a href="../cpp-zh/creational/builder.cpp">C++ 中文</a> · <a href="../python-zh/creational/builder.py">Python 中文</a> · <a href="../cpp/creational/builder.cpp">C++ EN</a> · <a href="../python/creational/builder.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 5 章 · 原型 Prototype — 克隆图纸</h4>
+  <p class="hook">别从零设计：克隆成熟图纸，只改一项参数。档案室里的原版图纸原封不动。</p>
+  <span class="anchor">记忆锚点：克隆图纸 → 通过复制现有对象创建新对象</span>
+  <div class="files"><a href="../cpp-zh/creational/prototype.cpp">C++ 中文</a> · <a href="../python-zh/creational/prototype.py">Python 中文</a> · <a href="../cpp/creational/prototype.cpp">C++ EN</a> · <a href="../python/creational/prototype.py">Python EN</a></div>
+</div>
+
+<div class="act act2"><h3>第二幕 — 流水线扩张（结构型，7 个模式）</h3></div>
+
+<div class="chapter">
+  <h4>第 6 章 · 适配器 Adapter — 老焊接臂</h4>
+  <p class="hook">新装配线要求 actuate()，传奇老焊接臂只会 pulseCrank()。你做了一个转接件，而不是造一条新臂。</p>
+  <span class="anchor">记忆锚点：老摇杆接新产线 → 把一个接口翻译成另一个</span>
+  <div class="files"><a href="../cpp-zh/structural/adapter.cpp">C++ 中文</a> · <a href="../python-zh/structural/adapter.py">Python 中文</a> · <a href="../cpp/structural/adapter.cpp">C++ EN</a> · <a href="../python/structural/adapter.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 7 章 · 桥接 Bridge — 任意机器人配任意控制器</h4>
+  <p class="hook">不然就得写"远程焊接机器人、自主焊接机器人、远程无人机……"。正确做法：每台机器人持有一个控制器。</p>
+  <span class="anchor">记忆锚点：机器人 × 控制器独立扩展 → 拆开两个继承体系</span>
+  <div class="files"><a href="../cpp-zh/structural/bridge.cpp">C++ 中文</a> · <a href="../python-zh/structural/bridge.py">Python 中文</a> · <a href="../cpp/structural/bridge.cpp">C++ EN</a> · <a href="../python/structural/bridge.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 8 章 · 组合 Composite — 组件套组件</h4>
+  <p class="hook">躯干总成包含机械臂总成，臂总成包含伺服电机和夹爪。对一颗螺栓和整个躯干问同一个问题："多少钱？"</p>
+  <span class="anchor">记忆锚点：零件和总成回答同一个问题 → 树形结构 + 统一接口</span>
+  <div class="files"><a href="../cpp-zh/structural/composite.cpp">C++ 中文</a> · <a href="../python-zh/structural/composite.py">Python 中文</a> · <a href="../cpp/structural/composite.cpp">C++ EN</a> · <a href="../python/structural/composite.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 9 章 · 装饰器 Decorator — 升级模块</h4>
+  <p class="hook">装甲板包住机器人，太阳能充电器包住装甲，AI 语音再包一层。每个升级模块都附加自己的配置和价格。</p>
+  <span class="anchor">记忆锚点：升级模块层层包裹 → 通过包装动态添加行为</span>
+  <div class="files"><a href="../cpp-zh/structural/decorator.cpp">C++ 中文</a> · <a href="../python-zh/structural/decorator.py">Python 中文</a> · <a href="../cpp/structural/decorator.cpp">C++ EN</a> · <a href="../python/structural/decorator.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 10 章 · 外观 Facade — 那个绿色大按钮</h4>
+  <p class="hook">备料、供电、装配、质检——客户什么都看不见，只按一个"生产"按钮，门面把一切安排妥当。</p>
+  <span class="anchor">记忆锚点：一个绿色大按钮 → 一个简单调用隐藏整个子系统</span>
+  <div class="files"><a href="../cpp-zh/structural/facade.cpp">C++ 中文</a> · <a href="../python-zh/structural/facade.py">Python 中文</a> · <a href="../cpp/structural/facade.cpp">C++ EN</a> · <a href="../python/structural/facade.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 11 章 · 享元 Flyweight — 千架无人机，三张图纸</h4>
+  <p class="hook">上千架无人机，只有几个机型。每架只存序列号和停机位——图纸是共享的。</p>
+  <span class="anchor">记忆锚点：无人机共享机型定义 → 共享内在状态，外在状态外部传入</span>
+  <div class="files"><a href="../cpp-zh/structural/flyweight.cpp">C++ 中文</a> · <a href="../python-zh/structural/flyweight.py">Python 中文</a> · <a href="../cpp/structural/flyweight.cpp">C++ EN</a> · <a href="../python/structural/flyweight.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 12 章 · 代理 Proxy — 笨重的诊断套件</h4>
+  <p class="hook">替身和真套件长得一模一样，但只有第一次有人真正运行扫描时，才会启动那个庞然大物。</p>
+  <span class="anchor">记忆锚点：诊断套件的替身 → 占位对象控制访问</span>
+  <div class="files"><a href="../cpp-zh/structural/proxy.cpp">C++ 中文</a> · <a href="../python-zh/structural/proxy.py">Python 中文</a> · <a href="../cpp/structural/proxy.cpp">C++ EN</a> · <a href="../python/structural/proxy.py">Python EN</a></div>
+</div>
+
+<div class="act act3"><h3>第三幕 — 车间日常（行为型，11 个模式）</h3></div>
+
+<div class="chapter">
+  <h4>第 13 章 · 责任链 Chain of Responsibility — 故障上报</h4>
+  <p class="hook">技术员能批 100 美元，楼层工程师 1000，总工程师 10000。故障沿链条向上爬，直到有人能批为止。</p>
+  <span class="anchor">记忆锚点：故障逐级上报 → 请求沿处理者链传递</span>
+  <div class="files"><a href="../cpp-zh/behavioral/chain_of_responsibility.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/chain_of_responsibility.py">Python 中文</a> · <a href="../cpp/behavioral/chain_of_responsibility.cpp">C++ EN</a> · <a href="../python/behavioral/chain_of_responsibility.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 14 章 · 命令 Command — 工单队列</h4>
+  <p class="hook">每个任务都变成一张"工单"对象压进队列。客户取消？撤回最后一张工单（撤销）。</p>
+  <span class="anchor">记忆锚点：任务 = 工单对象 → 请求对象化：排队 + 撤销</span>
+  <div class="files"><a href="../cpp-zh/behavioral/command.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/command.py">Python 中文</a> · <a href="../cpp/behavioral/command.cpp">C++ EN</a> · <a href="../python/behavioral/command.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 15 章 · 解释器 Interpreter — 机器人脚本</h4>
+  <p class="hook">"焊接 + 移动 - 省电"——调度器读得懂工程师的迷你脚本语言，每个词一条文法规则。</p>
+  <span class="anchor">记忆锚点：调度器读脚本 → 每条文法规则一个类 + interpret()</span>
+  <div class="files"><a href="../cpp-zh/behavioral/interpreter.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/interpreter.py">Python 中文</a> · <a href="../cpp/behavioral/interpreter.cpp">C++ EN</a> · <a href="../python/behavioral/interpreter.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 16 章 · 迭代器 Iterator — 巡视传送带</h4>
+  <p class="hook">一项一项巡视生产队列——但谁也不许把手伸进传送带的机械结构。</p>
+  <span class="anchor">记忆锚点：巡视队列不碰传送带 → 遍历而不暴露内部结构</span>
+  <div class="files"><a href="../cpp-zh/behavioral/iterator.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/iterator.py">Python 中文</a> · <a href="../cpp/behavioral/iterator.cpp">C++ EN</a> · <a href="../python/behavioral/iterator.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 17 章 · 中介者 Mediator — 调度塔</h4>
+  <p class="hook">以前机器人互相直连，一片混乱。现在大家只向塔台汇报，塔台负责转发——谁也不用知道还有谁在线。</p>
+  <span class="anchor">记忆锚点：塔台取代点对点电台 → 中央枢纽取代多对多</span>
+  <div class="files"><a href="../cpp-zh/behavioral/mediator.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/mediator.py">Python 中文</a> · <a href="../cpp/behavioral/mediator.cpp">C++ EN</a> · <a href="../python/behavioral/mediator.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 18 章 · 备忘录 Memento — 固件回滚</h4>
+  <p class="hook">每次冒险装新模块前先拍快照。激光模块把夹爪搞坏了？回滚。保险库从不查看快照内容。</p>
+  <span class="anchor">记忆锚点：保险库里的固件快照 → 不暴露内部地保存与恢复状态</span>
+  <div class="files"><a href="../cpp-zh/behavioral/memento.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/memento.py">Python 中文</a> · <a href="../cpp/behavioral/memento.cpp">C++ EN</a> · <a href="../python/behavioral/memento.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 19 章 · 观察者 Observer — "42 号下线了！"</h4>
+  <p class="hook">机器人一下线，看板自动刷新，工程师的传呼机同时震动——装配线根本不知道谁在听。</p>
+  <span class="anchor">记忆锚点：看板和传呼机同时响 → 一个主题通知多个观察者</span>
+  <div class="files"><a href="../cpp-zh/behavioral/observer.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/observer.py">Python 中文</a> · <a href="../cpp/behavioral/observer.cpp">C++ EN</a> · <a href="../python/behavioral/observer.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 20 章 · 状态 State — 机器人的工作模式</h4>
+  <p class="hook">空闲时接任务；忙碌时再派活只会蜂鸣，按"完成"才交付。每个模式一个类——不写巨型 if/else。</p>
+  <span class="anchor">记忆锚点：机器人的模式 → 行为委托给可切换的状态对象</span>
+  <div class="files"><a href="../cpp-zh/behavioral/state.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/state.py">Python 中文</a> · <a href="../cpp/behavioral/state.cpp">C++ EN</a> · <a href="../python/behavioral/state.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 21 章 · 策略 Strategy — 电源模式</h4>
+  <p class="hook">同一台机器人，不同的用电规则：满功率、节能、夜间。夜班一到，把规则一换就行。</p>
+  <span class="anchor">记忆锚点：切换用电规则 → 可互换的算法族</span>
+  <div class="files"><a href="../cpp-zh/behavioral/strategy.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/strategy.py">Python 中文</a> · <a href="../cpp/behavioral/strategy.cpp">C++ EN</a> · <a href="../python/behavioral/strategy.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 22 章 · 模板方法 Template Method — 开机流程</h4>
+  <p class="hook">上电、自检、加载驱动、宣告就绪——顺序永远不变，但每个机型"如何自检"各不相同。</p>
+  <span class="anchor">记忆锚点：开机顺序不变、步骤可换 → 固定骨架 + 可重写步骤</span>
+  <div class="files"><a href="../cpp-zh/behavioral/template_method.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/template_method.py">Python 中文</a> · <a href="../cpp/behavioral/template_method.cpp">C++ EN</a> · <a href="../python/behavioral/template_method.py">Python EN</a></div>
+</div>
+<div class="chapter">
+  <h4>第 23 章 · 访问者 Visitor — 巡检员</h4>
+  <p class="hook">安全审计员算风险，估价师贴标签。设备只负责"接待"巡检员——来新巡检员也不用改任何设备类。</p>
+  <span class="anchor">记忆锚点：巡检员走访车间 → 不改元素类就能新增操作</span>
+  <div class="files"><a href="../cpp-zh/behavioral/visitor.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/visitor.py">Python 中文</a> · <a href="../cpp/behavioral/visitor.cpp">C++ EN</a> · <a href="../python/behavioral/visitor.py">Python EN</a></div>
+</div>
+
+<!-- ============================ 速记表 ============================ -->
+<h2 id="cheatsheet">🗂️ 记忆速记表</h2>
+<p>先盖住右边两列，看故事锚点背出模式；再盖住左列，反向背一遍。</p>
+<table>
+  <tr><th>故事锚点</th><th>模式</th><th>一句话意图</th></tr>
+  <tr><td>唯一的中央控制器</td><td>单例 Singleton</td><td>仅一个实例 + 全局访问点</td></tr>
+  <tr><td>每条线造自己的机型</td><td>工厂方法 Factory Method</td><td>子类决定实例化哪个类</td></tr>
+  <tr><td>产品系列：底盘和机械臂永远配套</td><td>抽象工厂 Abstract Factory</td><td>成套创建一族相关对象</td></tr>
+  <tr><td>定制机器人分步组装</td><td>建造者 Builder</td><td>分步构建复杂对象；指挥者 = 产品目录</td></tr>
+  <tr><td>克隆成熟图纸</td><td>原型 Prototype</td><td>复制现有对象来创建新对象</td></tr>
+  <tr><td>老摇杆接上新产线</td><td>适配器 Adapter</td><td>把一个接口翻译成另一个</td></tr>
+  <tr><td>任意机器人配任意控制器</td><td>桥接 Bridge</td><td>抽象持有实现，两边独立变化</td></tr>
+  <tr><td>螺栓和躯干都能报价</td><td>组合 Composite</td><td>树形结构，叶子与容器共用接口</td></tr>
+  <tr><td>升级模块层层包裹</td><td>装饰器 Decorator</td><td>通过包装动态添加行为</td></tr>
+  <tr><td>那个绿色大按钮</td><td>外观 Facade</td><td>子系统的单一简化入口</td></tr>
+  <tr><td>千架无人机共享三张图纸</td><td>享元 Flyweight</td><td>共享重量级内在状态</td></tr>
+  <tr><td>诊断套件的替身</td><td>代理 Proxy</td><td>占位对象控制访问（懒加载/权限/缓存）</td></tr>
+  <tr><td>故障逐级上报</td><td>责任链 Chain of Responsibility</td><td>请求沿链传递直到被处理</td></tr>
+  <tr><td>可撤回的工单</td><td>命令 Command</td><td>请求对象化：排队、日志、撤销</td></tr>
+  <tr><td>调度器读机器人脚本</td><td>解释器 Interpreter</td><td>每条文法规则一个类，interpret() 求值</td></tr>
+  <tr><td>巡视队列不碰传送带</td><td>迭代器 Iterator</td><td>遍历而不暴露内部结构</td></tr>
+  <tr><td>塔台取代点对点电台</td><td>中介者 Mediator</td><td>中央枢纽取代多对多引用</td></tr>
+  <tr><td>保险库里的固件快照</td><td>备忘录 Memento</td><td>不暴露内部地保存与恢复状态</td></tr>
+  <tr><td>看板和传呼机同时响</td><td>观察者 Observer</td><td>主题变化时通知所有订阅者</td></tr>
+  <tr><td>机器人的空闲/忙碌模式</td><td>状态 State</td><td>行为委托给可切换的状态对象</td></tr>
+  <tr><td>满功率/节能/夜间规则切换</td><td>策略 Strategy</td><td>统一接口背后可互换的算法</td></tr>
+  <tr><td>开机四步永远不变</td><td>模板方法 Template Method</td><td>固定骨架，子类填步骤</td></tr>
+  <tr><td>审计员和估价师走访车间</td><td>访问者 Visitor</td><td>不改元素类即可新增操作</td></tr>
+</table>
+
+<!-- ============================ 学习计划 ============================ -->
+<h2 id="plan">🗓️ 分步学习计划（4 周，每次 30–45 分钟）</h2>
+
+<div class="tip"><strong>每次学习的固定方法：</strong>
+1）读本章故事；2）只看一种语言的代码，先预测输出；3）运行验证；
+4）完成小练习；5）再读另一种语言的同章代码，体会 C++ 与 Python 的差异；
+6）合上文件，大声把这一章的故事讲出来。</div>
+
+<div class="step"><span class="time">第 1 周 · 第 1 天</span>
+  <h4>第 1 步 — 环境搭建 &amp; 参观工厂</h4>
+  <ul>
+    <li>克隆仓库，构建全部示例：<code>cd cpp-zh && make run</code>，再随便运行几个 Python 文件。</li>
+    <li>读懂上面的三幕结构并背下来：<em>第一幕造，第二幕装，第三幕谈。</em></li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 1 周 · 第 2 天</span>
+  <h4>第 2 步 — 第 1–2 章：单例、工厂方法</h4>
+  <ul>
+    <li>练习：给 MCU 加一个 <code>dailyReport()</code>；新增一条出喷漆机器人的 <code>PainterLine</code>。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 1 周 · 第 3 天</span>
+  <h4>第 3 步 — 第 3–4 章：抽象工厂、建造者</h4>
+  <ul>
+    <li>练习：新增一个"军用系列"（装甲底盘 + 武器臂）；给建造者加 <code>battery()</code> 步骤和一个新目录配方。</li>
+    <li>对比：为什么工厂方法只造"一个"产品，抽象工厂造"一族"？用装配线 vs 产品系列说出来。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 1 周 · 第 4 天</span>
+  <h4>第 4 步 — 第 5 章 + 第一幕复习：原型</h4>
+  <ul>
+    <li>练习（Python）：用一个新的可变字段演示浅拷贝 vs 深拷贝的陷阱。</li>
+    <li>复习：只看故事锚点，背出全部 5 个创建型模式。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 2 周 · 第 1 天</span>
+  <h4>第 5 步 — 第 6–7 章：适配器、桥接</h4>
+  <ul>
+    <li>练习：适配一台 <code>SteamPress(stamp())</code>；新增 <code>PainterBot</code> 机器人和 <code>VoiceControl</code> 控制器——数一数你"没有"写的类有多少。</li>
+    <li>常见混淆：适配器是"事后补救"已存在的不匹配；桥接是"事前设计"防止类爆炸。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 2 周 · 第 2 天</span>
+  <h4>第 6 步 — 第 8–9 章：组合、装饰器</h4>
+  <ul>
+    <li>练习：加一个"腿部总成"子总成；发明一个 <code>TitaniumShell</code> 升级模块并给四层包装报价。</li>
+    <li>两者都包装同类型对象——但组合聚合"多个"子节点，装饰器只包"一个"。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 2 周 · 第 3 天</span>
+  <h4>第 7 步 — 第 10–12 章：外观、享元、代理</h4>
+  <ul>
+    <li>练习：在不改外观公共接口的前提下加一步"打印出货标签"；让代理统计扫描次数。</li>
+    <li>外观 vs 代理：外观"简化"一群对象；代理"冒充"一个对象。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 2 周 · 第 4 天</span>
+  <h4>第 8 步 — 第二幕复习</h4>
+  <ul>
+    <li>凭记忆把 7 个结构型模式画成工厂小草图（摇杆、桥、零件树、包装机器人、绿按钮、无人机群、诊断套件）。</li>
+    <li>用速记表正反两个方向自测。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 3 周 · 第 1 天</span>
+  <h4>第 9 步 — 第 13–14 章：责任链、命令</h4>
+  <ul>
+    <li>练习：往链条里插一个"厂长（10 万美元）"；给控制台加 <code>redo()</code>。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 3 周 · 第 2 天</span>
+  <h4>第 10 步 — 第 15–16 章：解释器、迭代器</h4>
+  <ul>
+    <li>练习：加一个 <code>Repeat(n)</code> 表达式（"焊接 × 3"）；给队列加一个 <code>reversed()</code> 遍历。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 3 周 · 第 3 天</span>
+  <h4>第 11 步 — 第 17–19 章：中介者、备忘录、观察者</h4>
+  <ul>
+    <li>练习：给塔台加"点对点私聊"；保险库最多存 3 个快照；新增一个 <code>SmsNotifier</code> 观察者。</li>
+    <li>中介者 vs 观察者：塔台在对等者之间"路由"；装配线对订阅者"广播"。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 3 周 · 第 4 天</span>
+  <h4>第 12 步 — 第 20–21 章：状态、策略</h4>
+  <ul>
+    <li>练习：完成 3 个任务后进入 <code>ChargingState</code>（充电状态）；新增周末电源模式。</li>
+    <li>经典混淆：策略由"外部"选择（你切到节能模式）；状态"自己"切换（机器人自己变忙碌）。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 4 周 · 第 1 天</span>
+  <h4>第 13 步 — 第 22–23 章：模板方法、访问者</h4>
+  <ul>
+    <li>练习：给开机流程加一个 <code>CargoDrone</code>；写一个 <code>NoiseInspector</code>（噪音巡检员）访问者。</li>
+    <li>模板方法 vs 策略：开机流程用"继承"换步骤；电源模式用"组合"换整个算法。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 4 周 · 第 2 天</span>
+  <h4>第 14 步 — 大声讲完整个故事</h4>
+  <ul>
+    <li>凭记忆按顺序复述全部 23 章，每章报出模式名。用三幕当脚手架。</li>
+    <li>然后完成下面的第 1、2 级全部题目。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 4 周 · 第 3 天</span>
+  <h4>第 15 步 — 场景实战训练</h4>
+  <ul>
+    <li>完成下面第 3 级全部题目。每题都要说明：为什么相邻的备选模式更差。</li>
+  </ul>
+</div>
+<div class="step"><span class="time">第 4 周 · 第 4 天</span>
+  <h4>第 16 步 — 自建工厂功能（毕业设计）</h4>
+  <ul>
+    <li>从第 4 级挑战中选一个，用两种语言各实现一遍。</li>
+    <li>间隔重复：1 周后、1 个月后、3 个月后各重做一次速记表。</li>
+  </ul>
+</div>
+
+<!-- =============================== 测验 =============================== -->
+<h2 id="quiz">🎓 掌握度测验</h2>
+<p>按级别顺序完成。先给出自己的答案，再点开核对。</p>
+
+<h3>第 1 级 — 故事回忆（能说出模式名吗？）</h3>
+
+<details><summary>1. 故障报告沿技术员 → 楼层工程师 → 总工程师上报，直到有人能批准维修。是哪个模式？它的核心特征是什么？</summary>
+<div class="answer"><strong>责任链。</strong>发送者只认识链上"第一个"处理者；每个处理者要么处理请求，要么转发。发送者与最终处理者彼此解耦。</div></details>
+
+<details><summary>2. 每个产品系列的底盘和机械臂永远配套。哪个模式？"配套"是怎么保证的？</summary>
+<div class="answer"><strong>抽象工厂。</strong>一个具体工厂（工业系列）负责创建该族的"全部"产品，客户端手里只有一个工厂，根本没机会把软抓臂装到重型底盘上。</div></details>
+
+<details><summary>3. 42 号机下线时，看板和传呼机同时有反应。哪个模式？谁认识谁？</summary>
+<div class="answer"><strong>观察者。</strong>主题（装配线）持有观察者列表并逐个通知，但不知道它们的具体类型；观察者只在订阅时认识主题。</div></details>
+
+<details><summary>4. 安装"实验性激光模块"前先给固件拍快照。哪个模式？三个角色分别是？</summary>
+<div class="answer"><strong>备忘录。</strong>发起人 = 固件配置（创建/恢复快照），备忘录 = 快照（不透明的状态），负责人 = 保险库（只保管，从不查看）。</div></details>
+
+<details><summary>5. 装甲板包住机器人，太阳能充电器再包住装甲。哪个模式？为什么不直接用继承？</summary>
+<div class="answer"><strong>装饰器。</strong>继承需要为每种组合写一个类（装甲太阳能会说话机器人……）；包装可以在"运行时"自由组合，且每层包装都实现同一个 Robot 接口。</div></details>
+
+<details><summary>6. 切到节能模式后机器人只用一半电。哪个模式？规则换了，什么没换？</summary>
+<div class="answer"><strong>策略。</strong>上下文（机器人）完全不变——它只面向 PowerStrategy 接口编程；变的只是插进去的算法对象。</div></details>
+
+<details><summary>7. "上电、自检、加载驱动、宣告就绪"顺序永远不变，但无人机转旋翼、焊接机校激光。哪个模式？固定顺序写在哪里？</summary>
+<div class="answer"><strong>模板方法。</strong>固定顺序写在"基类"的模板方法（<code>boot()</code>）里且不可重写；子类只重写个别步骤（<code>selfTest</code>、<code>announceReady</code> 钩子）。</div></details>
+
+<details><summary>8. 一个替身对象把诊断套件的启动推迟到第一次扫描。哪个模式？哪个变体？</summary>
+<div class="answer"><strong>代理</strong>——具体是<em>虚代理</em>（惰性初始化）。其他变体：保护代理、远程代理、缓存/日志代理。</div></details>
+
+<h3>第 2 级 — 经典混淆对比</h3>
+
+<details><summary>9. 策略 vs 状态——都是在接口后面换对象，本质区别是什么？用工厂的例子说。</summary>
+<div class="answer">区别在"谁"驱动切换。<strong>策略：</strong>由外部的客户端/上下文选择算法（"你"把机器人切到节能模式）。<strong>状态：</strong>对象随事件"自己"转换（机器人自己从空闲变忙碌再变回来）。另外：各策略通常互不相识；而状态往往认识兄弟状态以便转换。</div></details>
+
+<details><summary>10. 适配器 vs 桥接 vs 外观——都是"结构胶水"。各用一句话区分（工厂版）。</summary>
+<div class="answer"><strong>适配器：</strong>让"已存在"的不兼容物件能用（老摇杆 → actuate()）。<strong>桥接：</strong>"事先"设计，让两个维度（机器人 × 控制器）独立演化。<strong>外观：</strong>什么都不翻译——它把整个子系统"简化"成一次调用（绿色大按钮）。</div></details>
+
+<details><summary>11. 装饰器 vs 代理——都包装一个对象、共享接口。意图差在哪？</summary>
+<div class="answer"><strong>装饰器"加功能"</strong>，是客户主动要的（升级件改变配置和价格），通常由客户自由叠加。<strong>代理"管访问"</strong>（懒加载、权限、缓存），客户通常不知道也不关心拿到的是不是真对象——它是管道设施，不是新特性。</div></details>
+
+<details><summary>12. 组合 vs 装饰器——都是递归包装。结构上差在哪？</summary>
+<div class="answer"><strong>组合</strong>节点持有"多个"子节点并对它们做聚合（总成把所有零件的价格加总）。<strong>装饰器</strong>恰好包"一个"内层对象并增强它。组合解决部分—整体树；装饰器解决行为分层。</div></details>
+
+<details><summary>13. 工厂方法 vs 抽象工厂——都负责创建。用装配线和产品系列区分。</summary>
+<div class="answer"><strong>工厂方法：</strong>"一个"创建点，推迟给子类——每条装配线子类决定自己唯一的机型。<strong>抽象工厂：</strong>一个"对象"上有多个工厂方法，产出配套的一族产品——产品系列同时创建必须匹配的底盘和机械臂。（抽象工厂内部往往就是用一组工厂方法实现的。）</div></details>
+
+<details><summary>14. 中介者 vs 观察者——都为通信解耦。工厂里分别什么时候用？</summary>
+<div class="answer"><strong>中介者</strong>用于带路由逻辑的"对等协调"：机器人通过塔台交流，塔台决定谁能听到什么（多对多 → 枢纽）。<strong>观察者</strong>用于单向"广播"：装配线宣布消息，订阅者各自反应；主题没有路由逻辑，也不期待回复。</div></details>
+
+<details><summary>15. 命令 vs 策略——都把"可调用的东西"包成对象。差别？</summary>
+<div class="answer"><strong>命令</strong>把接收者 + 动作 + 参数绑成一个自洽的"请求"（"在车间焊 7 号焊缝"），可以排队、记日志、撤销。<strong>策略</strong>只是把"算法选择"参数化（"该用多少电"）——没有接收者、没有撤销、没有历史语义。</div></details>
+
+<details><summary>16. 备忘录 vs 原型——都在复制状态。目的和暴露程度差在哪？</summary>
+<div class="answer"><strong>原型</strong>克隆"完整可用的对象"，得到一个独立的新对象（图纸副本）。<strong>备忘录</strong>导出"内部状态快照"，供原对象日后自我恢复——而且除发起人外对所有人不透明。</div></details>
+
+<h3>第 3 级 — 场景设计（选出模式并辩护）</h3>
+
+<details><summary>17. 控制台要支持跨焊接/喷漆/运输任务的"撤销上一步"，还要能重放全天操作用于审计。</summary>
+<div class="answer"><strong>命令。</strong>每个操作变成带 execute()/undo() 的对象；历史列表给你撤销，重放列表就是审计日志。单用备忘录只能快照状态，无法重放"一个个操作"。</div></details>
+
+<details><summary>18. 要接入手机 App、墙面大屏和报警系统——机器人状态一变它们都要立刻反应，以后还会加更多设备。</summary>
+<div class="answer"><strong>观察者。</strong>机器人状态是主题；每个设备订阅即可。新设备直接挂上去，机器人代码一行不改——这正是避免硬编码通知的开闭收益。</div></details>
+
+<details><summary>19. 机器人可以是轮式/履带/六足，控制方式可以是远程/AI/语音。你不想写 9 个类（下个月变 12 个）。</summary>
+<div class="answer"><strong>桥接。</strong>两个独立维度（行走方式 × 控制方式）：一边做抽象，另一边做它持有的实现。3 + 3 个类，而不是 3 × 3。</div></details>
+
+<details><summary>20. 新供应商的 SDK 只提供 <code>fetchPartsXML()</code>，但你的代码到处在调 <code>getInventory()</code>。</summary>
+<div class="answer"><strong>适配器。</strong>写一个实现你 <code>getInventory()</code> 接口的类，内部委托 <code>fetchPartsXML()</code> 并转换数据。调用点不动，供应商 SDK 也不用改。</div></details>
+
+<details><summary>21. 成本报表要对任意嵌套求总价：单个零件、总成、总成套总成。</summary>
+<div class="answer"><strong>组合。</strong>零件 = 叶子，总成 = 持有组件的容器；都实现 <code>costCents()</code>。报表只调一个方法，剩下的交给递归。</div></details>
+
+<details><summary>22. 机器人、吊车、传送带控制器现在互相持有引用；加一个叉车角色要改 6 个类。</summary>
+<div class="answer"><strong>中介者。</strong>引入协调枢纽（调度塔）；每台设备只跟塔台说话。加叉车 = 多注册一个同事，而不是改 6 个类。</div></details>
+
+<details><summary>23. 排班器要计算"(焊接 + 喷漆) - 夜间省电"这类规则，工程师每个月都发明新规则词。</summary>
+<div class="answer"><strong>解释器</strong>（语法这么小的话）：每个规则词一个表达式类；新词 = 新类，不用重写解析器。如果语言越长越复杂，就升级到真正的解析库。</div></details>
+
+<details><summary>24. 启动时创建 5 万个无人机对象，内存爆炸；它们只有序列号和停机位不同。</summary>
+<div class="answer"><strong>享元。</strong>把重量级共享数据（机型名、图纸、模型）放进缓存的共享对象；序列号/停机位作为外在状态传入。5 万个上下文，享元只有几个。</div></details>
+
+<h3>第 4 级 — 毕业编程挑战（没有标准答案可偷看）</h3>
+<ol>
+  <li><strong>定制生产流水线：</strong>建造者 + 装饰器 + 策略——先建造基础机器人，再包两层升级，最后在节能模式下计算功耗。一个 <code>main()</code>，三个模式协作。</li>
+  <li><strong>工厂模拟器：</strong>抽象工厂 + 外观——写一个 <code>FactoryOpener</code> 外观，接收任意产品系列并跑完整个生产流程。</li>
+  <li><strong>万能撤销：</strong>命令 + 备忘录——让工单携带快照，"撤销"恢复车间的精确历史状态，而不只是执行逆操作。</li>
+  <li><strong>智能机器人：</strong>状态 + 观察者——机器人发布自己的状态转换；维护看板订阅它，并在执行 N 个任务后发出保养警告。</li>
+  <li><strong>车间分析：</strong>组合 + 访问者 + 迭代器——用迭代器走遍整棵装配树，让一个访问者统计每个子总成的成本。</li>
+</ol>
+
+<!-- ============================= 通关清单 ============================= -->
+<h2 id="checklist">✅ 当你做到以下几点，就算真正掌握了……</h2>
+<ul class="checklist">
+  <li>能按顺序复述全部 23 章，并且只凭故事情节就能报出模式名。</li>
+  <li>能"脱离工厂比喻"，用一句话说出每个模式的意图。</li>
+  <li>能把五大经典混淆（第 9–16 题）讲给别人听懂。</li>
+  <li>拿到新需求时，不仅能选出模式，还能说出相邻的两个模式为什么更差。</li>
+  <li>至少有一个模式，你能不看任何资料用 C++ 和 Python 各默写一遍。</li>
+  <li>知道什么时候"不该"用模式——终极关卡：模式是词汇，不是义务。一台基础机器人不需要"抽象单例代理工厂外观"。</li>
+</ul>
+
+<footer>
+  🤖 机器人工厂 RoboWorks · 本仓库 <code>cpp-zh/</code>、<code>python-zh/</code>（中文）与 <code>cpp/</code>、<code>python/</code>（英文）示例的配套指南。<br>
+  打开旁边的章节文件——每一章都是可运行的程序。 · <a href="roboworks-study-guide.html">English version</a>
+</footer>
+
+</main>
+</body>
+</html>
