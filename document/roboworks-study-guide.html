@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboWorks — Master All 23 Design Patterns Through One Story</title>
+<style>
+  :root {
+    --steel: #1f2a38;
+    --chrome: #8fa6bd;
+    --plate: #eef2f6;
+    --accent: #e07b39;
+    --ink: #222831;
+    --card: #ffffff;
+    --act1: #5d9c7a;
+    --act2: #5b84b1;
+    --act3: #a06a9c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Verdana, sans-serif;
+    background: var(--plate);
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.6;
+  }
+  header {
+    background: var(--steel);
+    color: var(--plate);
+    text-align: center;
+    padding: 3rem 1rem 2.5rem;
+  }
+  header h1 { margin: 0 0 .5rem; font-size: 2.2rem; }
+  header p { margin: 0; color: var(--chrome); font-style: italic; }
+  nav {
+    background: var(--chrome);
+    text-align: center;
+    padding: .6rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav a {
+    color: var(--steel);
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 .8rem;
+    font-size: .85rem;
+  }
+  nav a:hover { text-decoration: underline; }
+  main { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  h2 {
+    color: var(--steel);
+    border-bottom: 3px solid var(--chrome);
+    padding-bottom: .3rem;
+    margin-top: 3rem;
+  }
+  h3 { color: var(--accent); }
+  .act {
+    border-left: 6px solid;
+    padding: .2rem 1rem;
+    margin: 2rem 0 1rem;
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+  }
+  .act1 { border-color: var(--act1); }
+  .act2 { border-color: var(--act2); }
+  .act3 { border-color: var(--act3); }
+  .chapter {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: .8rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+  .chapter h4 { margin: 0 0 .3rem; color: var(--steel); font-size: 1.05rem; }
+  .chapter .hook { font-style: italic; color: #55606e; margin: .2rem 0; }
+  .chapter .anchor {
+    font-size: .8rem;
+    background: var(--plate);
+    border: 1px solid var(--chrome);
+    border-radius: 4px;
+    padding: .15rem .5rem;
+    display: inline-block;
+    margin-top: .3rem;
+  }
+  .files { font-family: monospace; font-size: .8rem; margin-top: .35rem; }
+  .files a { color: var(--accent); }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: var(--card);
+    font-size: .92rem;
+  }
+  th, td { border: 1px solid var(--chrome); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  th { background: var(--steel); color: var(--plate); font-size: .8rem; }
+  tr:nth-child(even) { background: var(--plate); }
+  .step {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    border-top: 4px solid var(--chrome);
+  }
+  .step h4 { margin: 0 0 .4rem; color: var(--steel); }
+  .step .time {
+    font-size: .75rem;
+    color: var(--plate);
+    background: var(--accent);
+    border-radius: 10px;
+    padding: .1rem .6rem;
+    float: right;
+  }
+  details {
+    background: var(--card);
+    border: 1px solid var(--chrome);
+    border-radius: 6px;
+    padding: .6rem .9rem;
+    margin: .6rem 0;
+  }
+  summary { cursor: pointer; font-weight: bold; color: var(--steel); }
+  details .answer { margin-top: .5rem; padding-top: .5rem; border-top: 1px dashed var(--chrome); }
+  code {
+    background: #dde5ec;
+    border-radius: 3px;
+    padding: .05rem .3rem;
+    font-size: .88em;
+  }
+  .tip {
+    background: #fdf6d8;
+    border-left: 5px solid #d8b400;
+    padding: .7rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1rem 0;
+  }
+  .checklist li { margin: .35rem 0; }
+  footer {
+    text-align: center;
+    color: #6b7886;
+    font-size: .85rem;
+    padding: 2rem 1rem;
+    border-top: 2px solid var(--chrome);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 RoboWorks</h1>
+  <p>Master all 23 GoF design patterns through one story: you build a robot factory and grow it into an empire.</p>
+  <p style="margin-top:.6rem"><a href="roboworks-study-guide-zh.html" style="color:#e07b39">中文版 / Chinese version →</a></p>
+</header>
+
+<nav>
+  <a href="#story">The Story</a>
+  <a href="#cheatsheet">Cheat Sheet</a>
+  <a href="#plan">Study Plan</a>
+  <a href="#quiz">Mastery Questions</a>
+  <a href="#checklist">Final Checklist</a>
+</nav>
+
+<main>
+
+<!-- ============================== STORY =============================== -->
+<h2 id="story">📖 The Story — 3 Acts, 23 Chapters</h2>
+<p>
+Every chapter of the story is one design pattern, and every chapter exists as a runnable
+program in <code>cpp/</code> and <code>python/</code> (English) and <code>cpp-zh/</code> and
+<code>python-zh/</code> (Chinese). The three acts are exactly the three GoF categories —
+that mapping alone is worth memorizing:
+</p>
+<ul>
+  <li><strong>Act 1 — The Workshop</strong> = <strong>Creational</strong>: how robots get <em>created</em>.</li>
+  <li><strong>Act 2 — The Assembly Line</strong> = <strong>Structural</strong>: how robots get <em>wired together</em>.</li>
+  <li><strong>Act 3 — The Factory Floor</strong> = <strong>Behavioral</strong>: how everyone <em>talks to each other</em>.</li>
+</ul>
+
+<div class="act act1"><h3>Act 1 — The Workshop (Creational, 5 patterns)</h3></div>
+
+<div class="chapter">
+  <h4>Chapter 1 · Singleton — The Master Control Unit</h4>
+  <p class="hook">Your factory has exactly ONE Master Control Unit. Two of them would issue conflicting orders and tear the factory apart.</p>
+  <span class="anchor">Remember: one MCU, shared by all → one instance, global access</span>
+  <div class="files"><a href="../cpp/creational/singleton.cpp">C++</a> · <a href="../python/creational/singleton.py">Python</a> · <a href="../cpp-zh/creational/singleton.cpp">C++ 中文</a> · <a href="../python-zh/creational/singleton.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 2 · Factory Method — The Assembly Lines</h4>
+  <p class="hook">Every line follows the same roll-out routine, but each line decides WHICH robot it builds: welders or cleaners.</p>
+  <span class="anchor">Remember: same routine, subclass picks the product</span>
+  <div class="files"><a href="../cpp/creational/factory_method.cpp">C++</a> · <a href="../python/creational/factory_method.py">Python</a> · <a href="../cpp-zh/creational/factory_method.cpp">C++ 中文</a> · <a href="../python-zh/creational/factory_method.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 3 · Abstract Factory — The Product Series</h4>
+  <p class="hook">The Industrial series ships a heavy chassis WITH hydraulic arms; the Domestic series a light chassis WITH soft-grip arms. Families never mix.</p>
+  <span class="anchor">Remember: a whole series of matching parts → family of objects</span>
+  <div class="files"><a href="../cpp/creational/abstract_factory.cpp">C++</a> · <a href="../python/creational/abstract_factory.py">Python</a> · <a href="../cpp-zh/creational/abstract_factory.cpp">C++ 中文</a> · <a href="../python-zh/creational/abstract_factory.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 4 · Builder — The Custom Order</h4>
+  <p class="hook">"Tracked chassis, four sensors, two arms, night-vision firmware" — robots are configured step by step; the catalog keeps the standard blueprints.</p>
+  <span class="anchor">Remember: complex robot built step by step → fluent builder + director</span>
+  <div class="files"><a href="../cpp/creational/builder.cpp">C++</a> · <a href="../python/creational/builder.py">Python</a> · <a href="../cpp-zh/creational/builder.cpp">C++ 中文</a> · <a href="../python-zh/creational/builder.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 5 · Prototype — Clone the Blueprint</h4>
+  <p class="hook">Don't redesign from scratch: CLONE the proven blueprint and tweak one spec. The original stays in the archive.</p>
+  <span class="anchor">Remember: clone the blueprint → copy an existing object</span>
+  <div class="files"><a href="../cpp/creational/prototype.cpp">C++</a> · <a href="../python/creational/prototype.py">Python</a> · <a href="../cpp-zh/creational/prototype.cpp">C++ 中文</a> · <a href="../python-zh/creational/prototype.py">Python 中文</a></div>
+</div>
+
+<div class="act act2"><h3>Act 2 — The Assembly Line (Structural, 7 patterns)</h3></div>
+
+<div class="chapter">
+  <h4>Chapter 6 · Adapter — The Legacy Welding Arm</h4>
+  <p class="hook">The line expects actuate(); the legendary old arm only knows pulseCrank(). You build a fitting, not a new arm.</p>
+  <span class="anchor">Remember: old crank on a new line → translate one interface to another</span>
+  <div class="files"><a href="../cpp/structural/adapter.cpp">C++</a> · <a href="../python/structural/adapter.py">Python</a> · <a href="../cpp-zh/structural/adapter.cpp">C++ 中文</a> · <a href="../python-zh/structural/adapter.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 7 · Bridge — Any Robot, Any Controller</h4>
+  <p class="hook">Without care you'd need RemoteWelder, AutonomousWelder, RemoteDrone... instead, every robot HOLDS a controller.</p>
+  <span class="anchor">Remember: robots × controllers stay independent → split the two hierarchies</span>
+  <div class="files"><a href="../cpp/structural/bridge.cpp">C++</a> · <a href="../python/structural/bridge.py">Python</a> · <a href="../cpp-zh/structural/bridge.cpp">C++ 中文</a> · <a href="../python-zh/structural/bridge.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 8 · Composite — Assemblies of Assemblies</h4>
+  <p class="hook">Torso contains the arm assembly contains servos and grippers. You ask a bolt or the whole torso the same question: "what does this cost?"</p>
+  <span class="anchor">Remember: part and assembly answer the same question → tree, uniform interface</span>
+  <div class="files"><a href="../cpp/structural/composite.cpp">C++</a> · <a href="../python/structural/composite.py">Python</a> · <a href="../cpp-zh/structural/composite.cpp">C++ 中文</a> · <a href="../python-zh/structural/composite.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 9 · Decorator — The Upgrade Modules</h4>
+  <p class="hook">Armor plating wraps the bot, solar charger wraps the armor, AI voice wraps the charger. Each upgrade adds its spec and price.</p>
+  <span class="anchor">Remember: upgrades wrap the robot → add behavior by wrapping</span>
+  <div class="files"><a href="../cpp/structural/decorator.cpp">C++</a> · <a href="../python/structural/decorator.py">Python</a> · <a href="../cpp-zh/structural/decorator.cpp">C++ 中文</a> · <a href="../python-zh/structural/decorator.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 10 · Facade — The Big Green Button</h4>
+  <p class="hook">Parts, power, assembly, QA — the client sees none of it. They press "PRODUCE" and the facade orchestrates everything.</p>
+  <span class="anchor">Remember: one green button → one simple call hides the subsystem</span>
+  <div class="files"><a href="../cpp/structural/facade.cpp">C++</a> · <a href="../python/structural/facade.py">Python</a> · <a href="../cpp-zh/structural/facade.cpp">C++ 中文</a> · <a href="../python-zh/structural/facade.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 11 · Flyweight — A Thousand Drones, Three Blueprints</h4>
+  <p class="hook">Thousands of drones, a handful of models. Each unit stores only its serial and bay — the blueprint is shared.</p>
+  <span class="anchor">Remember: drones share the model definition → share intrinsic state</span>
+  <div class="files"><a href="../cpp/structural/flyweight.cpp">C++</a> · <a href="../python/structural/flyweight.py">Python</a> · <a href="../cpp-zh/structural/flyweight.cpp">C++ 中文</a> · <a href="../python-zh/structural/flyweight.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 12 · Proxy — The Heavy Diagnostics Suite</h4>
+  <p class="hook">The stand-in looks exactly like the diagnostics suite, but only boots the real thing the FIRST time someone runs a scan.</p>
+  <span class="anchor">Remember: stand-in for the heavy suite → placeholder controls access</span>
+  <div class="files"><a href="../cpp/structural/proxy.cpp">C++</a> · <a href="../python/structural/proxy.py">Python</a> · <a href="../cpp-zh/structural/proxy.cpp">C++ 中文</a> · <a href="../python-zh/structural/proxy.py">Python 中文</a></div>
+</div>
+
+<div class="act act3"><h3>Act 3 — The Factory Floor (Behavioral, 11 patterns)</h3></div>
+
+<div class="chapter">
+  <h4>Chapter 13 · Chain of Responsibility — The Fault Report</h4>
+  <p class="hook">Technician authorizes $100, floor engineer $1,000, chief engineer $10,000. The fault climbs until someone can authorize the fix.</p>
+  <span class="anchor">Remember: the fault escalates → request travels a chain of handlers</span>
+  <div class="files"><a href="../cpp/behavioral/chain_of_responsibility.cpp">C++</a> · <a href="../python/behavioral/chain_of_responsibility.py">Python</a> · <a href="../cpp-zh/behavioral/chain_of_responsibility.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/chain_of_responsibility.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 14 · Command — The Job Queue</h4>
+  <p class="hook">Every job becomes a JOB CARD object on the queue. Client cancels? Pull the last card off (undo).</p>
+  <span class="anchor">Remember: job = card object → request as object, queue + undo</span>
+  <div class="files"><a href="../cpp/behavioral/command.cpp">C++</a> · <a href="../python/behavioral/command.py">Python</a> · <a href="../cpp-zh/behavioral/command.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/command.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 15 · Interpreter — The Robot Script</h4>
+  <p class="hook">"weld + move − powersave" — the scheduler evaluates the engineers' tiny script language, one class per grammar rule.</p>
+  <span class="anchor">Remember: the scheduler speaks script → class per grammar rule, interpret()</span>
+  <div class="files"><a href="../cpp/behavioral/interpreter.cpp">C++</a> · <a href="../python/behavioral/interpreter.py">Python</a> · <a href="../cpp-zh/behavioral/interpreter.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/interpreter.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 16 · Iterator — Walking the Conveyor</h4>
+  <p class="hook">Walk the production queue job by job — but nobody reaches into the conveyor's machinery or knows how jobs are stored.</p>
+  <span class="anchor">Remember: walk the queue, never touch the belt → traverse without exposing internals</span>
+  <div class="files"><a href="../cpp/behavioral/iterator.cpp">C++</a> · <a href="../python/behavioral/iterator.py">Python</a> · <a href="../cpp-zh/behavioral/iterator.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/iterator.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 17 · Mediator — The Dispatch Tower</h4>
+  <p class="hook">Robots used to radio each other directly — chaos. Now they report into the tower, and it relays. Nobody needs to know who's online.</p>
+  <span class="anchor">Remember: tower instead of robot-to-robot radio → central hub replaces many-to-many</span>
+  <div class="files"><a href="../cpp/behavioral/mediator.cpp">C++</a> · <a href="../python/behavioral/mediator.py">Python</a> · <a href="../cpp-zh/behavioral/mediator.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/mediator.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 18 · Memento — The Firmware Rollback</h4>
+  <p class="hook">Snapshot the config before each risky module. Laser module bricks the gripper? Roll back. The vault never reads the snapshots.</p>
+  <span class="anchor">Remember: firmware snapshot in the vault → snapshot &amp; restore without exposing state</span>
+  <div class="files"><a href="../cpp/behavioral/memento.cpp">C++</a> · <a href="../python/behavioral/memento.py">Python</a> · <a href="../cpp-zh/behavioral/memento.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/memento.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 19 · Observer — "Unit 42 Rolled Off the Line!"</h4>
+  <p class="hook">When a unit rolls off, the dashboard updates AND the engineer's pager buzzes — the line doesn't know who's listening.</p>
+  <span class="anchor">Remember: dashboard + pager both react → one subject notifies many observers</span>
+  <div class="files"><a href="../cpp/behavioral/observer.cpp">C++</a> · <a href="../python/behavioral/observer.py">Python</a> · <a href="../cpp-zh/behavioral/observer.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/observer.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 20 · State — The Robot's Modes</h4>
+  <p class="hook">Idle accepts a task; busy beeps at a second one but delivers on "complete". Each mode is its own class — no giant if/else.</p>
+  <span class="anchor">Remember: the robot's modes → behavior delegated to swappable state objects</span>
+  <div class="files"><a href="../cpp/behavioral/state.cpp">C++</a> · <a href="../python/behavioral/state.py">Python</a> · <a href="../cpp-zh/behavioral/state.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/state.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 21 · Strategy — The Power Modes</h4>
+  <p class="hook">Same robot, different power rule: performance, eco, night. Swap the rule when the night shift starts.</p>
+  <span class="anchor">Remember: swap the power rule → interchangeable algorithms</span>
+  <div class="files"><a href="../cpp/behavioral/strategy.cpp">C++</a> · <a href="../python/behavioral/strategy.py">Python</a> · <a href="../cpp-zh/behavioral/strategy.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/strategy.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 22 · Template Method — The Boot Sequence</h4>
+  <p class="hook">Power on, self-test, load drivers, announce — always in that order. Only HOW each robot self-tests differs.</p>
+  <span class="anchor">Remember: the boot order never changes, the steps do → fixed skeleton, overridable steps</span>
+  <div class="files"><a href="../cpp/behavioral/template_method.cpp">C++</a> · <a href="../python/behavioral/template_method.py">Python</a> · <a href="../cpp-zh/behavioral/template_method.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/template_method.py">Python 中文</a></div>
+</div>
+<div class="chapter">
+  <h4>Chapter 23 · Visitor — The Inspectors</h4>
+  <p class="hook">The safety auditor tallies risk, the appraiser prints tags. Machines just ACCEPT them — new inspectors need no machine changes.</p>
+  <span class="anchor">Remember: inspectors visit the floor → new operations without touching the classes</span>
+  <div class="files"><a href="../cpp/behavioral/visitor.cpp">C++</a> · <a href="../python/behavioral/visitor.py">Python</a> · <a href="../cpp-zh/behavioral/visitor.cpp">C++ 中文</a> · <a href="../python-zh/behavioral/visitor.py">Python 中文</a></div>
+</div>
+
+<!-- ============================ CHEAT SHEET ============================ -->
+<h2 id="cheatsheet">🗂️ Memory Cheat Sheet</h2>
+<p>Cover the right column and recite it from the story anchor. Then cover the left column and go the other way.</p>
+<table>
+  <tr><th>Story anchor</th><th>Pattern</th><th>Intent in one line</th></tr>
+  <tr><td>The one Master Control Unit</td><td>Singleton</td><td>Exactly one instance, global access point</td></tr>
+  <tr><td>Each line builds its own robot model</td><td>Factory Method</td><td>Subclasses decide which class to instantiate</td></tr>
+  <tr><td>Product series: chassis + arms always match</td><td>Abstract Factory</td><td>Create families of related objects together</td></tr>
+  <tr><td>Custom robot assembled step by step</td><td>Builder</td><td>Construct complex objects piecewise; director = catalog</td></tr>
+  <tr><td>Clone the proven blueprint</td><td>Prototype</td><td>New objects by copying an existing one</td></tr>
+  <tr><td>Legacy crank fits the new line</td><td>Adapter</td><td>Translate one interface into another</td></tr>
+  <tr><td>Any robot with any controller</td><td>Bridge</td><td>Abstraction holds implementation; both vary freely</td></tr>
+  <tr><td>Torso priced like a single bolt</td><td>Composite</td><td>Tree where leaves and groups share one interface</td></tr>
+  <tr><td>Upgrades wrap the basic bot</td><td>Decorator</td><td>Add behavior dynamically by wrapping</td></tr>
+  <tr><td>The big green PRODUCE button</td><td>Facade</td><td>One simple entry point to a subsystem</td></tr>
+  <tr><td>1000 drones share 3 blueprints</td><td>Flyweight</td><td>Share heavy intrinsic state; pass extrinsic in</td></tr>
+  <tr><td>Stand-in for the heavy diagnostics suite</td><td>Proxy</td><td>Placeholder controls access (lazy/protect/cache)</td></tr>
+  <tr><td>Fault climbs technician → engineer → chief</td><td>Chain of Responsibility</td><td>Request travels handlers until one handles it</td></tr>
+  <tr><td>Job card on the queue, recallable</td><td>Command</td><td>Request as an object: queue, log, undo</td></tr>
+  <tr><td>The scheduler speaks robot script</td><td>Interpreter</td><td>Class per grammar rule; interpret() evaluates</td></tr>
+  <tr><td>Walk the queue, never touch the belt</td><td>Iterator</td><td>Traverse without exposing internals</td></tr>
+  <tr><td>Tower instead of robot-to-robot radio</td><td>Mediator</td><td>Central hub replaces many-to-many links</td></tr>
+  <tr><td>Firmware snapshot in the vault</td><td>Memento</td><td>Snapshot &amp; restore without exposing state</td></tr>
+  <tr><td>Dashboard updates AND pager buzzes</td><td>Observer</td><td>Subject notifies all subscribers on change</td></tr>
+  <tr><td>The robot's idle/busy modes</td><td>State</td><td>Behavior delegated to swappable state objects</td></tr>
+  <tr><td>Performance/eco/night power rule swap</td><td>Strategy</td><td>Interchangeable algorithms behind one interface</td></tr>
+  <tr><td>Power on, self-test, drivers, announce — always</td><td>Template Method</td><td>Fixed skeleton; subclasses fill in steps</td></tr>
+  <tr><td>Auditor &amp; appraiser visit the floor</td><td>Visitor</td><td>New operations without changing element classes</td></tr>
+</table>
+
+<!-- ============================ STUDY PLAN ============================ -->
+<h2 id="plan">🗓️ Step-by-Step Study Plan (4 weeks, ~30–45 min per session)</h2>
+
+<div class="tip"><strong>The method for every session:</strong>
+1) Read the chapter's story hook. 2) Read the code in ONE language and predict the output.
+3) Run it and check. 4) Do the tiny exercise. 5) Re-read the same chapter in the OTHER language and
+notice what changed between C++ and Python. 6) Close the file and retell the story beat out loud.</div>
+
+<div class="step"><span class="time">Week 1 · Day 1</span>
+  <h4>Step 1 — Set up &amp; tour the factory</h4>
+  <ul>
+    <li>Clone the repo, build everything: <code>cd cpp && make run</code>, then run a few Python files.</li>
+    <li>Read the 3-act structure above and memorize: <em>Act 1 creates, Act 2 wires, Act 3 talks.</em></li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 1 · Day 2</span>
+  <h4>Step 2 — Chapters 1–2: Singleton, Factory Method</h4>
+  <ul>
+    <li>Exercise: add a <code>dailyReport()</code> to the MCU; add a <code>PainterLine</code> that ships PainterBots.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 1 · Day 3</span>
+  <h4>Step 3 — Chapters 3–4: Abstract Factory, Builder</h4>
+  <ul>
+    <li>Exercise: add a <code>MilitarySeries</code> (armored chassis + weapon arm); add a <code>battery()</code> step and a new catalog blueprint.</li>
+    <li>Compare: why is Factory Method ONE product but Abstract Factory a FAMILY? Say it using lines vs series.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 1 · Day 4</span>
+  <h4>Step 4 — Chapter 5 + Act 1 review: Prototype</h4>
+  <ul>
+    <li>Exercise (Python): demonstrate the shallow-vs-deep copy trap with a new mutable field.</li>
+    <li>Review: recite all 5 creational patterns from their story anchors only.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 2 · Day 1</span>
+  <h4>Step 5 — Chapters 6–7: Adapter, Bridge</h4>
+  <ul>
+    <li>Exercise: adapt a <code>SteamPress(stamp())</code>; add a <code>PainterBot</code> robot AND a <code>VoiceControl</code> controller — count how many classes you did NOT have to write.</li>
+    <li>These two are confused often: Adapter rescues an EXISTING mismatch; Bridge PREVENTS a future explosion.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 2 · Day 2</span>
+  <h4>Step 6 — Chapters 8–9: Composite, Decorator</h4>
+  <ul>
+    <li>Exercise: add a "leg assembly" sub-assembly; invent a <code>TitaniumShell</code> upgrade and price a 4-layer build.</li>
+    <li>Both wrap objects of their own type — but Composite aggregates MANY children, Decorator wraps exactly ONE.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 2 · Day 3</span>
+  <h4>Step 7 — Chapters 10–12: Facade, Flyweight, Proxy</h4>
+  <ul>
+    <li>Exercise: add a shipping label step to the facade WITHOUT changing its public interface; make the proxy count scans.</li>
+    <li>Facade vs Proxy: facade SIMPLIFIES many objects; proxy IMPERSONATES one object.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 2 · Day 4</span>
+  <h4>Step 8 — Act 2 review</h4>
+  <ul>
+    <li>From memory, draw the 7 structural patterns as little factory sketches (crank, bridge, parts tree, wrapped bot, green button, drones, suite).</li>
+    <li>Quiz yourself with the cheat sheet, both directions.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 3 · Day 1</span>
+  <h4>Step 9 — Chapters 13–14: Chain of Responsibility, Command</h4>
+  <ul>
+    <li>Exercise: insert a "Plant manager ($100,000)" into the chain; add a <code>redo()</code> to the control panel.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 3 · Day 2</span>
+  <h4>Step 10 — Chapters 15–16: Interpreter, Iterator</h4>
+  <ul>
+    <li>Exercise: add a <code>Repeat(n)</code> expression ("weld × 3"); add a <code>reversed()</code> traversal to the queue.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 3 · Day 3</span>
+  <h4>Step 11 — Chapters 17–19: Mediator, Memento, Observer</h4>
+  <ul>
+    <li>Exercise: give the tower a direct-message feature; cap the vault at 3 snapshots; add an <code>SmsNotifier</code> observer.</li>
+    <li>Mediator vs Observer: the tower ROUTES between peers; the line BROADCASTS to subscribers.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 3 · Day 4</span>
+  <h4>Step 12 — Chapters 20–21: State, Strategy</h4>
+  <ul>
+    <li>Exercise: add a <code>ChargingState</code> after 3 tasks; add a weekend power mode.</li>
+    <li>The classic confusion: STRATEGY is chosen from OUTSIDE (you flip to eco mode); STATE switches ITSELF (the robot changes its own mode).</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 4 · Day 1</span>
+  <h4>Step 13 — Chapters 22–23: Template Method, Visitor</h4>
+  <ul>
+    <li>Exercise: add a <code>CargoDrone</code> to the boot sequence; write a <code>NoiseInspector</code> visitor.</li>
+    <li>Template Method vs Strategy: the boot sequence varies steps via INHERITANCE; power modes swap the whole algorithm via COMPOSITION.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 4 · Day 2</span>
+  <h4>Step 14 — The full story, out loud</h4>
+  <ul>
+    <li>Retell all 23 chapters from memory, in order, naming each pattern. Use the acts as scaffolding.</li>
+    <li>Then answer all Level 1 &amp; 2 questions below.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 4 · Day 3</span>
+  <h4>Step 15 — Scenario training</h4>
+  <ul>
+    <li>Answer all Level 3 questions below. For each, justify WHY the alternatives are worse.</li>
+  </ul>
+</div>
+<div class="step"><span class="time">Week 4 · Day 4</span>
+  <h4>Step 16 — Build your own factory feature (capstone)</h4>
+  <ul>
+    <li>Pick one Level 4 challenge and implement it in BOTH languages.</li>
+    <li>Spaced repetition: redo the cheat sheet after 1 week, 1 month, 3 months.</li>
+  </ul>
+</div>
+
+<!-- =============================== QUIZ =============================== -->
+<h2 id="quiz">🎓 Mastery Questions</h2>
+<p>Work through the levels in order. Click each question to reveal the answer — but only after committing to your own.</p>
+
+<h3>Level 1 — Story recall (can you name the pattern?)</h3>
+
+<details><summary>1. A fault report travels technician → floor engineer → chief engineer until someone can authorize the repair. Which pattern, and what's the defining property?</summary>
+<div class="answer"><strong>Chain of Responsibility.</strong> The sender knows only the FIRST handler; each handler either handles the request or forwards it. Sender and final handler are decoupled.</div></details>
+
+<details><summary>2. Every product series ships a chassis and arms that always match. Which pattern, and what guarantees the "matching"?</summary>
+<div class="answer"><strong>Abstract Factory.</strong> One concrete factory (IndustrialSeries) creates ALL products of one family, so clients can't accidentally bolt a soft-grip arm onto a heavy chassis — they only ever hold one factory.</div></details>
+
+<details><summary>3. The dashboard AND the engineer's pager both react when unit 42 rolls off. Pattern? Who knows about whom?</summary>
+<div class="answer"><strong>Observer.</strong> The subject (assembly line) holds a list of observers and notifies them; it doesn't know their concrete types. Observers know the subject only to subscribe.</div></details>
+
+<details><summary>4. You snapshot the firmware before installing the "experimental laser module". Pattern, and name the three roles.</summary>
+<div class="answer"><strong>Memento.</strong> Originator = firmware config (creates/restores snapshots), Memento = snapshot (opaque state), Caretaker = backup vault (stores snapshots but never reads them).</div></details>
+
+<details><summary>5. Armor wraps the bot, solar charger wraps the armor. Pattern, and why isn't this just subclassing?</summary>
+<div class="answer"><strong>Decorator.</strong> Subclassing would need a class per combination (ArmoredSolarTalkingBot…); wrapping composes any combination at RUN TIME, and each wrapper shares the Robot interface.</div></details>
+
+<details><summary>6. The robot draws half power after you flip it to eco mode. Pattern, and what stays unchanged when rules change?</summary>
+<div class="answer"><strong>Strategy.</strong> The context (the robot) stays unchanged — it programs against the PowerStrategy interface; only the plugged-in algorithm object changes.</div></details>
+
+<details><summary>7. "Power on, self-test, load drivers, announce" — the order never changes but drones spin rotors while welders calibrate lasers. Pattern, and where does the fixed order live?</summary>
+<div class="answer"><strong>Template Method.</strong> The fixed order lives in the BASE class's non-overridable template method (<code>boot()</code>); subclasses override individual steps (<code>selfTest</code>, the <code>announceReady</code> hook).</div></details>
+
+<details><summary>8. One stand-in object delays booting the diagnostics suite until the first scan. Pattern + which variant?</summary>
+<div class="answer"><strong>Proxy</strong> — specifically a <em>virtual proxy</em> (lazy initialization). Other variants: protection, remote, caching/logging proxy.</div></details>
+
+<h3>Level 2 — The classic confusions (pattern vs pattern)</h3>
+
+<details><summary>9. Strategy vs State — both swap an object behind an interface. What's the real difference? Use the factory.</summary>
+<div class="answer">WHO drives the change. <strong>Strategy:</strong> the client/context picks the algorithm from outside (YOU flip the robot to eco mode). <strong>State:</strong> the object transitions ITSELF as events occur (the robot moves idle→busy→idle on its own). Also: strategies are usually independent of each other; states know about their sibling states to transition.</div></details>
+
+<details><summary>10. Adapter vs Bridge vs Facade — all "structural glue". One sentence each, factory edition.</summary>
+<div class="answer"><strong>Adapter:</strong> makes an EXISTING incompatible thing fit (legacy crank → actuate()). <strong>Bridge:</strong> designed UP FRONT so two dimensions (robots × controllers) evolve independently. <strong>Facade:</strong> doesn't translate anything — it SIMPLIFIES a whole subsystem behind one call (the big green button).</div></details>
+
+<details><summary>11. Decorator vs Proxy — both wrap one object and share its interface. Difference in intent?</summary>
+<div class="answer"><strong>Decorator ADDS behavior</strong> the client asked for (upgrades change specs and price), usually stacked freely by the client. <strong>Proxy CONTROLS ACCESS</strong> (laziness, permissions, caching) and the client typically doesn't know or care whether it has the real object — it's about plumbing, not features.</div></details>
+
+<details><summary>12. Composite vs Decorator — both are recursive wrappers. Structural difference?</summary>
+<div class="answer"><strong>Composite</strong> nodes hold MANY children and aggregate over them (an assembly sums all its parts). <strong>Decorator</strong> wraps exactly ONE inner object and enriches it. Composite is about part–whole trees; decorator about layered behavior.</div></details>
+
+<details><summary>13. Factory Method vs Abstract Factory — both create things. Distinguish them with lines and series.</summary>
+<div class="answer"><strong>Factory Method:</strong> ONE creation point, deferred to subclasses — each assembly line subclass decides its single robot model. <strong>Abstract Factory:</strong> an OBJECT with several factory methods producing a consistent FAMILY — the series creates chassis AND arms that must match. (An abstract factory is often implemented as a set of factory methods.)</div></details>
+
+<details><summary>14. Mediator vs Observer — both decouple communicators. When would you pick each in the factory?</summary>
+<div class="answer"><strong>Mediator</strong> for PEER coordination with routing logic: robots talk through the tower, which decides who hears what (many-to-many → hub). <strong>Observer</strong> for one-way BROADCAST: the line announces, every subscriber reacts; the subject has no routing logic and doesn't expect replies.</div></details>
+
+<details><summary>15. Command vs Strategy — both wrap "something callable" in an object. Difference?</summary>
+<div class="answer"><strong>Command</strong> binds a receiver + action + arguments into a self-contained REQUEST ("weld seam #7 on the floor") that can be queued, logged, undone. <strong>Strategy</strong> is a way of PARAMETERIZING an algorithm choice ("how much power to draw") — no receiver, no undo, no history semantics.</div></details>
+
+<details><summary>16. Memento vs Prototype — both copy state. Difference in purpose and exposure?</summary>
+<div class="answer"><strong>Prototype</strong> clones a FULL working object to create a new independent one (the blueprint copy). <strong>Memento</strong> exports a snapshot of INTERNAL state for the original object itself to restore later — and it stays opaque to everyone but the originator.</div></details>
+
+<h3>Level 3 — Scenario design (pick the pattern, defend it)</h3>
+
+<details><summary>17. The control panel must support "cancel last action" across welding, painting and transport jobs, and replay the day's actions for auditing.</summary>
+<div class="answer"><strong>Command.</strong> Each action becomes an object with execute()/undo(); a history list gives undo, and replaying the list gives the audit log. Memento alone snapshots state but doesn't model the individual actions you must replay.</div></details>
+
+<details><summary>18. You're adding a mobile app, a wall display and an alarm system — all must react instantly when a robot's status changes. More gadgets are coming.</summary>
+<div class="answer"><strong>Observer.</strong> Robot status = subject; each gadget subscribes. New gadgets attach without touching the robot code — the open/closed payoff is exactly why you avoid hard-coded notification calls.</div></details>
+
+<details><summary>19. A robot can be wheeled/tracked/hexapod and controlled by remote/AI/voice. You dread creating 9 classes (and 12 next month).</summary>
+<div class="answer"><strong>Bridge.</strong> Two independent dimensions (locomotion × control): make one the abstraction and the other the implementation it holds. 3 + 3 classes instead of 3 × 3.</div></details>
+
+<details><summary>20. Your new supplier's SDK exposes <code>fetchPartsXML()</code> but your whole codebase calls <code>getInventory()</code> everywhere.</summary>
+<div class="answer"><strong>Adapter.</strong> Write one class implementing your <code>getInventory()</code> interface that delegates to <code>fetchPartsXML()</code> and converts the data. Don't touch the call sites, don't fork the supplier SDK.</div></details>
+
+<details><summary>21. Cost reports need totals computed over arbitrary nesting: single parts, assemblies, assemblies containing assemblies.</summary>
+<div class="answer"><strong>Composite.</strong> Part = leaf, assembly = composite holding components; both implement <code>costCents()</code>. The report code calls one method and recursion does the rest.</div></details>
+
+<details><summary>22. Robots, cranes and conveyor controllers currently hold references to each other; adding a forklift role means touching 6 classes.</summary>
+<div class="answer"><strong>Mediator.</strong> Introduce a coordination hub (the dispatch tower); every machine talks only to it. Adding the forklift means registering one more colleague, not editing six.</div></details>
+
+<details><summary>23. The shift scheduler must evaluate rules like "(weld + paint) - powersave if night". Engineers invent new rule words monthly.</summary>
+<div class="answer"><strong>Interpreter</strong> (for this small grammar): each rule word becomes an expression class; new words = new classes, no parser rewrite. If the language keeps growing in complexity, graduate to a real parsing library.</div></details>
+
+<details><summary>24. Startup creates 50,000 drone objects and memory explodes; drones differ only in serial number and docking bay.</summary>
+<div class="answer"><strong>Flyweight.</strong> Move the heavy shared data (model name, blueprint, mesh) into cached shared objects; keep serial/bay as extrinsic state passed in. 50,000 contexts, a handful of flyweights.</div></details>
+
+<h3>Level 4 — Capstone coding challenges (no peeking — there's no answer to reveal)</h3>
+<ol>
+  <li><strong>The Custom Build pipeline:</strong> combine Builder + Decorator + Strategy — build a base robot, wrap it with two upgrades, compute its power draw under eco mode. One <code>main()</code>, three patterns cooperating.</li>
+  <li><strong>The Factory simulator:</strong> Abstract Factory + Facade — a <code>FactoryOpener</code> facade that takes any product series and runs the full production sequence.</li>
+  <li><strong>Undo everything:</strong> Command + Memento — job cards carry snapshots so "undo" restores the exact prior floor state, not just the inverse action.</li>
+  <li><strong>The smart robot:</strong> State + Observer — the robot publishes its state transitions; a maintenance dashboard observes and warns after N tasks.</li>
+  <li><strong>Floor analytics:</strong> Composite + Visitor + Iterator — walk the whole assembly tree with an iterator and let a visitor compute cost per sub-assembly.</li>
+</ol>
+
+<!-- ============================= CHECKLIST ============================= -->
+<h2 id="checklist">✅ You've mastered the patterns when…</h2>
+<ul class="checklist">
+  <li>You can retell all 23 chapters in order and name each pattern from its story beat alone.</li>
+  <li>You can state every pattern's intent in one sentence <em>without</em> the factory metaphor.</li>
+  <li>You can explain the five classic confusions (Q9–Q16) to someone else.</li>
+  <li>Given a fresh requirement, you name a pattern AND say why two neighbors are a worse fit.</li>
+  <li>You've written at least one pattern from scratch in both C++ and Python without looking.</li>
+  <li>You can say when NOT to use a pattern — the final boss: patterns are vocabulary, not obligations. A basic bot doesn't need an AbstractSingletonProxyFactoryFacade.</li>
+</ul>
+
+<footer>
+  🤖 RoboWorks · companion guide to the <code>cpp/</code>, <code>python/</code>, <code>cpp-zh/</code> and <code>python-zh/</code> examples in this repository.<br>
+  Open the chapter files next to this page — every chapter is a runnable program. · <a href="roboworks-study-guide-zh.html">中文版</a>
+</footer>
+
+</main>
+</body>
+</html>

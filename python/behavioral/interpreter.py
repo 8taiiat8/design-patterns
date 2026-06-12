@@ -1,14 +1,15 @@
-"""Café Patterna — Chapter 15: The Regulars' Shorthand
+"""RoboWorks — Chapter 15: The Robot Script
 
-STORY: Regulars order in shorthand: "espresso + milk - coupon". The till
-understands this tiny language: each word is a grammar rule, and
-evaluating the sentence computes the price in cents.
+STORY: Engineers program shifts in a tiny script language:
+"weld + move - powersave". The scheduler understands it: each word is a
+grammar rule, and evaluating the sentence computes the shift's energy
+budget in watts.
 
 PATTERN: Interpreter — for a small language, define a class per grammar
 rule with an interpret() method that evaluates sentences. Use for simple
 DSLs; for anything complex, prefer a real parser library.
 
-This example evaluates the order tree: (espresso + milk) - coupon.
+This example evaluates the script tree: (weld + move) - powersave.
 
 Run: python3 interpreter.py
 """
@@ -16,47 +17,47 @@ Run: python3 interpreter.py
 from abc import ABC, abstractmethod
 
 
-class OrderExpression(ABC):
-    """Abstract expression: everything evaluates to a price in cents."""
+class ScriptExpression(ABC):
+    """Abstract expression: everything evaluates to watts."""
 
     @abstractmethod
-    def price_cents(self) -> int: ...
+    def watts(self) -> int: ...
 
 
-class Item(OrderExpression):
-    """Terminal expression: a single menu item."""
+class Action(ScriptExpression):
+    """Terminal expression: a single robot action."""
 
-    def __init__(self, name: str, cents: int):
+    def __init__(self, name: str, watts: int):
         self.name = name
-        self.cents = cents
+        self._watts = watts
 
-    def price_cents(self) -> int:
-        return self.cents
+    def watts(self) -> int:
+        return self._watts
 
 
-class Plus(OrderExpression):
+class Sequence(ScriptExpression):
     """Non-terminal expression: combines two sub-expressions."""
 
-    def __init__(self, left: OrderExpression, right: OrderExpression):
+    def __init__(self, left: ScriptExpression, right: ScriptExpression):
         self.left, self.right = left, right
 
-    def price_cents(self) -> int:
-        return self.left.price_cents() + self.right.price_cents()
+    def watts(self) -> int:
+        return self.left.watts() + self.right.watts()
 
 
-class Coupon(OrderExpression):
-    def __init__(self, order: OrderExpression, discount_cents: int):
-        self.order = order
-        self.discount_cents = discount_cents
+class PowerSave(ScriptExpression):
+    def __init__(self, script: ScriptExpression, saved_watts: int):
+        self.script = script
+        self.saved_watts = saved_watts
 
-    def price_cents(self) -> int:
-        return self.order.price_cents() - self.discount_cents
+    def watts(self) -> int:
+        return self.script.watts() - self.saved_watts
 
 
 def main():
-    # Syntax tree for: (espresso + milk) - coupon(100)
-    order = Coupon(Plus(Item("espresso", 200), Item("milk", 50)), 100)
-    print('"espresso + milk - coupon" =', order.price_cents() / 100, "dollars")
+    # Syntax tree for: (weld + move) - powersave(100)
+    script = PowerSave(Sequence(Action("weld", 200), Action("move", 50)), 100)
+    print('"weld + move - powersave" =', script.watts(), "watts")
 
 
 if __name__ == "__main__":

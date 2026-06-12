@@ -1,9 +1,8 @@
-"""Café Patterna — Chapter 16: The Vinyl Crate
+"""RoboWorks — Chapter 16: Walking the Conveyor
 
-STORY: The café's atmosphere lives and dies by its playlist. The records
-sit in a crate behind the counter — customers can flip through the
-playlist song by song, but NOBODY touches the crate itself or needs to
-know how the records are stored.
+STORY: The production queue lives on the conveyor system. Supervisors can
+walk the queue job by job — but NOBODY reaches into the conveyor's
+machinery or needs to know how jobs are stored inside it.
 
 PATTERN: Iterator — provide a way to traverse a collection without
 exposing its internal representation. Python bakes this in: the iterator
@@ -14,59 +13,62 @@ Run: python3 iterator.py
 """
 
 
-class Playlist:
-    """The café playlist; the storage (vinyl crate) stays private."""
+class ProductionQueue:
+    """The production queue; the storage (conveyor internals) stays private."""
 
     def __init__(self):
-        self._songs: list[str] = []
+        self._jobs: list[str] = []
 
-    def add(self, song: str) -> "Playlist":
-        self._songs.append(song)
+    def add(self, job: str) -> "ProductionQueue":
+        self._jobs.append(job)
         return self
 
     def __iter__(self):
         """Return a fresh iterator (the explicit protocol)."""
-        return PlaylistIterator(self._songs)
+        return QueueIterator(self._jobs)
 
-    def shuffled(self):
+    def rush_orders_first(self):
         """Generator: the Pythonic way to expose an alternative traversal."""
-        import random
-
-        order = self._songs[:]
-        random.shuffle(order)
-        yield from order
+        rush = [j for j in self._jobs if j.startswith("RUSH")]
+        normal = [j for j in self._jobs if not j.startswith("RUSH")]
+        yield from rush + normal
 
 
-class PlaylistIterator:
+class QueueIterator:
     """Explicit iterator object implementing __next__."""
 
-    def __init__(self, songs):
-        self._songs = songs
+    def __init__(self, jobs):
+        self._jobs = jobs
         self._pos = 0
 
     def __iter__(self):
         return self
 
     def __next__(self) -> str:
-        if self._pos >= len(self._songs):
+        if self._pos >= len(self._jobs):
             raise StopIteration
-        song = self._songs[self._pos]
+        job = self._jobs[self._pos]
         self._pos += 1
-        return song
+        return job
 
 
 def main():
-    morning_set = Playlist().add("Blue in Green").add("Take Five").add("Misty")
+    morning_shift = (
+        ProductionQueue()
+        .add("weld chassis #7")
+        .add("RUSH: paint drone shell #12")
+        .add("install firmware on batch 3")
+    )
 
     # `for` calls __iter__/__next__ under the hood.
-    for song in morning_set:
-        print("now playing:", song)
+    for job in morning_shift:
+        print("executing:", job)
 
     # Manual protocol usage — what `for` does internally.
-    it = iter(morning_set)
+    it = iter(morning_shift)
     print("first via next():", next(it))
 
-    print("evening shuffle:", list(morning_set.shuffled()))
+    print("rush first:", list(morning_shift.rush_orders_first()))
 
 
 if __name__ == "__main__":

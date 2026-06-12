@@ -1,12 +1,12 @@
-"""Café Patterna — Chapter 8: The Menu Grows
+"""RoboWorks — Chapter 8: Assemblies of Assemblies
 
-STORY: The menu used to be five drinks. Now it has sections, sections
-inside sections, and combo deals. The owner just wants to ask any line on
-the menu — a single croissant or the entire "Breakfast" section — the
-same question: "what does this cost?"
+STORY: A robot isn't one part — it's assemblies inside assemblies. The
+torso contains the arm assembly, which contains servos and grippers. The
+cost engineer wants to ask any node — a single bolt or the entire torso —
+the same question: "what does this cost?"
 
 PATTERN: Composite — compose objects into tree structures and let clients
-treat individual items and groups uniformly.
+treat individual parts and whole assemblies uniformly.
 
 Run: python3 composite.py
 """
@@ -14,43 +14,43 @@ Run: python3 composite.py
 from abc import ABC, abstractmethod
 
 
-# Component: common interface for single items and whole sections.
-class MenuComponent(ABC):
+# Component: common interface for single parts and whole assemblies.
+class PartComponent(ABC):
     def __init__(self, name: str):
         self.name = name
 
     @abstractmethod
-    def price_cents(self) -> int: ...
+    def cost_cents(self) -> int: ...
 
     @abstractmethod
     def print(self, indent: int = 0) -> None: ...
 
 
 # Leaf
-class MenuItem(MenuComponent):
-    def __init__(self, name: str, price_cents: int):
+class Part(PartComponent):
+    def __init__(self, name: str, cost_cents: int):
         super().__init__(name)
-        self._price_cents = price_cents
+        self._cost_cents = cost_cents
 
-    def price_cents(self) -> int:
-        return self._price_cents
+    def cost_cents(self) -> int:
+        return self._cost_cents
 
     def print(self, indent: int = 0) -> None:
-        print(f"{' ' * indent}- {self.name} (${self._price_cents / 100})")
+        print(f"{' ' * indent}- {self.name} (${self._cost_cents / 100})")
 
 
 # Composite: holds children and forwards operations to them.
-class MenuSection(MenuComponent):
+class Assembly(PartComponent):
     def __init__(self, name: str):
         super().__init__(name)
-        self.children: list[MenuComponent] = []
+        self.children: list[PartComponent] = []
 
-    def add(self, component: MenuComponent) -> "MenuSection":
+    def add(self, component: PartComponent) -> "Assembly":
         self.children.append(component)
         return self
 
-    def price_cents(self) -> int:
-        return sum(child.price_cents() for child in self.children)
+    def cost_cents(self) -> int:
+        return sum(child.cost_cents() for child in self.children)
 
     def print(self, indent: int = 0) -> None:
         print(f"{' ' * indent}+ {self.name}")
@@ -59,15 +59,11 @@ class MenuSection(MenuComponent):
 
 
 def main():
-    breakfast = (
-        MenuSection("Breakfast combo")
-        .add(MenuItem("latte", 350))
-        .add(MenuItem("croissant", 300))
-    )
-    menu = MenuSection("Café Patterna Menu").add(MenuItem("espresso", 200)).add(breakfast)
+    arm = Assembly("arm assembly").add(Part("servo motor", 4500)).add(Part("gripper", 3000))
+    torso = Assembly("torso assembly").add(Part("steel frame", 12000)).add(arm)
 
-    menu.print()
-    print(f"whole menu, one of each: ${menu.price_cents() / 100}")
+    torso.print()
+    print(f"total cost: ${torso.cost_cents() / 100}")
 
 
 if __name__ == "__main__":

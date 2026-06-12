@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 22: The House Ritual
+// 🤖 RoboWorks — Chapter 22: The Boot Sequence
 //
-// STORY: Every hot drink follows the same house ritual, in the same
-// order: boil water, brew, pour into cup, add the finishing touch. The
-// ritual itself never changes — but HOW you brew (drip the coffee, steep
-// the tea) and the finishing touch differ per drink.
+// STORY: Every robot boots the same way, in the same order: power on,
+// self-test, load drivers, announce readiness. The sequence itself never
+// changes — but HOW each robot self-tests (calibrate the welding laser,
+// spin up the rotors) and how it announces differ per model.
 //
 // PATTERN: Template Method — define the skeleton of an algorithm in a
 // base class and let subclasses override specific steps without changing
@@ -13,48 +13,48 @@
 
 #include <iostream>
 
-// The base class owns the ritual's skeleton.
-class HotDrinkRecipe {
+// The base class owns the boot sequence's skeleton.
+class BootSequence {
 public:
-    virtual ~HotDrinkRecipe() = default;
+    virtual ~BootSequence() = default;
 
     // The template method: fixed order, non-virtual on purpose.
-    void prepare() {
-        boilWater();
-        brew();
-        pourInCup();
-        addCondiments();  // optional hook with a default
+    void boot() {
+        powerOn();
+        selfTest();
+        loadDrivers();
+        announceReady();  // optional hook with a default
     }
 
 protected:
     // Steps subclasses must provide.
-    virtual void brew() = 0;
+    virtual void selfTest() = 0;
 
     // Hook: has a sensible default, override only if needed.
-    virtual void addCondiments() { std::cout << "  (served as is)\n"; }
+    virtual void announceReady() { std::cout << "  (standard ready beep)\n"; }
 
 private:
-    // Steps that are identical for every drink stay private and fixed.
-    void boilWater() { std::cout << "  boiling water\n"; }
-    void pourInCup() { std::cout << "  pouring into cup\n"; }
+    // Steps that are identical for every robot stay private and fixed.
+    void powerOn() { std::cout << "  power on\n"; }
+    void loadDrivers() { std::cout << "  loading drivers\n"; }
 };
 
-class Coffee : public HotDrinkRecipe {
+class WelderBot : public BootSequence {
 protected:
-    void brew() override { std::cout << "  dripping coffee through filter\n"; }
-    void addCondiments() override { std::cout << "  adding sugar and milk\n"; }
+    void selfTest() override { std::cout << "  calibrating welding laser\n"; }
+    void announceReady() override { std::cout << "  announces: welding systems online\n"; }
 };
 
-class Tea : public HotDrinkRecipe {
+class ScoutDrone : public BootSequence {
 protected:
-    void brew() override { std::cout << "  steeping the tea leaves\n"; }
+    void selfTest() override { std::cout << "  spinning up rotors\n"; }
 };
 
 int main() {
-    std::cout << "Making coffee:\n";
-    Coffee{}.prepare();
+    std::cout << "Booting WelderBot:\n";
+    WelderBot{}.boot();
 
-    std::cout << "Making tea:\n";
-    Tea{}.prepare();
+    std::cout << "Booting ScoutDrone:\n";
+    ScoutDrone{}.boot();
     return 0;
 }

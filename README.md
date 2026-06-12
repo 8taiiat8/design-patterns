@@ -4,9 +4,12 @@
 
 ## 多语言示例 / Examples in other languages
 
-- [C++ 示例（全部 23 种 GoF 设计模式）](cpp/README.md)
-- [Python 示例（全部 23 种 GoF 设计模式）](python/README.md)
-- [☕ Café Patterna 学习指南 / story-based study guide（故事 + 学习计划 + 测验）](document/cafe-patterna-study-guide.html)
+全部 23 种 GoF 设计模式，以"机器人工厂 RoboWorks"一个连续故事串联（英文/中文双版本）：
+
+- [C++ 示例 / C++ examples（English）](cpp/README.md) · [C++ 中文版](cpp-zh/README.md)
+- [Python 示例 / Python examples（English）](python/README.md) · [Python 中文版](python-zh/README.md)
+- [🤖 RoboWorks study guide（story + study plan + quiz, English）](document/roboworks-study-guide.html)
+- [🤖 机器人工厂学习指南（故事 + 学习计划 + 测验，中文）](document/roboworks-study-guide-zh.html)
 
 ## 如何使用此源码示例
 

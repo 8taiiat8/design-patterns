@@ -1,10 +1,11 @@
-"""Café Patterna — Chapter 6: Grandpa's Grinder
+"""RoboWorks — Chapter 6: The Legacy Welding Arm
 
-STORY: The new kitchen line expects every grinder to respond to
-grind(beans). But grandpa's beloved cast-iron grinder only understands
-turn_crank() — and it makes the best grounds in town. You won't rewire
-the kitchen and you can't modify a family heirloom, so you build an
-adapter that fits the old crank into the new interface.
+STORY: The new assembly line expects every arm to respond to
+actuate(task). But the legendary legacy welding arm from the old plant
+only understands pulse_crank() — and it still welds better than anything
+on the market. You won't rewire the line and you can't modify a
+discontinued part, so you build an adapter that fits the old protocol
+into the new interface.
 
 PATTERN: Adapter — convert the interface of an existing class into the
 interface clients expect, letting incompatible classes work together.
@@ -15,37 +16,37 @@ Run: python3 adapter.py
 from abc import ABC, abstractmethod
 
 
-# The interface the kitchen line expects.
-class Grinder(ABC):
+# The interface the assembly line expects.
+class RoboticArm(ABC):
     @abstractmethod
-    def grind(self, beans: str) -> None: ...
+    def actuate(self, task: str) -> None: ...
 
 
-# The family heirloom with an incompatible interface (the adaptee).
+# The legacy part with an incompatible interface (the adaptee).
 # Imagine we cannot modify it.
-class VintageGrinder:
-    def turn_crank(self, contents: str) -> None:
-        print(f"vintage grinder slowly cranks through: {contents}")
+class LegacyWeldingArm:
+    def pulse_crank(self, job: str) -> None:
+        print(f"legacy arm pulses through: {job}")
 
 
 # The adapter implements the expected interface and delegates to the adaptee.
-class VintageGrinderAdapter(Grinder):
+class LegacyArmAdapter(RoboticArm):
     def __init__(self):
-        self._heirloom = VintageGrinder()
+        self._legacy = LegacyWeldingArm()
 
-    def grind(self, beans: str) -> None:
-        self._heirloom.turn_crank(beans)  # translate the call
+    def actuate(self, task: str) -> None:
+        self._legacy.pulse_crank(task)  # translate the call
 
 
-class ElectricGrinder(Grinder):
-    def grind(self, beans: str) -> None:
-        print(f"electric grinder whizzes through: {beans}")
+class ServoArm(RoboticArm):
+    def actuate(self, task: str) -> None:
+        print(f"servo arm smoothly executes: {task}")
 
 
 def main():
-    kitchen_line = [ElectricGrinder(), VintageGrinderAdapter()]
-    for grinder in kitchen_line:
-        grinder.grind("Ethiopian beans")
+    assembly_line = [ServoArm(), LegacyArmAdapter()]
+    for arm in assembly_line:
+        arm.actuate("weld chassis seam #7")
 
 
 if __name__ == "__main__":

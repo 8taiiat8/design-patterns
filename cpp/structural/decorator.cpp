@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 9: Toppings, Toppings, Toppings
+// 🤖 RoboWorks — Chapter 9: The Upgrade Modules
 //
-// STORY: Milk. Sugar. Whipped cream. Customers stack them in every
-// combination imaginable. You are NOT creating a MilkSugarWhipEspresso
-// class for each combo — instead every topping WRAPS the drink underneath
-// and adds its own description and price.
+// STORY: Armor plating. Solar charger. AI voice module. Clients bolt
+// upgrades onto the base bot in every combination imaginable. You are NOT
+// creating an ArmoredSolarTalkingBot class for each combo — instead every
+// upgrade WRAPS the robot underneath and adds its own spec and price.
 //
 // PATTERN: Decorator — attach additional responsibilities to an object
 // dynamically by wrapping it in objects that share its interface.
@@ -15,61 +15,61 @@
 #include <string>
 
 // Component interface
-class Coffee {
+class Robot {
 public:
-    virtual ~Coffee() = default;
-    virtual std::string description() const = 0;
+    virtual ~Robot() = default;
+    virtual std::string specs() const = 0;
     virtual double cost() const = 0;
 };
 
-// Concrete component: the drink being decorated.
-class Espresso : public Coffee {
+// Concrete component: the robot being decorated.
+class BasicBot : public Robot {
 public:
-    std::string description() const override { return "espresso"; }
-    double cost() const override { return 2.0; }
+    std::string specs() const override { return "basic bot"; }
+    double cost() const override { return 2000.0; }
 };
 
-// Base decorator: wraps a Coffee and delegates by default.
-class ToppingDecorator : public Coffee {
+// Base decorator: wraps a Robot and delegates by default.
+class UpgradeDecorator : public Robot {
 public:
-    explicit ToppingDecorator(std::unique_ptr<Coffee> inner) : inner_(std::move(inner)) {}
+    explicit UpgradeDecorator(std::unique_ptr<Robot> inner) : inner_(std::move(inner)) {}
 
-    std::string description() const override { return inner_->description(); }
+    std::string specs() const override { return inner_->specs(); }
     double cost() const override { return inner_->cost(); }
 
 private:
-    std::unique_ptr<Coffee> inner_;
+    std::unique_ptr<Robot> inner_;
 };
 
-class Milk : public ToppingDecorator {
+class ArmorPlating : public UpgradeDecorator {
 public:
-    using ToppingDecorator::ToppingDecorator;
-    std::string description() const override { return ToppingDecorator::description() + " + milk"; }
-    double cost() const override { return ToppingDecorator::cost() + 0.5; }
+    using UpgradeDecorator::UpgradeDecorator;
+    std::string specs() const override { return UpgradeDecorator::specs() + " + armor plating"; }
+    double cost() const override { return UpgradeDecorator::cost() + 500.0; }
 };
 
-class Sugar : public ToppingDecorator {
+class SolarCharger : public UpgradeDecorator {
 public:
-    using ToppingDecorator::ToppingDecorator;
-    std::string description() const override { return ToppingDecorator::description() + " + sugar"; }
-    double cost() const override { return ToppingDecorator::cost() + 0.2; }
+    using UpgradeDecorator::UpgradeDecorator;
+    std::string specs() const override { return UpgradeDecorator::specs() + " + solar charger"; }
+    double cost() const override { return UpgradeDecorator::cost() + 200.0; }
 };
 
-class WhippedCream : public ToppingDecorator {
+class AiVoice : public UpgradeDecorator {
 public:
-    using ToppingDecorator::ToppingDecorator;
-    std::string description() const override { return ToppingDecorator::description() + " + whipped cream"; }
-    double cost() const override { return ToppingDecorator::cost() + 0.7; }
+    using UpgradeDecorator::UpgradeDecorator;
+    std::string specs() const override { return UpgradeDecorator::specs() + " + AI voice"; }
+    double cost() const override { return UpgradeDecorator::cost() + 700.0; }
 };
 
 int main() {
-    // Stack toppings in any combination at run time.
-    std::unique_ptr<Coffee> order = std::make_unique<WhippedCream>(
-        std::make_unique<Sugar>(std::make_unique<Milk>(std::make_unique<Espresso>())));
+    // Stack upgrades in any combination at run time.
+    std::unique_ptr<Robot> order = std::make_unique<AiVoice>(
+        std::make_unique<SolarCharger>(std::make_unique<ArmorPlating>(std::make_unique<BasicBot>())));
 
-    std::cout << order->description() << " costs $" << order->cost() << "\n";
+    std::cout << order->specs() << " costs $" << order->cost() << "\n";
 
-    std::unique_ptr<Coffee> plain = std::make_unique<Espresso>();
-    std::cout << plain->description() << " costs $" << plain->cost() << "\n";
+    std::unique_ptr<Robot> plain = std::make_unique<BasicBot>();
+    std::cout << plain->specs() << " costs $" << plain->cost() << "\n";
     return 0;
 }

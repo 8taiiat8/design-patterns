@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 2: Hiring Baristas
+"""RoboWorks — Chapter 2: The Assembly Lines
 
-STORY: Business grows, so you hire baristas. You don't tell each barista
-HOW to serve a customer — the routine is the same (greet, craft the drink,
-hand it over). What differs is WHICH drink each specialist crafts: the
-espresso barista pulls shots, the tea master whisks matcha.
+STORY: Demand grows, so you open assembly lines. Every line follows the
+same roll-out routine (assemble, test, ship). What differs is WHICH robot
+each line builds: the welder line produces WelderBots, the cleaner line
+produces CleanerBots.
 
 PATTERN: Factory Method — define an interface for creating an object, but
 let subclasses decide which concrete class to instantiate.
@@ -15,45 +15,45 @@ from abc import ABC, abstractmethod
 
 
 # Product interface
-class Drink(ABC):
+class Robot(ABC):
     @abstractmethod
     def describe(self) -> str: ...
 
 
-class Espresso(Drink):
+class WelderBot(Robot):
     def describe(self) -> str:
-        return "a double espresso, rich crema"
+        return "a WelderBot with twin plasma torches"
 
 
-class MatchaLatte(Drink):
+class CleanerBot(Robot):
     def describe(self) -> str:
-        return "a matcha latte, whisked to order"
+        return "a CleanerBot with spinning brushes"
 
 
-# Creator: the serving routine relies only on the Drink interface;
+# Creator: the roll-out routine relies only on the Robot interface;
 # the factory method defers the concrete choice to subclasses.
-class Barista(ABC):
-    def serve_customer(self) -> None:
-        drink = self.craft_signature_drink()  # the factory method
-        print(f"Barista serves {drink.describe()}")
+class AssemblyLine(ABC):
+    def roll_out(self) -> None:
+        robot = self.build_robot()  # the factory method
+        print(f"Line ships {robot.describe()}")
 
     @abstractmethod
-    def craft_signature_drink(self) -> Drink: ...
+    def build_robot(self) -> Robot: ...
 
 
-class EspressoBarista(Barista):
-    def craft_signature_drink(self) -> Drink:
-        return Espresso()
+class WelderLine(AssemblyLine):
+    def build_robot(self) -> Robot:
+        return WelderBot()
 
 
-class TeaMaster(Barista):
-    def craft_signature_drink(self) -> Drink:
-        return MatchaLatte()
+class CleanerLine(AssemblyLine):
+    def build_robot(self) -> Robot:
+        return CleanerBot()
 
 
 def main():
-    EspressoBarista().serve_customer()
-    TeaMaster().serve_customer()
+    WelderLine().roll_out()
+    CleanerLine().roll_out()
 
 
 if __name__ == "__main__":

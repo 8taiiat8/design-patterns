@@ -1,13 +1,13 @@
-// ☕ Café Patterna — Chapter 1: The One Cash Register
+// 🤖 RoboWorks — Chapter 1: The Master Control Unit
 //
-// STORY: On opening day you buy exactly ONE cash register. Every barista
-// rings up sales on the same machine — if there were two, the day's totals
-// would never add up. The register is created the first time someone needs
-// it, and everyone shares it from then on.
+// STORY: Your factory has exactly ONE Master Control Unit. Every assembly
+// line reports to the same MCU — if there were two, they would issue
+// conflicting orders and the factory would tear itself apart. The MCU
+// boots the first time someone needs it, and everyone shares it.
 //
 // PATTERN: Singleton — ensure a class has only one instance and provide a
 // global access point to it. Use when exactly one object must coordinate
-// something shop-wide (configuration, logging, the till).
+// something factory-wide (configuration, logging, the control core).
 //
 // Key points in C++:
 // - A function-local static (the "Meyers singleton") is initialized lazily
@@ -19,38 +19,34 @@
 #include <iostream>
 #include <string>
 
-class CashRegister {
+class MasterControlUnit {
 public:
     // The single global access point.
-    static CashRegister& instance() {
-        static CashRegister till;  // created on first use, thread-safe
-        return till;
+    static MasterControlUnit& instance() {
+        static MasterControlUnit mcu;  // created on first use, thread-safe
+        return mcu;
     }
 
-    CashRegister(const CashRegister&) = delete;
-    CashRegister& operator=(const CashRegister&) = delete;
+    MasterControlUnit(const MasterControlUnit&) = delete;
+    MasterControlUnit& operator=(const MasterControlUnit&) = delete;
 
-    void ringUp(const std::string& item, double price) {
-        ++sales_;
-        total_ += price;
-        std::cout << "[sale #" << sales_ << "] " << item << " $" << price
-                  << " (day total: $" << total_ << ")\n";
+    void logTask(const std::string& task) {
+        ++tasks_;
+        std::cout << "[MCU task #" << tasks_ << "] " << task << "\n";
     }
 
 private:
-    CashRegister() = default;  // private: nobody can buy a second register
-    int sales_ = 0;
-    double total_ = 0.0;
+    MasterControlUnit() = default;  // private: nobody can build a second MCU
+    int tasks_ = 0;
 };
 
 int main() {
-    CashRegister::instance().ringUp("espresso", 2.0);
-    CashRegister::instance().ringUp("croissant", 3.5);
+    MasterControlUnit::instance().logTask("power up line A");
+    MasterControlUnit::instance().logTask("calibrate welding lasers");
 
-    // Both baristas are using the same till.
-    CashRegister& morningShift = CashRegister::instance();
-    CashRegister& eveningShift = CashRegister::instance();
-    std::cout << "same register? " << std::boolalpha
-              << (&morningShift == &eveningShift) << "\n";
+    // Both assembly lines report to the same control core.
+    MasterControlUnit& lineA = MasterControlUnit::instance();
+    MasterControlUnit& lineB = MasterControlUnit::instance();
+    std::cout << "same MCU? " << std::boolalpha << (&lineA == &lineB) << "\n";
     return 0;
 }

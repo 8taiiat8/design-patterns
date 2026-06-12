@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 19: "Order 42 Is Ready!"
+"""RoboWorks — Chapter 19: "Unit 42 Rolled Off the Line!"
 
-STORY: Customers used to crowd the counter asking "is mine done yet?"
-Now they subscribe: when the barista finishes an order, the pickup screen
-lights up AND the customer's phone buzzes — automatically, without the
-barista knowing or caring who's listening.
+STORY: Managers used to phone the floor every hour asking "is batch 42
+done yet?" Now they subscribe: when a unit rolls off the line, the
+dashboard updates AND the engineer's pager buzzes — automatically,
+without the line knowing or caring who's listening.
 
 PATTERN: Observer — define a one-to-many dependency so that when the
 subject changes state, all registered observers are notified. The
@@ -15,52 +15,52 @@ Run: python3 observer.py
 from abc import ABC, abstractmethod
 
 
-class OrderObserver(ABC):
+class LineObserver(ABC):
     @abstractmethod
-    def order_ready(self, order_no: int) -> None: ...
+    def unit_finished(self, serial: int) -> None: ...
 
 
-class PickupCounter:
+class AssemblyLine:
     """Subject: maintains observers and notifies them on change."""
 
     def __init__(self):
-        self._observers: list[OrderObserver] = []
+        self._observers: list[LineObserver] = []
 
-    def attach(self, observer: OrderObserver) -> None:
+    def attach(self, observer: LineObserver) -> None:
         self._observers.append(observer)
 
-    def detach(self, observer: OrderObserver) -> None:
+    def detach(self, observer: LineObserver) -> None:
         self._observers.remove(observer)
 
-    def announce_ready(self, order_no: int) -> None:
-        print(f"barista: order #{order_no} is done")
+    def roll_off(self, serial: int) -> None:
+        print(f"line: unit #{serial} rolled off")
         for observer in self._observers:
-            observer.order_ready(order_no)
+            observer.unit_finished(serial)
 
 
-class PickupScreen(OrderObserver):
-    def order_ready(self, order_no: int) -> None:
-        print(f"  screen flashes: NOW SERVING #{order_no}")
+class Dashboard(LineObserver):
+    def unit_finished(self, serial: int) -> None:
+        print(f"  dashboard updates: unit #{serial} complete")
 
 
-class CustomerPhone(OrderObserver):
-    def order_ready(self, order_no: int) -> None:
-        print(f"  phone buzzes: your order #{order_no} is ready!")
+class EngineerPager(LineObserver):
+    def unit_finished(self, serial: int) -> None:
+        print(f"  pager buzzes: unit #{serial} ready for QA!")
 
 
 def main():
-    counter = PickupCounter()
-    screen = PickupScreen()
-    phone = CustomerPhone()
+    line = AssemblyLine()
+    dashboard = Dashboard()
+    pager = EngineerPager()
 
-    counter.attach(screen)
-    counter.attach(phone)
+    line.attach(dashboard)
+    line.attach(pager)
 
-    counter.announce_ready(41)
-    counter.announce_ready(42)
+    line.roll_off(41)
+    line.roll_off(42)
 
-    counter.detach(phone)  # customer picked up and left
-    counter.announce_ready(43)  # only the screen reacts now
+    line.detach(pager)  # engineer went home
+    line.roll_off(43)   # only the dashboard reacts now
 
 
 if __name__ == "__main__":

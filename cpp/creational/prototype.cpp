@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 5: The Drink of the Day
+// 🤖 RoboWorks — Chapter 5: Clone the Blueprint
 //
-// STORY: Inventing a recipe from scratch takes weeks of tasting. So every
-// morning you take yesterday's bestseller card from the recipe box, CLONE
-// it, and tweak one thing — "same latte, but with cinnamon". The original
-// card stays untouched in the box.
+// STORY: Designing a robot from a blank sheet takes months of R&D. So
+// when a client wants "the same WelderBot, but with a longer reach", you
+// CLONE the proven blueprint and tweak one spec. The original blueprint
+// stays untouched in the archive.
 //
 // PATTERN: Prototype — create new objects by copying an existing object
 // (the prototype) instead of building them from scratch. Use when
@@ -16,70 +16,70 @@
 #include <string>
 #include <vector>
 
-class RecipeCard {
+class Blueprint {
 public:
-    virtual ~RecipeCard() = default;
-    virtual std::unique_ptr<RecipeCard> clone() const = 0;
-    virtual void read() const = 0;
+    virtual ~Blueprint() = default;
+    virtual std::unique_ptr<Blueprint> clone() const = 0;
+    virtual void review() const = 0;
 };
 
-class DrinkRecipe : public RecipeCard {
+class RobotBlueprint : public Blueprint {
 public:
-    DrinkRecipe(std::string name, std::string secret)
-        : name_(std::move(name)), secret_(std::move(secret)) {}
+    RobotBlueprint(std::string model, std::string spec)
+        : model_(std::move(model)), spec_(std::move(spec)) {}
 
-    std::unique_ptr<RecipeCard> clone() const override {
-        return std::make_unique<DrinkRecipe>(*this);  // copy ctor does the work
+    std::unique_ptr<Blueprint> clone() const override {
+        return std::make_unique<RobotBlueprint>(*this);  // copy ctor does the work
     }
 
-    void tweak(std::string secret) { secret_ = std::move(secret); }
+    void tweak(std::string spec) { spec_ = std::move(spec); }
 
-    void read() const override {
-        std::cout << "DrinkRecipe(" << name_ << ": " << secret_ << ")\n";
+    void review() const override {
+        std::cout << "RobotBlueprint(" << model_ << ": " << spec_ << ")\n";
     }
 
 private:
-    std::string name_;
-    std::string secret_;
+    std::string model_;
+    std::string spec_;
 };
 
-class PastryRecipe : public RecipeCard {
+class DroneBlueprint : public Blueprint {
 public:
-    PastryRecipe(std::string name, int ovenMinutes)
-        : name_(std::move(name)), ovenMinutes_(ovenMinutes) {}
+    DroneBlueprint(std::string model, int rotors)
+        : model_(std::move(model)), rotors_(rotors) {}
 
-    std::unique_ptr<RecipeCard> clone() const override {
-        return std::make_unique<PastryRecipe>(*this);
+    std::unique_ptr<Blueprint> clone() const override {
+        return std::make_unique<DroneBlueprint>(*this);
     }
 
-    void read() const override {
-        std::cout << "PastryRecipe(" << name_ << ", " << ovenMinutes_ << " min in the oven)\n";
+    void review() const override {
+        std::cout << "DroneBlueprint(" << model_ << ", " << rotors_ << " rotors)\n";
     }
 
 private:
-    std::string name_;
-    int ovenMinutes_;
+    std::string model_;
+    int rotors_;
 };
 
 int main() {
-    DrinkRecipe bestseller("house latte", "steam milk to 60C");
+    RobotBlueprint proven("WelderBot Mk2", "arm reach 1.2m");
 
-    // Clone today's special without naming the concrete type.
-    std::vector<std::unique_ptr<RecipeCard>> recipeBox;
-    recipeBox.push_back(bestseller.clone());
-    recipeBox.push_back(std::make_unique<PastryRecipe>("croissant", 18));
-    recipeBox.push_back(recipeBox.back()->clone());  // clone via the base interface
+    // Clone blueprints without naming the concrete type.
+    std::vector<std::unique_ptr<Blueprint>> archive;
+    archive.push_back(proven.clone());
+    archive.push_back(std::make_unique<DroneBlueprint>("ScoutDrone", 4));
+    archive.push_back(archive.back()->clone());  // clone via the base interface
 
-    // Tweaking the copy does not change the original card.
-    auto special = bestseller.clone();
-    static_cast<DrinkRecipe*>(special.get())->tweak("steam milk to 60C + cinnamon dust");
+    // Tweaking the copy does not change the proven original.
+    auto custom = proven.clone();
+    static_cast<RobotBlueprint*>(custom.get())->tweak("arm reach 2.0m, reinforced joints");
 
-    std::cout << "original:        ";
-    bestseller.read();
-    std::cout << "drink of the day: ";
-    special->read();
+    std::cout << "original:     ";
+    proven.review();
+    std::cout << "client order: ";
+    custom->review();
 
-    std::cout << "recipe box:\n";
-    for (const auto& card : recipeBox) card->read();
+    std::cout << "archive:\n";
+    for (const auto& bp : archive) bp->review();
     return 0;
 }

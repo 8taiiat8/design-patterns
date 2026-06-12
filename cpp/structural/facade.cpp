@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 10: One Counter to Rule Them All
+// 🤖 RoboWorks — Chapter 10: The Big Green Button
 //
-// STORY: Behind the counter it's chaos: check the bean inventory, brew
-// the drink, charge the card, stamp the loyalty card — in exactly that
-// order. The customer sees none of it. They say "one latte please" and
-// the counter orchestrates everything.
+// STORY: Starting production is chaos behind the scenes: reserve parts,
+// power up the grid, run the assembly cell, pass quality control — in
+// exactly that order. The client sees none of it. They press the big
+// green button labeled "PRODUCE" and the facade orchestrates everything.
 //
 // PATTERN: Facade — provide a single simplified interface to a complex
 // subsystem. Use when clients need only a small slice of a subsystem's
@@ -16,57 +16,57 @@
 
 // Complex subsystem parts. Clients could call these directly, but the
 // correct order and wiring is easy to get wrong.
-class BeanInventory {
+class PartsDepot {
 public:
-    bool reserveBeansFor(const std::string& drink) {
-        std::cout << "inventory: beans reserved for " << drink << "\n";
+    bool reservePartsFor(const std::string& model) {
+        std::cout << "depot: parts reserved for " << model << "\n";
         return true;
     }
 };
 
-class BrewStation {
+class PowerGrid {
 public:
-    void brew(const std::string& drink) {
-        std::cout << "brew station: making " << drink << "\n";
-    }
-};
-
-class Payment {
-public:
-    bool charge(double amount) {
-        std::cout << "payment: charged $" << amount << "\n";
+    bool powerUp(int kilowatts) {
+        std::cout << "grid: " << kilowatts << " kW allocated\n";
         return true;
     }
 };
 
-class LoyaltyProgram {
+class AssemblyCell {
 public:
-    void stamp(const std::string& customer) {
-        std::cout << "loyalty: stamped " << customer << "'s card\n";
+    void assemble(const std::string& model) {
+        std::cout << "cell: assembling " << model << "\n";
+    }
+};
+
+class QualityControl {
+public:
+    void inspect(const std::string& model) {
+        std::cout << "QC: " << model << " passed inspection\n";
     }
 };
 
 // The facade exposes one high-level operation that orchestrates the parts.
-class OrderCounter {
+class ProductionFacade {
 public:
-    bool placeOrder(const std::string& drink, double price, const std::string& customer) {
-        if (!inventory_.reserveBeansFor(drink)) return false;
-        if (!payment_.charge(price)) return false;
-        brewStation_.brew(drink);
-        loyalty_.stamp(customer);
-        std::cout << "order complete, enjoy!\n";
+    bool produce(const std::string& model, int kilowatts) {
+        if (!depot_.reservePartsFor(model)) return false;
+        if (!grid_.powerUp(kilowatts)) return false;
+        cell_.assemble(model);
+        qc_.inspect(model);
+        std::cout << "production run complete\n";
         return true;
     }
 
 private:
-    BeanInventory inventory_;
-    BrewStation brewStation_;
-    Payment payment_;
-    LoyaltyProgram loyalty_;
+    PartsDepot depot_;
+    PowerGrid grid_;
+    AssemblyCell cell_;
+    QualityControl qc_;
 };
 
 int main() {
-    OrderCounter counter;
-    counter.placeOrder("oat latte", 4.5, "Nora");
+    ProductionFacade bigGreenButton;
+    bigGreenButton.produce("WelderBot Mk2", 40);
     return 0;
 }

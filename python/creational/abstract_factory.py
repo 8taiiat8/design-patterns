@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 3: The Franchise Kits
+"""RoboWorks — Chapter 3: The Product Series
 
-STORY: Café Patterna goes international! Each franchise orders a "kit":
-the Italian kit ships a lever espresso machine WITH porcelain cups, the
-Japanese kit ships a siphon brewer WITH ceramic cups. Machines and cups
-from one kit always match — you never mix a siphon with porcelain.
+STORY: RoboWorks sells two product series. The Industrial series pairs a
+heavy chassis WITH hydraulic arms; the Domestic series pairs a light
+chassis WITH soft-grip arms. Parts from one series always match — a
+soft-grip arm on a heavy chassis would snap off on day one.
 
 PATTERN: Abstract Factory — provide an interface for creating families of
 related objects without specifying their concrete classes.
@@ -15,74 +15,74 @@ from abc import ABC, abstractmethod
 
 
 # Abstract products
-class CoffeeMachine(ABC):
+class Chassis(ABC):
     @abstractmethod
-    def brew(self) -> None: ...
+    def assemble(self) -> None: ...
 
 
-class Cup(ABC):
+class Arm(ABC):
     @abstractmethod
-    def fill(self) -> None: ...
+    def attach(self) -> None: ...
 
 
-# The Italian family
-class LeverMachine(CoffeeMachine):
-    def brew(self) -> None:
-        print("lever machine pulls a shot")
+# The Industrial series
+class HeavyChassis(Chassis):
+    def assemble(self) -> None:
+        print("bolting together a heavy steel chassis")
 
 
-class PorcelainCup(Cup):
-    def fill(self) -> None:
-        print("filling a porcelain cup")
+class HydraulicArm(Arm):
+    def attach(self) -> None:
+        print("attaching a hydraulic arm")
 
 
-# The Japanese family
-class SiphonBrewer(CoffeeMachine):
-    def brew(self) -> None:
-        print("siphon brewer bubbles away")
+# The Domestic series
+class LightChassis(Chassis):
+    def assemble(self) -> None:
+        print("clipping together a light alloy chassis")
 
 
-class CeramicCup(Cup):
-    def fill(self) -> None:
-        print("filling a ceramic cup")
+class SoftGripArm(Arm):
+    def attach(self) -> None:
+        print("attaching a soft-grip arm")
 
 
 # Abstract factory: one creation method per product type
-class FranchiseKit(ABC):
+class RobotSeriesFactory(ABC):
     @abstractmethod
-    def create_machine(self) -> CoffeeMachine: ...
+    def create_chassis(self) -> Chassis: ...
 
     @abstractmethod
-    def create_cup(self) -> Cup: ...
+    def create_arm(self) -> Arm: ...
 
 
-class ItalianKit(FranchiseKit):
-    def create_machine(self) -> CoffeeMachine:
-        return LeverMachine()
+class IndustrialSeries(RobotSeriesFactory):
+    def create_chassis(self) -> Chassis:
+        return HeavyChassis()
 
-    def create_cup(self) -> Cup:
-        return PorcelainCup()
-
-
-class JapaneseKit(FranchiseKit):
-    def create_machine(self) -> CoffeeMachine:
-        return SiphonBrewer()
-
-    def create_cup(self) -> Cup:
-        return CeramicCup()
+    def create_arm(self) -> Arm:
+        return HydraulicArm()
 
 
-def open_franchise(kit: FranchiseKit) -> None:
-    """The franchise owner depends only on the abstract kit interface."""
-    kit.create_machine().brew()
-    kit.create_cup().fill()
+class DomesticSeries(RobotSeriesFactory):
+    def create_chassis(self) -> Chassis:
+        return LightChassis()
+
+    def create_arm(self) -> Arm:
+        return SoftGripArm()
+
+
+def produce_robot(series: RobotSeriesFactory) -> None:
+    """The production planner depends only on the abstract factory."""
+    series.create_chassis().assemble()
+    series.create_arm().attach()
 
 
 def main():
-    print("-- Rome branch --")
-    open_franchise(ItalianKit())
-    print("-- Kyoto branch --")
-    open_franchise(JapaneseKit())
+    print("-- Industrial series --")
+    produce_robot(IndustrialSeries())
+    print("-- Domestic series --")
+    produce_robot(DomesticSeries())
 
 
 if __name__ == "__main__":

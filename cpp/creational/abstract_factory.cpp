@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 3: The Franchise Kits
+// 🤖 RoboWorks — Chapter 3: The Product Series
 //
-// STORY: Café Patterna goes international! Each franchise orders a "kit":
-// the Italian kit ships a lever espresso machine WITH porcelain cups, the
-// Japanese kit ships a siphon brewer WITH ceramic cups. Machines and cups
-// from one kit always match — you never mix a siphon with porcelain.
+// STORY: RoboWorks sells two product series. The Industrial series pairs
+// a heavy chassis WITH hydraulic arms; the Domestic series pairs a light
+// chassis WITH soft-grip arms. Parts from one series always match — a
+// soft-grip arm on a heavy chassis would snap off on day one.
 //
 // PATTERN: Abstract Factory — provide an interface for creating families
 // of related objects without specifying their concrete classes. Use when
@@ -15,70 +15,70 @@
 #include <memory>
 
 // Abstract products
-class CoffeeMachine {
+class Chassis {
 public:
-    virtual ~CoffeeMachine() = default;
-    virtual void brew() const = 0;
+    virtual ~Chassis() = default;
+    virtual void assemble() const = 0;
 };
 
-class Cup {
+class Arm {
 public:
-    virtual ~Cup() = default;
-    virtual void fill() const = 0;
+    virtual ~Arm() = default;
+    virtual void attach() const = 0;
 };
 
-// Concrete products: the Italian family
-class LeverMachine : public CoffeeMachine {
+// Concrete products: the Industrial series
+class HeavyChassis : public Chassis {
 public:
-    void brew() const override { std::cout << "lever machine pulls a shot\n"; }
+    void assemble() const override { std::cout << "bolting together a heavy steel chassis\n"; }
 };
 
-class PorcelainCup : public Cup {
+class HydraulicArm : public Arm {
 public:
-    void fill() const override { std::cout << "filling a porcelain cup\n"; }
+    void attach() const override { std::cout << "attaching a hydraulic arm\n"; }
 };
 
-// Concrete products: the Japanese family
-class SiphonBrewer : public CoffeeMachine {
+// Concrete products: the Domestic series
+class LightChassis : public Chassis {
 public:
-    void brew() const override { std::cout << "siphon brewer bubbles away\n"; }
+    void assemble() const override { std::cout << "clipping together a light alloy chassis\n"; }
 };
 
-class CeramicCup : public Cup {
+class SoftGripArm : public Arm {
 public:
-    void fill() const override { std::cout << "filling a ceramic cup\n"; }
+    void attach() const override { std::cout << "attaching a soft-grip arm\n"; }
 };
 
 // Abstract factory: one creation method per product type
-class FranchiseKit {
+class RobotSeriesFactory {
 public:
-    virtual ~FranchiseKit() = default;
-    virtual std::unique_ptr<CoffeeMachine> createMachine() const = 0;
-    virtual std::unique_ptr<Cup> createCup() const = 0;
+    virtual ~RobotSeriesFactory() = default;
+    virtual std::unique_ptr<Chassis> createChassis() const = 0;
+    virtual std::unique_ptr<Arm> createArm() const = 0;
 };
 
-class ItalianKit : public FranchiseKit {
+class IndustrialSeries : public RobotSeriesFactory {
 public:
-    std::unique_ptr<CoffeeMachine> createMachine() const override { return std::make_unique<LeverMachine>(); }
-    std::unique_ptr<Cup> createCup() const override { return std::make_unique<PorcelainCup>(); }
+    std::unique_ptr<Chassis> createChassis() const override { return std::make_unique<HeavyChassis>(); }
+    std::unique_ptr<Arm> createArm() const override { return std::make_unique<HydraulicArm>(); }
 };
 
-class JapaneseKit : public FranchiseKit {
+class DomesticSeries : public RobotSeriesFactory {
 public:
-    std::unique_ptr<CoffeeMachine> createMachine() const override { return std::make_unique<SiphonBrewer>(); }
-    std::unique_ptr<Cup> createCup() const override { return std::make_unique<CeramicCup>(); }
+    std::unique_ptr<Chassis> createChassis() const override { return std::make_unique<LightChassis>(); }
+    std::unique_ptr<Arm> createArm() const override { return std::make_unique<SoftGripArm>(); }
 };
 
-// The franchise owner only depends on the abstract kit interface.
-void openFranchise(const FranchiseKit& kit) {
-    kit.createMachine()->brew();
-    kit.createCup()->fill();
+// The production planner only depends on the abstract factory interface.
+void produceRobot(const RobotSeriesFactory& series) {
+    series.createChassis()->assemble();
+    series.createArm()->attach();
 }
 
 int main() {
-    std::cout << "-- Rome branch --\n";
-    openFranchise(ItalianKit{});
-    std::cout << "-- Kyoto branch --\n";
-    openFranchise(JapaneseKit{});
+    std::cout << "-- Industrial series --\n";
+    produceRobot(IndustrialSeries{});
+    std::cout << "-- Domestic series --\n";
+    produceRobot(DomesticSeries{});
     return 0;
 }

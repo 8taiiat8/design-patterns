@@ -1,10 +1,10 @@
-// ☕ Café Patterna — Chapter 11: A Thousand Tickets, Three Drinks
+// 🤖 RoboWorks — Chapter 11: A Thousand Drones, Three Blueprints
 //
-// STORY: On a busy Saturday the kitchen prints thousands of order
-// tickets. But the café only sells a handful of drink types — printing
-// the full recipe on every ticket would waste mountains of paper (and in
-// code, memory). So each ticket carries only its order number and table,
-// plus a POINTER to the one shared drink definition.
+// STORY: The drone hall holds thousands of units, but the factory only
+// produces a handful of models. Storing the full blueprint inside every
+// drone would melt the warehouse database. So each unit stores only its
+// serial number and docking bay, plus a POINTER to the one shared model
+// definition.
 //
 // PATTERN: Flyweight — share common (intrinsic) state between many
 // objects; varying (extrinsic) state is passed in from outside.
@@ -17,63 +17,63 @@
 #include <string>
 #include <vector>
 
-// Flyweight: the heavy intrinsic state shared by many tickets
-// (the drink's name and full recipe).
-class DrinkType {
+// Flyweight: the heavy intrinsic state shared by many drones
+// (the model's name and full blueprint).
+class RobotModel {
 public:
-    DrinkType(std::string name, std::string recipe)
-        : name_(std::move(name)), recipe_(std::move(recipe)) {}
+    RobotModel(std::string name, std::string blueprint)
+        : name_(std::move(name)), blueprint_(std::move(blueprint)) {}
 
-    // Extrinsic state (order number, table) is supplied by the caller.
-    void printTicket(int orderNo, int table) const {
-        std::cout << "ticket #" << orderNo << " (table " << table << "): "
-                  << name_ << " — " << recipe_ << "\n";
+    // Extrinsic state (serial, bay) is supplied by the caller.
+    void printUnit(int serial, int bay) const {
+        std::cout << "unit #" << serial << " (bay " << bay << "): "
+                  << name_ << " — " << blueprint_ << "\n";
     }
 
 private:
     std::string name_;
-    std::string recipe_;
+    std::string blueprint_;
 };
 
-// Flyweight factory: caches and reuses DrinkType instances.
-class DrinkTypeFactory {
+// Flyweight factory: caches and reuses RobotModel instances.
+class RobotModelFactory {
 public:
-    const DrinkType& get(const std::string& name, const std::string& recipe) {
+    const RobotModel& get(const std::string& name, const std::string& blueprint) {
         auto it = cache_.find(name);
         if (it == cache_.end()) {
-            it = cache_.emplace(name, std::make_unique<DrinkType>(name, recipe)).first;
+            it = cache_.emplace(name, std::make_unique<RobotModel>(name, blueprint)).first;
             std::cout << "(created new flyweight: " << name << ")\n";
         }
         return *it->second;
     }
 
-    size_t uniqueTypes() const { return cache_.size(); }
+    size_t uniqueModels() const { return cache_.size(); }
 
 private:
-    std::map<std::string, std::unique_ptr<DrinkType>> cache_;
+    std::map<std::string, std::unique_ptr<RobotModel>> cache_;
 };
 
 // Context object: tiny — extrinsic state plus a shared flyweight.
-struct OrderTicket {
-    int orderNo;
-    int table;
-    const DrinkType* type;
+struct DroneUnit {
+    int serial;
+    int bay;
+    const RobotModel* model;
 };
 
 int main() {
-    DrinkTypeFactory factory;
-    std::vector<OrderTicket> rail;
+    RobotModelFactory factory;
+    std::vector<DroneUnit> hall;
 
-    // Six orders, but only two unique DrinkType objects exist in memory.
-    rail.push_back({101, 1, &factory.get("latte", "2 shots + steamed milk")});
-    rail.push_back({102, 3, &factory.get("latte", "2 shots + steamed milk")});
-    rail.push_back({103, 2, &factory.get("matcha", "whisked matcha + milk")});
-    rail.push_back({104, 5, &factory.get("latte", "2 shots + steamed milk")});
-    rail.push_back({105, 4, &factory.get("matcha", "whisked matcha + milk")});
-    rail.push_back({106, 1, &factory.get("latte", "2 shots + steamed milk")});
+    // Six drones, but only two unique RobotModel objects exist in memory.
+    hall.push_back({101, 1, &factory.get("ScoutDrone", "4 rotors, wide-angle cam")});
+    hall.push_back({102, 3, &factory.get("ScoutDrone", "4 rotors, wide-angle cam")});
+    hall.push_back({103, 2, &factory.get("CargoDrone", "8 rotors, 5kg payload")});
+    hall.push_back({104, 5, &factory.get("ScoutDrone", "4 rotors, wide-angle cam")});
+    hall.push_back({105, 4, &factory.get("CargoDrone", "8 rotors, 5kg payload")});
+    hall.push_back({106, 1, &factory.get("ScoutDrone", "4 rotors, wide-angle cam")});
 
-    for (const auto& ticket : rail) ticket.type->printTicket(ticket.orderNo, ticket.table);
-    std::cout << "tickets: " << rail.size()
-              << ", drink flyweights: " << factory.uniqueTypes() << "\n";
+    for (const auto& unit : hall) unit.model->printUnit(unit.serial, unit.bay);
+    std::cout << "drones: " << hall.size()
+              << ", model flyweights: " << factory.uniqueModels() << "\n";
     return 0;
 }

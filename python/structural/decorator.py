@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 9: Toppings, Toppings, Toppings
+"""RoboWorks — Chapter 9: The Upgrade Modules
 
-STORY: Milk. Sugar. Whipped cream. Customers stack them in every
-combination imaginable. You are NOT creating a MilkSugarWhipEspresso
-class for each combo — instead every topping WRAPS the drink underneath
-and adds its own description and price.
+STORY: Armor plating. Solar charger. AI voice module. Clients bolt
+upgrades onto the base bot in every combination imaginable. You are NOT
+creating an ArmoredSolarTalkingBot class for each combo — instead every
+upgrade WRAPS the robot underneath and adds its own spec and price.
 
 PATTERN: Decorator — attach additional responsibilities to an object
 dynamically by wrapping it in objects that share its interface. Note:
@@ -18,82 +18,82 @@ from abc import ABC, abstractmethod
 
 
 # --- GoF object decorator -------------------------------------------------
-class Coffee(ABC):
+class Robot(ABC):
     @abstractmethod
-    def description(self) -> str: ...
+    def specs(self) -> str: ...
 
     @abstractmethod
     def cost(self) -> float: ...
 
 
-class Espresso(Coffee):
-    def description(self) -> str:
-        return "espresso"
+class BasicBot(Robot):
+    def specs(self) -> str:
+        return "basic bot"
 
     def cost(self) -> float:
-        return 2.0
+        return 2000.0
 
 
-class ToppingDecorator(Coffee):
-    """Base decorator: wraps a Coffee and delegates by default."""
+class UpgradeDecorator(Robot):
+    """Base decorator: wraps a Robot and delegates by default."""
 
-    def __init__(self, inner: Coffee):
+    def __init__(self, inner: Robot):
         self._inner = inner
 
-    def description(self) -> str:
-        return self._inner.description()
+    def specs(self) -> str:
+        return self._inner.specs()
 
     def cost(self) -> float:
         return self._inner.cost()
 
 
-class Milk(ToppingDecorator):
-    def description(self) -> str:
-        return super().description() + " + milk"
+class ArmorPlating(UpgradeDecorator):
+    def specs(self) -> str:
+        return super().specs() + " + armor plating"
 
     def cost(self) -> float:
-        return super().cost() + 0.5
+        return super().cost() + 500.0
 
 
-class Sugar(ToppingDecorator):
-    def description(self) -> str:
-        return super().description() + " + sugar"
-
-    def cost(self) -> float:
-        return super().cost() + 0.2
-
-
-class WhippedCream(ToppingDecorator):
-    def description(self) -> str:
-        return super().description() + " + whipped cream"
+class SolarCharger(UpgradeDecorator):
+    def specs(self) -> str:
+        return super().specs() + " + solar charger"
 
     def cost(self) -> float:
-        return super().cost() + 0.7
+        return super().cost() + 200.0
+
+
+class AiVoice(UpgradeDecorator):
+    def specs(self) -> str:
+        return super().specs() + " + AI voice"
+
+    def cost(self) -> float:
+        return super().cost() + 700.0
 
 
 # --- Pythonic function decorator: same pattern, applied to callables ------
-def on_the_receipt(func):
+def logged_to_mcu(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        print(f"receipt: {func.__name__}{args}")
+        print(f"MCU log: {func.__name__}{args}")
         return func(*args, **kwargs)
 
     return wrapper
 
 
-@on_the_receipt
-def brew(kind):
-    return f"a cup of {kind}"
+@logged_to_mcu
+def deploy(model):
+    return f"{model} deployed to the floor"
 
 
 def main():
-    order = WhippedCream(Sugar(Milk(Espresso())))  # stack toppings freely
-    print(f"{order.description()} costs ${order.cost():.2f}")
+    order = AiVoice(SolarCharger(ArmorPlating(BasicBot())))  # stack upgrades freely
+    print(f"{order.specs()} costs ${order.cost():.2f}")
 
-    plain = Espresso()
-    print(f"{plain.description()} costs ${plain.cost():.2f}")
+    plain = BasicBot()
+    print(f"{plain.specs()} costs ${plain.cost():.2f}")
 
-    print(brew("flat white"))
+    print(deploy("WelderBot Mk2"))
 
 
 if __name__ == "__main__":

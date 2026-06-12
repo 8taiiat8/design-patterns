@@ -1,14 +1,13 @@
-// ☕ Café Patterna — Chapter 18: The Chalkboard Specials
+// 🤖 RoboWorks — Chapter 18: The Firmware Rollback
 //
-// STORY: Every morning you draft today's specials on the chalkboard.
-// Before each risky idea ("durian latte"?) you photograph the board.
-// When an idea flops, you restore the board from the last photo. The
-// photos go in a drawer — whoever keeps them never reads the board off
-// of them, they just hand them back.
+// STORY: Before every risky firmware tweak ("experimental laser module"?)
+// you snapshot the robot's config. When an update bricks the behavior,
+// you roll back to the last snapshot. The snapshots sit in the backup
+// vault — the vault never reads them, it just hands them back.
 //
 // PATTERN: Memento — capture an object's internal state in a snapshot so
 // it can be restored later, without exposing the object's internals.
-// Originator = chalkboard, memento = photo, caretaker = the drawer.
+// Originator = firmware config, memento = snapshot, caretaker = vault.
 //
 // Build: g++ -std=c++17 memento.cpp -o memento
 
@@ -17,59 +16,59 @@
 #include <vector>
 
 // Originator: the object whose state we want to snapshot.
-class Chalkboard {
+class FirmwareConfig {
 public:
     // Memento: opaque to everyone except the originator.
-    class Photo {
-        friend class Chalkboard;
-        explicit Photo(std::string text) : text_(std::move(text)) {}
-        std::string text_;
+    class Snapshot {
+        friend class FirmwareConfig;
+        explicit Snapshot(std::string modules) : modules_(std::move(modules)) {}
+        std::string modules_;
     };
 
-    void write(const std::string& chalk) { text_ += chalk; }
+    void install(const std::string& module) { modules_ += module; }
 
-    Photo snap() const { return Photo(text_); }
-    void restore(const Photo& photo) { text_ = photo.text_; }
+    Snapshot save() const { return Snapshot(modules_); }
+    void restore(const Snapshot& snapshot) { modules_ = snapshot.modules_; }
 
-    void show() const { std::cout << "chalkboard: \"" << text_ << "\"\n"; }
+    void show() const { std::cout << "firmware: \"" << modules_ << "\"\n"; }
 
 private:
-    std::string text_;
+    std::string modules_;
 };
 
-// Caretaker: stores photos without knowing what's on them.
-class PhotoDrawer {
+// Caretaker: stores snapshots without knowing what's inside them.
+class BackupVault {
 public:
-    void keep(Chalkboard::Photo photo) { stack_.push_back(std::move(photo)); }
+    void keep(FirmwareConfig::Snapshot snapshot) { stack_.push_back(std::move(snapshot)); }
 
-    bool undo(Chalkboard& board) {
+    bool rollback(FirmwareConfig& config) {
         if (stack_.empty()) return false;
-        board.restore(stack_.back());
+        config.restore(stack_.back());
         stack_.pop_back();
         return true;
     }
 
 private:
-    std::vector<Chalkboard::Photo> stack_;
+    std::vector<FirmwareConfig::Snapshot> stack_;
 };
 
 int main() {
-    Chalkboard board;
-    PhotoDrawer drawer;
+    FirmwareConfig config;
+    BackupVault vault;
 
-    board.write("TODAY: flat white $3");
-    drawer.keep(board.snap());
+    config.install("core v1.0");
+    vault.keep(config.save());
 
-    board.write(" | pumpkin latte $4");
-    drawer.keep(board.snap());
+    config.install(" + nav module");
+    vault.keep(config.save());
 
-    board.write(" | durian latte $6");  // bold. too bold.
-    board.show();
+    config.install(" + experimental laser module");  // bold. too bold.
+    config.show();
 
-    drawer.undo(board);  // scrap the durian idea
-    board.show();
+    vault.rollback(config);  // the laser module bricked the gripper
+    config.show();
 
-    drawer.undo(board);  // back to just the flat white
-    board.show();
+    vault.rollback(config);  // all the way back to core
+    config.show();
     return 0;
 }

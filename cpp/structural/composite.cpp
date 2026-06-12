@@ -1,12 +1,12 @@
-// ☕ Café Patterna — Chapter 8: The Menu Grows
+// 🤖 RoboWorks — Chapter 8: Assemblies of Assemblies
 //
-// STORY: The menu used to be five drinks. Now it has sections, sections
-// inside sections, and combo deals. The owner just wants to ask any line
-// on the menu — a single croissant or the entire "Breakfast" section —
-// the same question: "what does this cost?"
+// STORY: A robot isn't one part — it's assemblies inside assemblies. The
+// torso contains the arm assembly, which contains servos and grippers.
+// The cost engineer wants to ask any node — a single bolt or the entire
+// torso — the same question: "what does this cost?"
 //
 // PATTERN: Composite — compose objects into tree structures and let
-// clients treat individual items and groups uniformly.
+// clients treat individual parts and whole assemblies uniformly.
 //
 // Build: g++ -std=c++17 composite.cpp -o composite
 
@@ -15,13 +15,13 @@
 #include <string>
 #include <vector>
 
-// Component: common interface for single items and whole sections.
-class MenuComponent {
+// Component: common interface for single parts and whole assemblies.
+class PartComponent {
 public:
-    explicit MenuComponent(std::string name) : name_(std::move(name)) {}
-    virtual ~MenuComponent() = default;
+    explicit PartComponent(std::string name) : name_(std::move(name)) {}
+    virtual ~PartComponent() = default;
 
-    virtual long priceCents() const = 0;
+    virtual long costCents() const = 0;
     virtual void print(int indent) const = 0;
 
 protected:
@@ -29,34 +29,34 @@ protected:
 };
 
 // Leaf
-class MenuItem : public MenuComponent {
+class Part : public PartComponent {
 public:
-    MenuItem(std::string name, long priceCents)
-        : MenuComponent(std::move(name)), priceCents_(priceCents) {}
+    Part(std::string name, long costCents)
+        : PartComponent(std::move(name)), costCents_(costCents) {}
 
-    long priceCents() const override { return priceCents_; }
+    long costCents() const override { return costCents_; }
 
     void print(int indent) const override {
         std::cout << std::string(indent, ' ') << "- " << name_
-                  << " ($" << priceCents_ / 100.0 << ")\n";
+                  << " ($" << costCents_ / 100.0 << ")\n";
     }
 
 private:
-    long priceCents_;
+    long costCents_;
 };
 
 // Composite: holds children and forwards operations to them.
-class MenuSection : public MenuComponent {
+class Assembly : public PartComponent {
 public:
-    explicit MenuSection(std::string name) : MenuComponent(std::move(name)) {}
+    explicit Assembly(std::string name) : PartComponent(std::move(name)) {}
 
-    void add(std::unique_ptr<MenuComponent> child) {
+    void add(std::unique_ptr<PartComponent> child) {
         children_.push_back(std::move(child));
     }
 
-    long priceCents() const override {
+    long costCents() const override {
         long total = 0;
-        for (const auto& child : children_) total += child->priceCents();
+        for (const auto& child : children_) total += child->costCents();
         return total;
     }
 
@@ -66,19 +66,19 @@ public:
     }
 
 private:
-    std::vector<std::unique_ptr<MenuComponent>> children_;
+    std::vector<std::unique_ptr<PartComponent>> children_;
 };
 
 int main() {
-    auto menu = std::make_unique<MenuSection>("Café Patterna Menu");
-    menu->add(std::make_unique<MenuItem>("espresso", 200));
+    auto torso = std::make_unique<Assembly>("torso assembly");
+    torso->add(std::make_unique<Part>("steel frame", 12000));
 
-    auto breakfast = std::make_unique<MenuSection>("Breakfast combo");
-    breakfast->add(std::make_unique<MenuItem>("latte", 350));
-    breakfast->add(std::make_unique<MenuItem>("croissant", 300));
-    menu->add(std::move(breakfast));
+    auto arm = std::make_unique<Assembly>("arm assembly");
+    arm->add(std::make_unique<Part>("servo motor", 4500));
+    arm->add(std::make_unique<Part>("gripper", 3000));
+    torso->add(std::move(arm));
 
-    menu->print(0);
-    std::cout << "whole menu, one of each: $" << menu->priceCents() / 100.0 << "\n";
+    torso->print(0);
+    std::cout << "total cost: $" << torso->costCents() / 100.0 << "\n";
     return 0;
 }

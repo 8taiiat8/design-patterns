@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 2: Hiring Baristas
+// 🤖 RoboWorks — Chapter 2: The Assembly Lines
 //
-// STORY: Business grows, so you hire baristas. You don't tell each barista
-// HOW to serve a customer — the routine is the same (greet, craft the
-// drink, hand it over). What differs is WHICH drink each specialist
-// crafts: the espresso barista pulls shots, the tea master whisks matcha.
+// STORY: Demand grows, so you open assembly lines. Every line follows the
+// same roll-out routine (assemble, test, ship). What differs is WHICH
+// robot each line builds: the welder line produces WelderBots, the
+// cleaner line produces CleanerBots.
 //
 // PATTERN: Factory Method — define an interface for creating an object,
 // but let subclasses decide which concrete class to instantiate. Use when
@@ -16,55 +16,55 @@
 #include <string>
 
 // Product interface
-class Drink {
+class Robot {
 public:
-    virtual ~Drink() = default;
+    virtual ~Robot() = default;
     virtual std::string describe() const = 0;
 };
 
-class Espresso : public Drink {
+class WelderBot : public Robot {
 public:
-    std::string describe() const override { return "a double espresso, rich crema"; }
+    std::string describe() const override { return "a WelderBot with twin plasma torches"; }
 };
 
-class MatchaLatte : public Drink {
+class CleanerBot : public Robot {
 public:
-    std::string describe() const override { return "a matcha latte, whisked to order"; }
+    std::string describe() const override { return "a CleanerBot with spinning brushes"; }
 };
 
-// Creator: the serving routine relies only on the Drink interface;
-// the factory method defers the choice of concrete drink to subclasses.
-class Barista {
+// Creator: the roll-out routine relies only on the Robot interface;
+// the factory method defers the choice of concrete robot to subclasses.
+class AssemblyLine {
 public:
-    virtual ~Barista() = default;
+    virtual ~AssemblyLine() = default;
 
-    void serveCustomer() const {
-        auto drink = craftSignatureDrink();  // the factory method
-        std::cout << "Barista serves " << drink->describe() << "\n";
+    void rollOut() const {
+        auto robot = buildRobot();  // the factory method
+        std::cout << "Line ships " << robot->describe() << "\n";
     }
 
 protected:
-    virtual std::unique_ptr<Drink> craftSignatureDrink() const = 0;
+    virtual std::unique_ptr<Robot> buildRobot() const = 0;
 };
 
-class EspressoBarista : public Barista {
+class WelderLine : public AssemblyLine {
 protected:
-    std::unique_ptr<Drink> craftSignatureDrink() const override {
-        return std::make_unique<Espresso>();
+    std::unique_ptr<Robot> buildRobot() const override {
+        return std::make_unique<WelderBot>();
     }
 };
 
-class TeaMaster : public Barista {
+class CleanerLine : public AssemblyLine {
 protected:
-    std::unique_ptr<Drink> craftSignatureDrink() const override {
-        return std::make_unique<MatchaLatte>();
+    std::unique_ptr<Robot> buildRobot() const override {
+        return std::make_unique<CleanerBot>();
     }
 };
 
 int main() {
-    EspressoBarista marco;
-    TeaMaster yuki;
-    marco.serveCustomer();
-    yuki.serveCustomer();
+    WelderLine lineA;
+    CleanerLine lineB;
+    lineA.rollOut();
+    lineB.rollOut();
     return 0;
 }

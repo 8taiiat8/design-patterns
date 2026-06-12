@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 12: The Secret Recipe Book
+"""RoboWorks — Chapter 12: The Heavy Diagnostics Suite
 
-STORY: The original recipe book lives in the office safe. Fetching it is
-slow and you'd rather not do it at all on quiet days. So the counter
-keeps a stand-in: it looks exactly like the recipe book, but only walks
-to the safe the FIRST time someone actually asks for a recipe.
+STORY: The full diagnostics suite takes ages to boot — gigabytes of
+sensor models and calibration tables. On most shifts nobody needs it. So
+the workbench keeps a stand-in: it looks exactly like the suite, but only
+boots the real thing the FIRST time an engineer runs a scan.
 
 PATTERN: Proxy — provide a placeholder for another object to control
 access to it. Variants: virtual proxy (lazy loading, shown here),
@@ -15,39 +15,39 @@ Run: python3 proxy.py
 from abc import ABC, abstractmethod
 
 
-class RecipeBook(ABC):
+class Diagnostics(ABC):
     @abstractmethod
-    def look_up(self, drink: str) -> None: ...
+    def scan(self, robot: str) -> None: ...
 
 
-class SecretRecipeBook(RecipeBook):
-    """Real subject: expensive to construct (a trip to the safe)."""
-
-    def __init__(self):
-        print("walking to the safe, unlocking the recipe book (slow!)")
-
-    def look_up(self, drink: str) -> None:
-        print(f"reading the secret recipe for {drink}")
-
-
-class RecipeBookProxy(RecipeBook):
-    """Same interface; fetches the real book only on first use."""
+class FullDiagnosticsSuite(Diagnostics):
+    """Real subject: expensive to construct (boots the full suite)."""
 
     def __init__(self):
-        self._real: SecretRecipeBook | None = None
+        print("booting the full diagnostics suite (slow!)")
 
-    def look_up(self, drink: str) -> None:
+    def scan(self, robot: str) -> None:
+        print(f"running deep scan on {robot}")
+
+
+class DiagnosticsProxy(Diagnostics):
+    """Same interface; boots the real suite only on first use."""
+
+    def __init__(self):
+        self._real: FullDiagnosticsSuite | None = None
+
+    def scan(self, robot: str) -> None:
         if self._real is None:
-            self._real = SecretRecipeBook()  # lazy load
-        self._real.look_up(drink)
+            self._real = FullDiagnosticsSuite()  # lazy load
+        self._real.scan(robot)
 
 
 def main():
-    book = RecipeBookProxy()
-    print("proxy on the counter, safe still locked")
+    workbench = DiagnosticsProxy()
+    print("proxy ready, suite not booted yet")
 
-    book.look_up("midnight mocha")  # triggers the trip to the safe
-    book.look_up("winter chai")     # reuses the already-fetched book
+    workbench.scan("WelderBot #7")    # triggers the expensive boot
+    workbench.scan("ScoutDrone #42")  # reuses the already-booted suite
 
 
 if __name__ == "__main__":

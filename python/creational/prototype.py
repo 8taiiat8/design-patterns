@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 5: The Drink of the Day
+"""RoboWorks — Chapter 5: Clone the Blueprint
 
-STORY: Inventing a recipe from scratch takes weeks of tasting. So every
-morning you take yesterday's bestseller card from the recipe box, CLONE
-it, and tweak one thing — "same latte, but with cinnamon". The original
-card stays untouched in the box.
+STORY: Designing a robot from a blank sheet takes months of R&D. So when
+a client wants "the same WelderBot, but with a longer reach", you CLONE
+the proven blueprint and tweak one spec. The original blueprint stays
+untouched in the archive.
 
 PATTERN: Prototype — create new objects by copying an existing object
 instead of building them from scratch. Python's `copy` module
@@ -15,40 +15,40 @@ Run: python3 prototype.py
 import copy
 
 
-class RecipeCard:
-    def __init__(self, name):
-        self.name = name
+class Blueprint:
+    def __init__(self, model):
+        self.model = model
 
     def clone(self):
         # deepcopy so nested/mutable attributes are copied too
         return copy.deepcopy(self)
 
 
-class DrinkRecipe(RecipeCard):
-    def __init__(self, name, secret, tasting_notes=None):
-        super().__init__(name)
-        self.secret = secret
-        self.tasting_notes = tasting_notes or []
+class RobotBlueprint(Blueprint):
+    def __init__(self, model, spec, certified_tests=None):
+        super().__init__(model)
+        self.spec = spec
+        self.certified_tests = certified_tests or []
 
     def __repr__(self):
-        return f"DrinkRecipe({self.name}: {self.secret}, notes={self.tasting_notes})"
+        return f"RobotBlueprint({self.model}: {self.spec}, tests={self.certified_tests})"
 
 
 def main():
-    bestseller = DrinkRecipe("house latte", "steam milk to 60C", tasting_notes=["smooth"])
+    proven = RobotBlueprint("WelderBot Mk2", "arm reach 1.2m", certified_tests=["stress"])
 
-    # Clone today's special without naming the concrete class.
-    special = bestseller.clone()
-    special.secret = "steam milk to 60C + cinnamon dust"
-    special.tasting_notes.append("spicy")  # deepcopy: doesn't leak into the original
+    # Clone the blueprint without naming the concrete class.
+    custom = proven.clone()
+    custom.spec = "arm reach 2.0m, reinforced joints"
+    custom.certified_tests.append("extended-reach")  # deepcopy: original untouched
 
-    print("original:         ", bestseller)
-    print("drink of the day: ", special)
+    print("original:    ", proven)
+    print("client order:", custom)
 
     # Shallow vs deep copy: the classic trap with mutable attributes.
-    careless = copy.copy(bestseller)
-    careless.tasting_notes.append("scribbled on the original!")
-    print("after shallow-copy mutation, original notes:", bestseller.tasting_notes)
+    careless = copy.copy(proven)
+    careless.certified_tests.append("scribbled on the original!")
+    print("after shallow-copy mutation, original tests:", proven.certified_tests)
 
 
 if __name__ == "__main__":

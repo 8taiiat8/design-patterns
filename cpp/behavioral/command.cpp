@@ -1,13 +1,13 @@
-// ☕ Café Patterna — Chapter 14: Tickets on the Rail
+// 🤖 RoboWorks — Chapter 14: The Job Queue
 //
-// STORY: The cashier doesn't shout orders into the kitchen — every order
-// becomes a TICKET clipped to the rail. The kitchen executes tickets in
-// its own time, and when a customer changes their mind, the last ticket
-// is simply pulled off the rail (undo).
+// STORY: The control panel doesn't shout at the factory floor — every job
+// becomes a JOB CARD pushed onto the queue. The floor executes cards in
+// its own time, and when a client cancels, the last card is simply
+// recalled (undo).
 //
 // PATTERN: Command — encapsulate a request as an object, letting you
 // queue requests, log them, and support undo. Decouples the object that
-// invokes an operation (cashier) from the one performing it (kitchen).
+// invokes an operation (control panel) from the one performing it (floor).
 //
 // Build: g++ -std=c++17 command.cpp -o command
 
@@ -17,50 +17,50 @@
 #include <vector>
 
 // Receiver: the object that actually does the work.
-class Kitchen {
+class FactoryFloor {
 public:
-    void prepare(const std::string& item) { std::cout << "kitchen starts: " << item << "\n"; }
-    void scrap(const std::string& item) { std::cout << "kitchen scraps: " << item << "\n"; }
+    void start(const std::string& job) { std::cout << "floor starts: " << job << "\n"; }
+    void recall(const std::string& job) { std::cout << "floor recalls: " << job << "\n"; }
 };
 
 // Command interface with undo support.
-class OrderTicket {
+class JobCard {
 public:
-    virtual ~OrderTicket() = default;
+    virtual ~JobCard() = default;
     virtual void execute() = 0;
     virtual void undo() = 0;
 };
 
-class DrinkTicket : public OrderTicket {
+class WeldJob : public JobCard {
 public:
-    DrinkTicket(Kitchen& kitchen, std::string drink)
-        : kitchen_(kitchen), drink_(std::move(drink)) {}
-    void execute() override { kitchen_.prepare(drink_); }
-    void undo() override { kitchen_.scrap(drink_); }
+    WeldJob(FactoryFloor& floor, std::string seam)
+        : floor_(floor), seam_(std::move(seam)) {}
+    void execute() override { floor_.start("weld " + seam_); }
+    void undo() override { floor_.recall("weld " + seam_); }
 
 private:
-    Kitchen& kitchen_;
-    std::string drink_;
+    FactoryFloor& floor_;
+    std::string seam_;
 };
 
-class PastryTicket : public OrderTicket {
+class TransportJob : public JobCard {
 public:
-    PastryTicket(Kitchen& kitchen, std::string pastry)
-        : kitchen_(kitchen), pastry_(std::move(pastry)) {}
-    void execute() override { kitchen_.prepare(pastry_); }
-    void undo() override { kitchen_.scrap(pastry_); }
+    TransportJob(FactoryFloor& floor, std::string cargo)
+        : floor_(floor), cargo_(std::move(cargo)) {}
+    void execute() override { floor_.start("transport " + cargo_); }
+    void undo() override { floor_.recall("transport " + cargo_); }
 
 private:
-    Kitchen& kitchen_;
-    std::string pastry_;
+    FactoryFloor& floor_;
+    std::string cargo_;
 };
 
-// Invoker: clips tickets to the rail and keeps a history for cancellation.
-class TicketRail {
+// Invoker: issues job cards and keeps a history for cancellation.
+class ControlPanel {
 public:
-    void place(std::unique_ptr<OrderTicket> ticket) {
-        ticket->execute();
-        history_.push_back(std::move(ticket));
+    void issue(std::unique_ptr<JobCard> job) {
+        job->execute();
+        history_.push_back(std::move(job));
     }
 
     void cancelLast() {
@@ -70,17 +70,17 @@ public:
     }
 
 private:
-    std::vector<std::unique_ptr<OrderTicket>> history_;
+    std::vector<std::unique_ptr<JobCard>> history_;
 };
 
 int main() {
-    Kitchen kitchen;
-    TicketRail rail;
+    FactoryFloor floor;
+    ControlPanel panel;
 
-    rail.place(std::make_unique<DrinkTicket>(kitchen, "oat latte"));
-    rail.place(std::make_unique<PastryTicket>(kitchen, "almond croissant"));
+    panel.issue(std::make_unique<WeldJob>(floor, "chassis seam #7"));
+    panel.issue(std::make_unique<TransportJob>(floor, "crate of servos"));
 
-    std::cout << "-- customer changes their mind --\n";
-    rail.cancelLast();
+    std::cout << "-- client cancels the order --\n";
+    panel.cancelLast();
     return 0;
 }

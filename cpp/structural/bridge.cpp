@@ -1,74 +1,74 @@
-// ☕ Café Patterna — Chapter 7: Any Drink, Any Machine
+// 🤖 RoboWorks — Chapter 7: Any Robot, Any Controller
 //
-// STORY: You sell lattes and cappuccinos; you own a home machine and an
-// industrial one. Without care you'd need HomeLatte, IndustrialLatte,
-// HomeCappuccino, IndustrialCappuccino... a class for every combination.
-// Instead, each DRINK holds a reference to a MACHINE: new drinks and new
-// machines can now be added independently.
+// STORY: You build welders and drones; they can be driven by a remote
+// operator or by the autonomous AI. Without care you'd need RemoteWelder,
+// AutonomousWelder, RemoteDrone, AutonomousDrone... a class for every
+// combination. Instead, each ROBOT holds a reference to a CONTROLLER:
+// new robots and new controllers can now be added independently.
 //
-// PATTERN: Bridge — decouple an abstraction (Drink) from its
-// implementation (BrewMachine) so the two hierarchies vary independently.
+// PATTERN: Bridge — decouple an abstraction (Robot) from its
+// implementation (Controller) so the two hierarchies vary independently.
 //
 // Build: g++ -std=c++17 bridge.cpp -o bridge
 
 #include <iostream>
 
 // Implementation hierarchy
-class BrewMachine {
+class Controller {
 public:
-    virtual ~BrewMachine() = default;
-    virtual void brewShots(int shots) const = 0;
+    virtual ~Controller() = default;
+    virtual void drive(int power) const = 0;
 };
 
-class HomeMachine : public BrewMachine {
+class RemoteOperator : public Controller {
 public:
-    void brewShots(int shots) const override {
-        std::cout << "home machine gently brews " << shots << " shot(s)\n";
+    void drive(int power) const override {
+        std::cout << "remote operator steers carefully at power " << power << "\n";
     }
 };
 
-class IndustrialMachine : public BrewMachine {
+class AutonomousAI : public Controller {
 public:
-    void brewShots(int shots) const override {
-        std::cout << "industrial machine blasts out " << shots << " shot(s)\n";
+    void drive(int power) const override {
+        std::cout << "autonomous AI optimizes the route at power " << power << "\n";
     }
 };
 
 // Abstraction hierarchy: holds the "bridge" to the implementation.
-class Drink {
+class Robot {
 public:
-    explicit Drink(const BrewMachine& machine) : machine_(machine) {}
-    virtual ~Drink() = default;
-    virtual void prepare() const = 0;
+    explicit Robot(const Controller& controller) : controller_(controller) {}
+    virtual ~Robot() = default;
+    virtual void operate() const = 0;
 
 protected:
-    const BrewMachine& machine_;
+    const Controller& controller_;
 };
 
-class Latte : public Drink {
+class WelderBot : public Robot {
 public:
-    Latte(const BrewMachine& machine, int shots)
-        : Drink(machine), shots_(shots) {}
+    WelderBot(const Controller& controller, int power)
+        : Robot(controller), power_(power) {}
 
-    void prepare() const override { machine_.brewShots(shots_); }
+    void operate() const override { controller_.drive(power_); }
 
-    void makeItStronger() { ++shots_; }
+    void boostPower() { ++power_; }
 
 private:
-    int shots_;
+    int power_;
 };
 
 int main() {
-    HomeMachine home;
-    IndustrialMachine industrial;
+    RemoteOperator human;
+    AutonomousAI ai;
 
-    // Any drink can be paired with any machine at run time.
-    Latte cozy(home, 1);
-    Latte rush(industrial, 1);
-    cozy.prepare();
-    rush.prepare();
+    // Any robot can be paired with any controller at run time.
+    WelderBot nightShift(ai, 3);
+    WelderBot delicateJob(human, 3);
+    nightShift.operate();
+    delicateJob.operate();
 
-    cozy.makeItStronger();
-    cozy.prepare();
+    nightShift.boostPower();
+    nightShift.operate();
     return 0;
 }

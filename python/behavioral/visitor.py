@@ -1,10 +1,10 @@
-"""Café Patterna — Chapter 23: The Inspectors
+"""RoboWorks — Chapter 23: The Inspectors
 
-STORY: Two visitors walk the menu today: the nutritionist tallies
-calories, the accountant prints price tags. The menu items themselves
-(espresso, muffin) don't change — each item simply ACCEPTS the visitor
-and the visitor does its own job per item type. Next month a new
-inspector can visit without touching a single menu class.
+STORY: Two inspectors walk the floor today: the safety auditor tallies
+power risk, the appraiser prints value tags. The machines themselves
+(welders, drones) don't change — each machine simply ACCEPTS the
+inspector and the inspector does its own job per machine type. Next month
+a new inspector can visit without touching a single machine class.
 
 PATTERN: Visitor — represent an operation on the elements of an object
 structure, letting you add new operations without modifying the element
@@ -16,67 +16,67 @@ Run: python3 visitor.py
 from abc import ABC, abstractmethod
 
 
-class MenuVisitor(ABC):
+class FloorVisitor(ABC):
     """One visit method per element type."""
 
     @abstractmethod
-    def visit_espresso(self, espresso: "EspressoItem") -> None: ...
+    def visit_welder(self, welder: "WelderBot") -> None: ...
 
     @abstractmethod
-    def visit_muffin(self, muffin: "MuffinItem") -> None: ...
+    def visit_drone(self, drone: "ScoutDrone") -> None: ...
 
 
-class MenuItem(ABC):
+class Machine(ABC):
     @abstractmethod
-    def accept(self, visitor: MenuVisitor) -> None: ...
+    def accept(self, visitor: FloorVisitor) -> None: ...
 
 
-class EspressoItem(MenuItem):
-    def __init__(self, shots: int):
-        self.shots = shots
+class WelderBot(Machine):
+    def __init__(self, watts: int):
+        self.watts = watts
 
-    def accept(self, visitor: MenuVisitor) -> None:
-        visitor.visit_espresso(self)
-
-
-class MuffinItem(MenuItem):
-    def __init__(self, grams: int):
-        self.grams = grams
-
-    def accept(self, visitor: MenuVisitor) -> None:
-        visitor.visit_muffin(self)
+    def accept(self, visitor: FloorVisitor) -> None:
+        visitor.visit_welder(self)
 
 
-# New operations are added as new visitors — no MenuItem class changes.
-class CalorieCounter(MenuVisitor):
+class ScoutDrone(Machine):
+    def __init__(self, rotors: int):
+        self.rotors = rotors
+
+    def accept(self, visitor: FloorVisitor) -> None:
+        visitor.visit_drone(self)
+
+
+# New operations are added as new visitors — no Machine class changes.
+class SafetyAuditor(FloorVisitor):
     def __init__(self):
-        self.total = 0
+        self.risk_score = 0
 
-    def visit_espresso(self, espresso: EspressoItem) -> None:
-        self.total += 5 * espresso.shots
+    def visit_welder(self, welder: WelderBot) -> None:
+        self.risk_score += welder.watts // 100
 
-    def visit_muffin(self, muffin: MuffinItem) -> None:
-        self.total += 4 * muffin.grams
+    def visit_drone(self, drone: ScoutDrone) -> None:
+        self.risk_score += drone.rotors
 
 
-class PriceTagPrinter(MenuVisitor):
-    def visit_espresso(self, espresso: EspressoItem) -> None:
-        print(f"tag: espresso, {espresso.shots} shot(s) — $2.00")
+class ValueAppraiser(FloorVisitor):
+    def visit_welder(self, welder: WelderBot) -> None:
+        print(f"tag: WelderBot, {welder.watts}W — $12,000")
 
-    def visit_muffin(self, muffin: MuffinItem) -> None:
-        print(f"tag: muffin, {muffin.grams}g — $3.50")
+    def visit_drone(self, drone: ScoutDrone) -> None:
+        print(f"tag: ScoutDrone, {drone.rotors} rotors — $3,500")
 
 
 def main():
-    menu: list[MenuItem] = [EspressoItem(2), MuffinItem(120)]
+    floor: list[Machine] = [WelderBot(400), ScoutDrone(4)]
 
-    nutritionist = CalorieCounter()
-    accountant = PriceTagPrinter()
-    for item in menu:
-        item.accept(nutritionist)
-        item.accept(accountant)
+    auditor = SafetyAuditor()
+    appraiser = ValueAppraiser()
+    for machine in floor:
+        machine.accept(auditor)
+        machine.accept(appraiser)
 
-    print(f"total calories on the menu: {nutritionist.total}")
+    print(f"total risk score: {auditor.risk_score}")
 
 
 if __name__ == "__main__":

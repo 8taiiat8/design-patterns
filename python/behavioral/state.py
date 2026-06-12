@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 20: The Moody Espresso Machine
+"""RoboWorks — Chapter 20: The Robot's Modes
 
-STORY: The espresso machine has moods. When idle, it accepts an order;
-when loaded, pressing "order" again just beeps angrily, but pressing
-"brew" pours the shot and returns it to idle. Instead of one giant
-if/else on a status flag, each mood is its own class.
+STORY: A floor robot has modes. When idle, it accepts a task; when busy,
+assigning another task just triggers an angry beep, but pressing
+"complete" finishes the job and returns it to idle. Instead of one giant
+if/else on a status flag, each mode is its own class.
 
 PATTERN: State — let an object change its behavior when its internal
 state changes, by delegating behavior to a state object and swapping it
@@ -15,54 +15,54 @@ Run: python3 state.py
 from abc import ABC, abstractmethod
 
 
-class MachineState(ABC):
-    """One method per event the machine can receive."""
+class RobotState(ABC):
+    """One method per event the robot can receive."""
 
     @abstractmethod
-    def press_order(self, machine: "EspressoMachine") -> None: ...
+    def assign_task(self, robot: "FloorRobot") -> None: ...
 
     @abstractmethod
-    def press_brew(self, machine: "EspressoMachine") -> None: ...
+    def complete_task(self, robot: "FloorRobot") -> None: ...
 
 
-class IdleState(MachineState):
-    def press_order(self, machine: "EspressoMachine") -> None:
-        print("order accepted, grounds loaded")
-        machine.state = LoadedState()
+class IdleState(RobotState):
+    def assign_task(self, robot: "FloorRobot") -> None:
+        print("task accepted, motors spinning up")
+        robot.state = BusyState()
 
-    def press_brew(self, machine: "EspressoMachine") -> None:
-        print("nothing loaded, place an order first")
-
-
-class LoadedState(MachineState):
-    def press_order(self, machine: "EspressoMachine") -> None:
-        print("machine beeps: already loaded with an order")
-
-    def press_brew(self, machine: "EspressoMachine") -> None:
-        print("brewing... shot poured, back to idle")
-        machine.state = IdleState()
+    def complete_task(self, robot: "FloorRobot") -> None:
+        print("nothing to complete, robot is idle")
 
 
-class EspressoMachine:
+class BusyState(RobotState):
+    def assign_task(self, robot: "FloorRobot") -> None:
+        print("robot beeps: already busy with a task")
+
+    def complete_task(self, robot: "FloorRobot") -> None:
+        print("task finished, back to idle")
+        robot.state = IdleState()
+
+
+class FloorRobot:
     """Context: forwards events to its current state object."""
 
     def __init__(self):
-        self.state: MachineState = IdleState()
+        self.state: RobotState = IdleState()
 
-    def press_order(self) -> None:
-        self.state.press_order(self)
+    def assign_task(self) -> None:
+        self.state.assign_task(self)
 
-    def press_brew(self) -> None:
-        self.state.press_brew(self)
+    def complete_task(self) -> None:
+        self.state.complete_task(self)
 
 
 def main():
-    machine = EspressoMachine()
-    machine.press_brew()   # idle: refuses
-    machine.press_order()  # idle -> loaded
-    machine.press_order()  # loaded: beeps
-    machine.press_brew()   # loaded -> idle, pours the shot
-    machine.press_brew()   # idle again: refuses
+    robot = FloorRobot()
+    robot.complete_task()  # idle: refuses
+    robot.assign_task()    # idle -> busy
+    robot.assign_task()    # busy: beeps
+    robot.complete_task()  # busy -> idle, job done
+    robot.complete_task()  # idle again: refuses
 
 
 if __name__ == "__main__":

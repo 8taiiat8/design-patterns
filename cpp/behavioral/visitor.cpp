@@ -1,10 +1,10 @@
-// ☕ Café Patterna — Chapter 23: The Inspectors
+// 🤖 RoboWorks — Chapter 23: The Inspectors
 //
-// STORY: Two visitors walk the menu today: the nutritionist tallies
-// calories, the accountant prints price tags. The menu items themselves
-// (espresso, muffin) don't change — each item simply ACCEPTS the visitor
-// and the visitor does its own job per item type. Next month a new
-// inspector can visit without touching a single menu class.
+// STORY: Two inspectors walk the floor today: the safety auditor tallies
+// power risk, the appraiser prints value tags. The machines themselves
+// (welders, drones) don't change — each machine simply ACCEPTS the
+// inspector and the inspector does its own job per machine type. Next
+// month a new inspector can visit without touching a single machine class.
 //
 // PATTERN: Visitor — represent an operation on the elements of an object
 // structure, letting you add new operations without modifying the element
@@ -16,76 +16,76 @@
 #include <memory>
 #include <vector>
 
-class EspressoItem;
-class MuffinItem;
+class WelderBot;
+class ScoutDrone;
 
 // Visitor interface: one visit overload per element type.
-class MenuVisitor {
+class FloorVisitor {
 public:
-    virtual ~MenuVisitor() = default;
-    virtual void visit(const EspressoItem& espresso) = 0;
-    virtual void visit(const MuffinItem& muffin) = 0;
+    virtual ~FloorVisitor() = default;
+    virtual void visit(const WelderBot& welder) = 0;
+    virtual void visit(const ScoutDrone& drone) = 0;
 };
 
 // Element interface
-class MenuItem {
+class Machine {
 public:
-    virtual ~MenuItem() = default;
-    virtual void accept(MenuVisitor& visitor) const = 0;
+    virtual ~Machine() = default;
+    virtual void accept(FloorVisitor& visitor) const = 0;
 };
 
-class EspressoItem : public MenuItem {
+class WelderBot : public Machine {
 public:
-    explicit EspressoItem(int shots) : shots_(shots) {}
-    int shots() const { return shots_; }
-    void accept(MenuVisitor& visitor) const override { visitor.visit(*this); }
+    explicit WelderBot(int watts) : watts_(watts) {}
+    int watts() const { return watts_; }
+    void accept(FloorVisitor& visitor) const override { visitor.visit(*this); }
 
 private:
-    int shots_;
+    int watts_;
 };
 
-class MuffinItem : public MenuItem {
+class ScoutDrone : public Machine {
 public:
-    explicit MuffinItem(int grams) : grams_(grams) {}
-    int grams() const { return grams_; }
-    void accept(MenuVisitor& visitor) const override { visitor.visit(*this); }
+    explicit ScoutDrone(int rotors) : rotors_(rotors) {}
+    int rotors() const { return rotors_; }
+    void accept(FloorVisitor& visitor) const override { visitor.visit(*this); }
 
 private:
-    int grams_;
+    int rotors_;
 };
 
-// New operations are added as new visitors — no MenuItem class changes.
-class CalorieCounter : public MenuVisitor {
+// New operations are added as new visitors — no Machine class changes.
+class SafetyAuditor : public FloorVisitor {
 public:
-    void visit(const EspressoItem& espresso) override { total_ += 5 * espresso.shots(); }
-    void visit(const MuffinItem& muffin) override { total_ += 4 * muffin.grams(); }
-    int total() const { return total_; }
+    void visit(const WelderBot& welder) override { riskScore_ += welder.watts() / 100; }
+    void visit(const ScoutDrone& drone) override { riskScore_ += drone.rotors(); }
+    int riskScore() const { return riskScore_; }
 
 private:
-    int total_ = 0;
+    int riskScore_ = 0;
 };
 
-class PriceTagPrinter : public MenuVisitor {
+class ValueAppraiser : public FloorVisitor {
 public:
-    void visit(const EspressoItem& espresso) override {
-        std::cout << "tag: espresso, " << espresso.shots() << " shot(s) — $2.00\n";
+    void visit(const WelderBot& welder) override {
+        std::cout << "tag: WelderBot, " << welder.watts() << "W — $12,000\n";
     }
-    void visit(const MuffinItem& muffin) override {
-        std::cout << "tag: muffin, " << muffin.grams() << "g — $3.50\n";
+    void visit(const ScoutDrone& drone) override {
+        std::cout << "tag: ScoutDrone, " << drone.rotors() << " rotors — $3,500\n";
     }
 };
 
 int main() {
-    std::vector<std::unique_ptr<MenuItem>> menu;
-    menu.push_back(std::make_unique<EspressoItem>(2));
-    menu.push_back(std::make_unique<MuffinItem>(120));
+    std::vector<std::unique_ptr<Machine>> floor;
+    floor.push_back(std::make_unique<WelderBot>(400));
+    floor.push_back(std::make_unique<ScoutDrone>(4));
 
-    CalorieCounter nutritionist;
-    PriceTagPrinter accountant;
-    for (const auto& item : menu) {
-        item->accept(nutritionist);
-        item->accept(accountant);
+    SafetyAuditor auditor;
+    ValueAppraiser appraiser;
+    for (const auto& machine : floor) {
+        machine->accept(auditor);
+        machine->accept(appraiser);
     }
-    std::cout << "total calories on the menu: " << nutritionist.total() << "\n";
+    std::cout << "total risk score: " << auditor.riskScore() << "\n";
     return 0;
 }

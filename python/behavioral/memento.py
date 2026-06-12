@@ -1,14 +1,13 @@
-"""Café Patterna — Chapter 18: The Chalkboard Specials
+"""RoboWorks — Chapter 18: The Firmware Rollback
 
-STORY: Every morning you draft today's specials on the chalkboard. Before
-each risky idea ("durian latte"?) you photograph the board. When an idea
-flops, you restore the board from the last photo. The photos go in a
-drawer — whoever keeps them never reads the board off of them, they just
-hand them back.
+STORY: Before every risky firmware tweak ("experimental laser module"?)
+you snapshot the robot's config. When an update bricks the behavior, you
+roll back to the last snapshot. The snapshots sit in the backup vault —
+the vault never reads them, it just hands them back.
 
 PATTERN: Memento — capture an object's internal state in a snapshot so it
 can be restored later, without exposing the object's internals.
-Originator = chalkboard, memento = photo, caretaker = the drawer.
+Originator = firmware config, memento = snapshot, caretaker = vault.
 
 Run: python3 memento.py
 """
@@ -17,65 +16,65 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class Photo:
+class Snapshot:
     """Memento: immutable, treated as opaque by the caretaker."""
 
-    text: str
+    modules: str
 
 
-class Chalkboard:
+class FirmwareConfig:
     """Originator: the object whose state we snapshot."""
 
     def __init__(self):
-        self._text = ""
+        self._modules = ""
 
-    def write(self, chalk: str) -> None:
-        self._text += chalk
+    def install(self, module: str) -> None:
+        self._modules += module
 
-    def snap(self) -> Photo:
-        return Photo(self._text)
+    def save(self) -> Snapshot:
+        return Snapshot(self._modules)
 
-    def restore(self, photo: Photo) -> None:
-        self._text = photo.text
+    def restore(self, snapshot: Snapshot) -> None:
+        self._modules = snapshot.modules
 
     def show(self) -> None:
-        print(f'chalkboard: "{self._text}"')
+        print(f'firmware: "{self._modules}"')
 
 
-class PhotoDrawer:
-    """Caretaker: stores photos without inspecting them."""
+class BackupVault:
+    """Caretaker: stores snapshots without inspecting them."""
 
     def __init__(self):
-        self._stack: list[Photo] = []
+        self._stack: list[Snapshot] = []
 
-    def keep(self, photo: Photo) -> None:
-        self._stack.append(photo)
+    def keep(self, snapshot: Snapshot) -> None:
+        self._stack.append(snapshot)
 
-    def undo(self, board: Chalkboard) -> bool:
+    def rollback(self, config: FirmwareConfig) -> bool:
         if not self._stack:
             return False
-        board.restore(self._stack.pop())
+        config.restore(self._stack.pop())
         return True
 
 
 def main():
-    board = Chalkboard()
-    drawer = PhotoDrawer()
+    config = FirmwareConfig()
+    vault = BackupVault()
 
-    board.write("TODAY: flat white $3")
-    drawer.keep(board.snap())
+    config.install("core v1.0")
+    vault.keep(config.save())
 
-    board.write(" | pumpkin latte $4")
-    drawer.keep(board.snap())
+    config.install(" + nav module")
+    vault.keep(config.save())
 
-    board.write(" | durian latte $6")  # bold. too bold.
-    board.show()
+    config.install(" + experimental laser module")  # bold. too bold.
+    config.show()
 
-    drawer.undo(board)  # scrap the durian idea
-    board.show()
+    vault.rollback(config)  # the laser module bricked the gripper
+    config.show()
 
-    drawer.undo(board)  # back to just the flat white
-    board.show()
+    vault.rollback(config)  # all the way back to core
+    config.show()
 
 
 if __name__ == "__main__":

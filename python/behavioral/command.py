@@ -1,13 +1,13 @@
-"""Café Patterna — Chapter 14: Tickets on the Rail
+"""RoboWorks — Chapter 14: The Job Queue
 
-STORY: The cashier doesn't shout orders into the kitchen — every order
-becomes a TICKET clipped to the rail. The kitchen executes tickets in its
-own time, and when a customer changes their mind, the last ticket is
-simply pulled off the rail (undo).
+STORY: The control panel doesn't shout at the factory floor — every job
+becomes a JOB CARD pushed onto the queue. The floor executes cards in its
+own time, and when a client cancels, the last card is simply recalled
+(undo).
 
 PATTERN: Command — encapsulate a request as an object, letting you queue
 requests, log them, and support undo. Decouples the object that invokes
-an operation (cashier) from the one performing it (kitchen).
+an operation (control panel) from the one performing it (floor).
 
 Run: python3 command.py
 """
@@ -15,17 +15,17 @@ Run: python3 command.py
 from abc import ABC, abstractmethod
 
 
-class Kitchen:
+class FactoryFloor:
     """Receiver: the object that actually does the work."""
 
-    def prepare(self, item: str) -> None:
-        print(f"kitchen starts: {item}")
+    def start(self, job: str) -> None:
+        print(f"floor starts: {job}")
 
-    def scrap(self, item: str) -> None:
-        print(f"kitchen scraps: {item}")
+    def recall(self, job: str) -> None:
+        print(f"floor recalls: {job}")
 
 
-class OrderTicket(ABC):
+class JobCard(ABC):
     @abstractmethod
     def execute(self) -> None: ...
 
@@ -33,39 +33,39 @@ class OrderTicket(ABC):
     def undo(self) -> None: ...
 
 
-class DrinkTicket(OrderTicket):
-    def __init__(self, kitchen: Kitchen, drink: str):
-        self.kitchen = kitchen
-        self.drink = drink
+class WeldJob(JobCard):
+    def __init__(self, floor: FactoryFloor, seam: str):
+        self.floor = floor
+        self.seam = seam
 
     def execute(self) -> None:
-        self.kitchen.prepare(self.drink)
+        self.floor.start(f"weld {self.seam}")
 
     def undo(self) -> None:
-        self.kitchen.scrap(self.drink)
+        self.floor.recall(f"weld {self.seam}")
 
 
-class PastryTicket(OrderTicket):
-    def __init__(self, kitchen: Kitchen, pastry: str):
-        self.kitchen = kitchen
-        self.pastry = pastry
+class TransportJob(JobCard):
+    def __init__(self, floor: FactoryFloor, cargo: str):
+        self.floor = floor
+        self.cargo = cargo
 
     def execute(self) -> None:
-        self.kitchen.prepare(self.pastry)
+        self.floor.start(f"transport {self.cargo}")
 
     def undo(self) -> None:
-        self.kitchen.scrap(self.pastry)
+        self.floor.recall(f"transport {self.cargo}")
 
 
-class TicketRail:
-    """Invoker: clips tickets to the rail; keeps history for cancellation."""
+class ControlPanel:
+    """Invoker: issues job cards; keeps a history for cancellation."""
 
     def __init__(self):
-        self._history: list[OrderTicket] = []
+        self._history: list[JobCard] = []
 
-    def place(self, ticket: OrderTicket) -> None:
-        ticket.execute()
-        self._history.append(ticket)
+    def issue(self, job: JobCard) -> None:
+        job.execute()
+        self._history.append(job)
 
     def cancel_last(self) -> None:
         if self._history:
@@ -73,14 +73,14 @@ class TicketRail:
 
 
 def main():
-    kitchen = Kitchen()
-    rail = TicketRail()
+    floor = FactoryFloor()
+    panel = ControlPanel()
 
-    rail.place(DrinkTicket(kitchen, "oat latte"))
-    rail.place(PastryTicket(kitchen, "almond croissant"))
+    panel.issue(WeldJob(floor, "chassis seam #7"))
+    panel.issue(TransportJob(floor, "crate of servos"))
 
-    print("-- customer changes their mind --")
-    rail.cancel_last()
+    print("-- client cancels the order --")
+    panel.cancel_last()
 
 
 if __name__ == "__main__":

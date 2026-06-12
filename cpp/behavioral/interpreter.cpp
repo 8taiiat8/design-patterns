@@ -1,14 +1,15 @@
-// ☕ Café Patterna — Chapter 15: The Regulars' Shorthand
+// 🤖 RoboWorks — Chapter 15: The Robot Script
 //
-// STORY: Regulars order in shorthand: "espresso + milk - coupon". The
-// till understands this tiny language: each word is a grammar rule, and
-// evaluating the sentence computes the price in cents.
+// STORY: Engineers program shifts in a tiny script language:
+// "weld + move - powersave". The scheduler understands it: each word is
+// a grammar rule, and evaluating the sentence computes the shift's energy
+// budget in watts.
 //
 // PATTERN: Interpreter — for a small language, define a class per grammar
 // rule and an interpret() method that evaluates sentences. Use for simple
-// DSLs (filters, pricing rules); for anything complex use a real parser.
+// DSLs (job scripts, filters); for anything complex use a real parser.
 //
-// This example evaluates the order tree: (espresso + milk) - coupon.
+// This example evaluates the script tree: (weld + move) - powersave.
 //
 // Build: g++ -std=c++17 interpreter.cpp -o interpreter
 
@@ -16,56 +17,55 @@
 #include <memory>
 #include <string>
 
-// Abstract expression: everything evaluates to a price in cents.
-class OrderExpression {
+// Abstract expression: everything evaluates to watts.
+class ScriptExpression {
 public:
-    virtual ~OrderExpression() = default;
-    virtual int priceCents() const = 0;
+    virtual ~ScriptExpression() = default;
+    virtual int watts() const = 0;
 };
 
-// Terminal expression: a single menu item.
-class Item : public OrderExpression {
+// Terminal expression: a single robot action.
+class Action : public ScriptExpression {
 public:
-    Item(std::string name, int cents) : name_(std::move(name)), cents_(cents) {}
-    int priceCents() const override { return cents_; }
+    Action(std::string name, int watts) : name_(std::move(name)), watts_(watts) {}
+    int watts() const override { return watts_; }
 
 private:
     std::string name_;
-    int cents_;
+    int watts_;
 };
 
 // Non-terminal expressions combine sub-expressions.
-class Plus : public OrderExpression {
+class Sequence : public ScriptExpression {
 public:
-    Plus(std::unique_ptr<OrderExpression> left, std::unique_ptr<OrderExpression> right)
+    Sequence(std::unique_ptr<ScriptExpression> left, std::unique_ptr<ScriptExpression> right)
         : left_(std::move(left)), right_(std::move(right)) {}
 
-    int priceCents() const override { return left_->priceCents() + right_->priceCents(); }
+    int watts() const override { return left_->watts() + right_->watts(); }
 
 private:
-    std::unique_ptr<OrderExpression> left_, right_;
+    std::unique_ptr<ScriptExpression> left_, right_;
 };
 
-class Coupon : public OrderExpression {
+class PowerSave : public ScriptExpression {
 public:
-    Coupon(std::unique_ptr<OrderExpression> order, int discountCents)
-        : order_(std::move(order)), discountCents_(discountCents) {}
+    PowerSave(std::unique_ptr<ScriptExpression> script, int savedWatts)
+        : script_(std::move(script)), savedWatts_(savedWatts) {}
 
-    int priceCents() const override { return order_->priceCents() - discountCents_; }
+    int watts() const override { return script_->watts() - savedWatts_; }
 
 private:
-    std::unique_ptr<OrderExpression> order_;
-    int discountCents_;
+    std::unique_ptr<ScriptExpression> script_;
+    int savedWatts_;
 };
 
 int main() {
-    // Syntax tree for: (espresso + milk) - coupon(100)
-    auto order = std::make_unique<Coupon>(
-        std::make_unique<Plus>(std::make_unique<Item>("espresso", 200),
-                               std::make_unique<Item>("milk", 50)),
+    // Syntax tree for: (weld + move) - powersave(100)
+    auto script = std::make_unique<PowerSave>(
+        std::make_unique<Sequence>(std::make_unique<Action>("weld", 200),
+                                   std::make_unique<Action>("move", 50)),
         100);
 
-    std::cout << "\"espresso + milk - coupon\" = "
-              << order->priceCents() / 100.0 << " dollars\n";
+    std::cout << "\"weld + move - powersave\" = " << script->watts() << " watts\n";
     return 0;
 }

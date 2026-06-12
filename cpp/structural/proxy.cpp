@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 12: The Secret Recipe Book
+// 🤖 RoboWorks — Chapter 12: The Heavy Diagnostics Suite
 //
-// STORY: The original recipe book lives in the office safe. Fetching it is
-// slow and you'd rather not do it at all on quiet days. So the counter
-// keeps a stand-in: it looks exactly like the recipe book, but only walks
-// to the safe the FIRST time someone actually asks for a recipe.
+// STORY: The full diagnostics suite takes ages to boot — gigabytes of
+// sensor models and calibration tables. On most shifts nobody needs it.
+// So the workbench keeps a stand-in: it looks exactly like the suite, but
+// only boots the real thing the FIRST time an engineer runs a scan.
 //
 // PATTERN: Proxy — provide a placeholder for another object to control
 // access to it. Variants: virtual proxy (lazy loading, shown here),
@@ -15,43 +15,43 @@
 #include <memory>
 #include <string>
 
-class RecipeBook {
+class Diagnostics {
 public:
-    virtual ~RecipeBook() = default;
-    virtual void lookUp(const std::string& drink) = 0;
+    virtual ~Diagnostics() = default;
+    virtual void scan(const std::string& robot) = 0;
 };
 
-// Real subject: expensive to construct (a trip to the safe).
-class SecretRecipeBook : public RecipeBook {
+// Real subject: expensive to construct (boots the full suite).
+class FullDiagnosticsSuite : public Diagnostics {
 public:
-    SecretRecipeBook() {
-        std::cout << "walking to the safe, unlocking the recipe book (slow!)\n";
+    FullDiagnosticsSuite() {
+        std::cout << "booting the full diagnostics suite (slow!)\n";
     }
 
-    void lookUp(const std::string& drink) override {
-        std::cout << "reading the secret recipe for " << drink << "\n";
+    void scan(const std::string& robot) override {
+        std::cout << "running deep scan on " << robot << "\n";
     }
 };
 
-// Proxy: same interface, fetches the real book only on first use.
-class RecipeBookProxy : public RecipeBook {
+// Proxy: same interface, boots the real suite only on first use.
+class DiagnosticsProxy : public Diagnostics {
 public:
-    void lookUp(const std::string& drink) override {
+    void scan(const std::string& robot) override {
         if (!real_) {
-            real_ = std::make_unique<SecretRecipeBook>();  // lazy load
+            real_ = std::make_unique<FullDiagnosticsSuite>();  // lazy load
         }
-        real_->lookUp(drink);
+        real_->scan(robot);
     }
 
 private:
-    std::unique_ptr<SecretRecipeBook> real_;
+    std::unique_ptr<FullDiagnosticsSuite> real_;
 };
 
 int main() {
-    RecipeBookProxy book;
-    std::cout << "proxy on the counter, safe still locked\n";
+    DiagnosticsProxy workbench;
+    std::cout << "proxy ready, suite not booted yet\n";
 
-    book.lookUp("midnight mocha");  // triggers the trip to the safe
-    book.lookUp("winter chai");     // reuses the already-fetched book
+    workbench.scan("WelderBot #7");   // triggers the expensive boot
+    workbench.scan("ScoutDrone #42"); // reuses the already-booted suite
     return 0;
 }

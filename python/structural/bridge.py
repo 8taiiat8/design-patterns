@@ -1,13 +1,13 @@
-"""Café Patterna — Chapter 7: Any Drink, Any Machine
+"""RoboWorks — Chapter 7: Any Robot, Any Controller
 
-STORY: You sell lattes and cappuccinos; you own a home machine and an
-industrial one. Without care you'd need HomeLatte, IndustrialLatte,
-HomeCappuccino... a class for every combination. Instead, each DRINK
-holds a reference to a MACHINE: new drinks and new machines can now be
-added independently.
+STORY: You build welders and drones; they can be driven by a remote
+operator or by the autonomous AI. Without care you'd need RemoteWelder,
+AutonomousWelder, RemoteDrone... a class for every combination. Instead,
+each ROBOT holds a reference to a CONTROLLER: new robots and new
+controllers can now be added independently.
 
-PATTERN: Bridge — decouple an abstraction (Drink) from its implementation
-(BrewMachine) so the two hierarchies vary independently.
+PATTERN: Bridge — decouple an abstraction (Robot) from its implementation
+(Controller) so the two hierarchies vary independently.
 
 Run: python3 bridge.py
 """
@@ -16,51 +16,51 @@ from abc import ABC, abstractmethod
 
 
 # Implementation hierarchy
-class BrewMachine(ABC):
+class Controller(ABC):
     @abstractmethod
-    def brew_shots(self, shots: int) -> None: ...
+    def drive(self, power: int) -> None: ...
 
 
-class HomeMachine(BrewMachine):
-    def brew_shots(self, shots: int) -> None:
-        print(f"home machine gently brews {shots} shot(s)")
+class RemoteOperator(Controller):
+    def drive(self, power: int) -> None:
+        print(f"remote operator steers carefully at power {power}")
 
 
-class IndustrialMachine(BrewMachine):
-    def brew_shots(self, shots: int) -> None:
-        print(f"industrial machine blasts out {shots} shot(s)")
+class AutonomousAI(Controller):
+    def drive(self, power: int) -> None:
+        print(f"autonomous AI optimizes the route at power {power}")
 
 
 # Abstraction hierarchy: holds the "bridge" to the implementation.
-class Drink(ABC):
-    def __init__(self, machine: BrewMachine):
-        self.machine = machine
+class Robot(ABC):
+    def __init__(self, controller: Controller):
+        self.controller = controller
 
     @abstractmethod
-    def prepare(self) -> None: ...
+    def operate(self) -> None: ...
 
 
-class Latte(Drink):
-    def __init__(self, machine: BrewMachine, shots: int):
-        super().__init__(machine)
-        self.shots = shots
+class WelderBot(Robot):
+    def __init__(self, controller: Controller, power: int):
+        super().__init__(controller)
+        self.power = power
 
-    def prepare(self) -> None:
-        self.machine.brew_shots(self.shots)
+    def operate(self) -> None:
+        self.controller.drive(self.power)
 
-    def make_it_stronger(self) -> None:
-        self.shots += 1
+    def boost_power(self) -> None:
+        self.power += 1
 
 
 def main():
-    # Any drink can be paired with any machine at run time.
-    cozy = Latte(HomeMachine(), 1)
-    rush = Latte(IndustrialMachine(), 1)
-    cozy.prepare()
-    rush.prepare()
+    # Any robot can be paired with any controller at run time.
+    night_shift = WelderBot(AutonomousAI(), 3)
+    delicate_job = WelderBot(RemoteOperator(), 3)
+    night_shift.operate()
+    delicate_job.operate()
 
-    cozy.make_it_stronger()
-    cozy.prepare()
+    night_shift.boost_power()
+    night_shift.operate()
 
 
 if __name__ == "__main__":

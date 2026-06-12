@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 13: "I'd Like a Refund"
+"""RoboWorks — Chapter 13: The Fault Report
 
-STORY: An unhappy customer asks for money back. The barista can refund up
-to $5 on the spot. More than that? The shift manager. A catering
-disaster? Only the owner. The customer just complains once — the request
-climbs the chain until someone can handle it.
+STORY: A robot jams on line B. The line technician can authorize repairs
+up to $100 on the spot. More than that? The floor engineer. A melted
+assembly cell? Only the chief engineer. The fault is reported once — it
+climbs the chain until someone can authorize the fix.
 
 PATTERN: Chain of Responsibility — pass a request along a chain of
 handlers; each one processes it or forwards it to the next.
@@ -12,41 +12,41 @@ Run: python3 chain_of_responsibility.py
 """
 
 
-class RefundHandler:
-    """Handler: knows its successor and the amount it may refund."""
+class FaultHandler:
+    """Handler: knows its successor and the repair budget it may authorize."""
 
-    def __init__(self, title: str, limit: float):
+    def __init__(self, title: str, budget: float):
         self.title = title
-        self.limit = limit
-        self.next: "RefundHandler | None" = None
+        self.budget = budget
+        self.next: "FaultHandler | None" = None
 
-    def set_next(self, handler: "RefundHandler") -> "RefundHandler":
+    def set_next(self, handler: "FaultHandler") -> "FaultHandler":
         self.next = handler
         return handler  # allows chaining: a.set_next(b).set_next(c)
 
-    def handle(self, complaint: str, amount: float) -> None:
-        if amount <= self.limit:
-            print(f'{self.title} refunds ${amount} for "{complaint}"')
+    def handle(self, fault: str, cost: float) -> None:
+        if cost <= self.budget:
+            print(f'{self.title} authorizes ${cost} repair: "{fault}"')
         elif self.next:
-            print(f"{self.title} can't refund ${amount}, escalating...")
-            self.next.handle(complaint, amount)
+            print(f"{self.title} can't authorize ${cost}, escalating...")
+            self.next.handle(fault, cost)
         else:
-            print(f'nobody can refund ${amount} for "{complaint}"')
+            print(f'nobody can authorize ${cost} for "{fault}"')
 
 
 def main():
-    barista = RefundHandler("Barista", 5)
-    shift_manager = RefundHandler("Shift manager", 50)
-    owner = RefundHandler("Owner", 500)
+    technician = FaultHandler("Line technician", 100)
+    floor_engineer = FaultHandler("Floor engineer", 1_000)
+    chief_engineer = FaultHandler("Chief engineer", 10_000)
 
-    # Build the chain: barista -> shift manager -> owner.
-    barista.set_next(shift_manager).set_next(owner)
+    # Build the chain: technician -> floor engineer -> chief engineer.
+    technician.set_next(floor_engineer).set_next(chief_engineer)
 
-    # Customers always complain to whoever is at the counter.
-    barista.handle("latte was cold", 4.5)
-    barista.handle("birthday cake never arrived", 35)
-    barista.handle("catering for 50 was a disaster", 400)
-    barista.handle("you ruined my wedding", 25_000)
+    # Faults are always reported to whoever is on the line.
+    technician.handle("gripper misaligned", 45)
+    technician.handle("conveyor belt torn", 800)
+    technician.handle("assembly cell melted", 7_500)
+    technician.handle("the whole west wing is on fire", 2_000_000)
 
 
 if __name__ == "__main__":

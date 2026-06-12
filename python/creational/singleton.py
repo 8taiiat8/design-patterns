@@ -1,9 +1,9 @@
-"""Café Patterna — Chapter 1: The One Cash Register
+"""RoboWorks — Chapter 1: The Master Control Unit
 
-STORY: On opening day you buy exactly ONE cash register. Every barista
-rings up sales on the same machine — if there were two, the day's totals
-would never add up. The register is created the first time someone needs
-it, and everyone shares it from then on.
+STORY: Your factory has exactly ONE Master Control Unit. Every assembly
+line reports to the same MCU — if there were two, they would issue
+conflicting orders and the factory would tear itself apart. The MCU boots
+the first time someone needs it, and everyone shares it.
 
 PATTERN: Singleton — ensure a class has only one instance and provide a
 global access point to it. Note: in Python a plain module is often the
@@ -25,18 +25,16 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class CashRegister(metaclass=SingletonMeta):
+class MasterControlUnit(metaclass=SingletonMeta):
     def __init__(self):
-        self.sales = 0
-        self.total = 0.0
+        self.tasks = 0
 
-    def ring_up(self, item, price):
-        self.sales += 1
-        self.total += price
-        print(f"[sale #{self.sales}] {item} ${price} (day total: ${self.total})")
+    def log_task(self, task):
+        self.tasks += 1
+        print(f"[MCU task #{self.tasks}] {task}")
 
 
-class ShopConfig:
+class FactoryConfig:
     """__new__ approach: the class itself caches its only instance."""
 
     _instance = None
@@ -44,19 +42,19 @@ class ShopConfig:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.settings = {"happy_hour": False}
+            cls._instance.settings = {"night_shift": False}
         return cls._instance
 
 
 def main():
-    CashRegister().ring_up("espresso", 2.0)
-    CashRegister().ring_up("croissant", 3.5)
-    print("same register?", CashRegister() is CashRegister())
+    MasterControlUnit().log_task("power up line A")
+    MasterControlUnit().log_task("calibrate welding lasers")
+    print("same MCU?", MasterControlUnit() is MasterControlUnit())
 
-    morning = ShopConfig()
-    evening = ShopConfig()
-    morning.settings["happy_hour"] = True
-    print("same config?", morning is evening, "| evening sees:", evening.settings)
+    line_a = FactoryConfig()
+    line_b = FactoryConfig()
+    line_a.settings["night_shift"] = True
+    print("same config?", line_a is line_b, "| line B sees:", line_b.settings)
 
 
 if __name__ == "__main__":

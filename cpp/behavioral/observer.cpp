@@ -1,9 +1,9 @@
-// ☕ Café Patterna — Chapter 19: "Order 42 Is Ready!"
+// 🤖 RoboWorks — Chapter 19: "Unit 42 Rolled Off the Line!"
 //
-// STORY: Customers used to crowd the counter asking "is mine done yet?"
-// Now they subscribe: when the barista finishes an order, the pickup
-// screen lights up AND the customer's phone buzzes — automatically,
-// without the barista knowing or caring who's listening.
+// STORY: Managers used to phone the floor every hour asking "is batch 42
+// done yet?" Now they subscribe: when a unit rolls off the line, the
+// dashboard updates AND the engineer's pager buzzes — automatically,
+// without the line knowing or caring who's listening.
 //
 // PATTERN: Observer — define a one-to-many dependency so that when the
 // subject changes state, all registered observers are notified. The
@@ -16,57 +16,57 @@
 #include <vector>
 
 // Observer interface
-class OrderObserver {
+class LineObserver {
 public:
-    virtual ~OrderObserver() = default;
-    virtual void orderReady(int orderNo) = 0;
+    virtual ~LineObserver() = default;
+    virtual void unitFinished(int serial) = 0;
 };
 
 // Subject: maintains a list of observers and notifies them on change.
-class PickupCounter {
+class AssemblyLine {
 public:
-    void attach(OrderObserver* observer) { observers_.push_back(observer); }
+    void attach(LineObserver* observer) { observers_.push_back(observer); }
 
-    void detach(OrderObserver* observer) {
+    void detach(LineObserver* observer) {
         observers_.erase(std::remove(observers_.begin(), observers_.end(), observer),
                          observers_.end());
     }
 
-    void announceReady(int orderNo) {
-        std::cout << "barista: order #" << orderNo << " is done\n";
-        for (OrderObserver* observer : observers_) observer->orderReady(orderNo);
+    void rollOff(int serial) {
+        std::cout << "line: unit #" << serial << " rolled off\n";
+        for (LineObserver* observer : observers_) observer->unitFinished(serial);
     }
 
 private:
-    std::vector<OrderObserver*> observers_;
+    std::vector<LineObserver*> observers_;
 };
 
-class PickupScreen : public OrderObserver {
+class Dashboard : public LineObserver {
 public:
-    void orderReady(int orderNo) override {
-        std::cout << "  screen flashes: NOW SERVING #" << orderNo << "\n";
+    void unitFinished(int serial) override {
+        std::cout << "  dashboard updates: unit #" << serial << " complete\n";
     }
 };
 
-class CustomerPhone : public OrderObserver {
+class EngineerPager : public LineObserver {
 public:
-    void orderReady(int orderNo) override {
-        std::cout << "  phone buzzes: your order #" << orderNo << " is ready!\n";
+    void unitFinished(int serial) override {
+        std::cout << "  pager buzzes: unit #" << serial << " ready for QA!\n";
     }
 };
 
 int main() {
-    PickupCounter counter;
-    PickupScreen screen;
-    CustomerPhone phone;
+    AssemblyLine line;
+    Dashboard dashboard;
+    EngineerPager pager;
 
-    counter.attach(&screen);
-    counter.attach(&phone);
+    line.attach(&dashboard);
+    line.attach(&pager);
 
-    counter.announceReady(41);
-    counter.announceReady(42);
+    line.rollOff(41);
+    line.rollOff(42);
 
-    counter.detach(&phone);  // customer picked up and left
-    counter.announceReady(43);  // only the screen reacts now
+    line.detach(&pager);  // engineer went home
+    line.rollOff(43);     // only the dashboard reacts now
     return 0;
 }
